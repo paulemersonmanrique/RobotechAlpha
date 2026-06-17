@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Robotech - Space Shooter COMPLETO</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #0a0a2a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            touch-action: none;
+            position: relative;
+        }
+        .game-container { position: relative; display: none; }
+        canvas { display: block; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,255,0.3); cursor: none; touch-action: none; }
+        /* ELIMINADO: .controls { ... } */
+        .title { position: fixed; top: 10px; left: 0; right: 0; text-align: center; color: #ffcc00; font-size: 16px; font-weight: bold; text-shadow: 0 0 5px #ff6600; z-index: 100; background: rgba(0,0,0,0.5); padding: 5px; display: none; }
+        .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ffcc00; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; z-index: 200; text-align: center; font-size: 14px; }
+        .mensaje-jefe { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); color: #ff0000; background: rgba(0,0,0,0.9); padding: 20px 40px; border-radius: 10px; font-family: monospace; font-size: 28px; font-weight: bold; z-index: 300; text-align: center; white-space: nowrap; pointer-events: none; border: 3px solid #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); animation: alarmaParpadeo 0.3s ease-in-out infinite; }
+        @keyframes alarmaParpadeo { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); background: rgba(0,0,0,0.9); border-color: #ff0000; } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); background: rgba(255,0,0,0.8); border-color: #ffffff; color: #ffff00; } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); background: rgba(0,0,0,0.9); border-color: #ff0000; } }
+        .boton-musica { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #0f0; border: 1px solid #0f0; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer; z-index: 100; display: none; }
+        .pantalla-inicio { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #000428, #004e92); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; font-family: 'Courier New', monospace; transition: opacity 0.5s ease; }
+        .pantalla-inicio h1 { font-size: 64px; color: #ffcc00; text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300; animation: tituloBrillo 1.5s ease-in-out infinite; letter-spacing: 8px; margin-bottom: 20px; }
+        @keyframes tituloBrillo { 0%,100% { text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300; } 50% { text-shadow: 0 0 40px #ffaa00, 0 0 80px #ff6600; } }
+        .pantalla-inicio .tecla { display: inline-block; background: #222; border: 2px solid #ffcc00; border-radius: 10px; padding: 10px 20px; font-size: 32px; font-weight: bold; color: #ffcc00; margin: 10px; box-shadow: 0 0 15px rgba(255,204,0,0.5); cursor: pointer; touch-action: manipulation; }
+        .pantalla-inicio .tecla:active { transform: scale(0.92); background: #444; }
+        .pantalla-inicio small { color: #aaa; margin-top: 20px; font-size: 12px; }
+        @media (max-width: 1100px) { .pantalla-inicio h1 { font-size: 36px; } }
+        
+        /* CONTROLES TÁCTILES - ESTILO NINTENDO */
+        .touch-controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            display: none;
+            touch-action: none;
+            pointer-events: none;
+            height: 220px;
+            padding: 10px 15px 20px;
+        }
+        .touch-controls.active { display: block; }
+        .touch-controls > * { pointer-events: auto; }
+        
+        /* D-PAD (IZQUIERDA) */
+        .dpad {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 150px;
+            height: 150px;
+        }
+        .dpad-btn {
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            background: rgba(255,255,255,0.20);
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            color: rgba(255,255,255,0.8);
+            touch-action: none;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: background 0.1s;
+        }
+        .dpad-btn:active, .dpad-btn.pressed {
+            background: rgba(255,255,255,0.5);
+            border-color: #ffcc00;
+        }
+        .dpad-up { top: 0; left: 52px; }
+        .dpad-down { bottom: 0; left: 52px; }
+        .dpad-left { top: 52px; left: 0; }
+        .dpad-right { top: 52px; right: 0; }
+        .dpad-center {
+            position: absolute;
+            top: 52px;
+            left: 52px;
+            width: 46px;
+            height: 46px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        
+        /* BOTONES DERECHA */
+        .right-buttons {
+            position: absolute;
+            bottom: 30px;
+            right: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+        .right-row {
+            display: flex;
+            gap: 14px;
+        }
+        .action-btn {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            touch-action: none;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: all 0.1s;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.3);
+        }
+        .action-btn:active, .action-btn.pressed {
+            transform: scale(0.88);
+            border-color: #ffcc00;
+            box-shadow: 0 0 25px rgba(255,204,0,0.3);
+        }
+        
+        .btn-c {
+            background: rgba(50,255,50,0.25);
+            border-color: #44ff88;
+        }
+        .btn-c:active, .btn-c.pressed {
+            background: rgba(50,255,50,0.6);
+            border-color: #88ff44;
+        }
+        
+        .btn-x {
+            background: rgba(255,50,50,0.25);
+            border-color: #ff4444;
+        }
+        .btn-x:active, .btn-x.pressed {
+            background: rgba(255,50,50,0.6);
+            border-color: #ff8800;
+        }
+        
+        .btn-z {
+            background: rgba(50,150,255,0.25);
+            border-color: #4488ff;
+        }
+        .btn-z:active, .btn-z.pressed {
+            background: rgba(50,150,255,0.6);
+            border-color: #88ccff;
+        }
+        
+        .btn-reset {
+            background: rgba(255,200,50,0.25);
+            border-color: #ffaa44;
+            font-size: 20px;
+            width: 52px;
+            height: 52px;
+        }
+        .btn-reset:active, .btn-reset.pressed {
+            background: rgba(255,200,50,0.6);
+            border-color: #ffcc44;
+        }
+        
+        .touch-label {
+            font-size: 9px;
+            margin-top: 2px;
+            color: rgba(255,255,255,0.5);
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .touch-btn-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+        }
+        
+        @media (max-width: 600px) {
+            .dpad { width: 120px; height: 120px; left: 10px; bottom: 15px; }
+            .dpad-btn { width: 38px; height: 38px; font-size: 18px; border-radius: 8px; }
+            .dpad-up { top: 0; left: 41px; }
+            .dpad-down { bottom: 0; left: 41px; }
+            .dpad-left { top: 41px; left: 0; }
+            .dpad-right { top: 41px; right: 0; }
+            .dpad-center { top: 41px; left: 41px; width: 38px; height: 38px; }
+            .action-btn { width: 52px; height: 52px; font-size: 20px; }
+            .btn-reset { width: 44px; height: 44px; font-size: 16px; }
+            .right-buttons { right: 10px; bottom: 20px; gap: 8px; }
+            .right-row { gap: 10px; }
+            .touch-label { font-size: 8px; }
+        }
+        @media (max-width: 400px) {
+            .dpad { width: 100px; height: 100px; left: 5px; bottom: 10px; }
+            .dpad-btn { width: 32px; height: 32px; font-size: 14px; border-radius: 6px; }
+            .dpad-up { top: 0; left: 34px; }
+            .dpad-down { bottom: 0; left: 34px; }
+            .dpad-left { top: 34px; left: 0; }
+            .dpad-right { top: 34px; right: 0; }
+            .dpad-center { top: 34px; left: 34px; width: 32px; height: 32px; }
+            .action-btn { width: 44px; height: 44px; font-size: 16px; }
+            .btn-reset { width: 38px; height: 38px; font-size: 14px; }
+            .right-buttons { right: 5px; bottom: 15px; gap: 6px; }
+            .right-row { gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="title">⚡ ROBOTECH - SPACE SHOOTER ⚡</div>
+    <button id="btnMusica" class="boton-musica">🔊 MUSICA ON</button>
+    <div id="loading" class="loading">Cargando recursos... 🚀</div>
+    <div id="pantallaInicio" class="pantalla-inicio">
+        <h1>⚡ ROBOTECH ALPHA ⚡</h1>
+        <p>Presiona <span class="tecla" id="teclaC">C</span> para comenzar la misión</p>
+        <p>🎮 Controles: ← → ↑ ↓ | <span class="tecla">X</span> disparar | <span class="tecla">Z</span> transformar nave</p>
+        <p style="margin-top: 15px;">🔁 <span class="tecla">←</span> TRANSFORMA la nave (cambia sprite y lanza misiles)</p>
+        <small>✨ Z: Transformación con flash, sonido e imagen personalizable</small>
+        <small style="color:#ffaa00;">📱 Táctil: D-Pad + Botones C, X, Z</small>
+    </div>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="1024" height="768"></canvas>
+    </div>
+    <!-- ELIMINADO: <div class="controls">...</div> -->
+
+    <!-- CONTROLES TÁCTILES ESTILO NINTENDO -->
+    <div id="touchControls" class="touch-controls">
+        <!-- D-PAD (IZQUIERDA) -->
+        <div class="dpad" id="dpad">
+            <div class="dpad-btn dpad-up" id="btnUp">▲</div>
+            <div class="dpad-btn dpad-down" id="btnDown">▼</div>
+            <div class="dpad-btn dpad-left" id="btnLeft">◀</div>
+            <div class="dpad-btn dpad-right" id="btnRight">▶</div>
+            <div class="dpad-center"></div>
+        </div>
+        
+        <!-- BOTONES DERECHA -->
+        <div class="right-buttons">
+            <div class="right-row">
+                <div class="touch-btn-wrapper">
+                    <div class="action-btn btn-c" id="btnC">C</div>
+                    <span class="touch-label">INICIAR</span>
+                </div>
+                <div class="touch-btn-wrapper">
+                    <div class="action-btn btn-reset" id="btnReset">⟳</div>
+                    <span class="touch-label">REINICIAR</span>
+                </div>
+            </div>
+            <div class="right-row">
+                <div class="touch-btn-wrapper">
+                    <div class="action-btn btn-z" id="btnZ">Z</div>
+                    <span class="touch-label">TRANS</span>
+                </div>
+                <div class="touch-btn-wrapper">
+                    <div class="action-btn btn-x" id="btnX">X</div>
+                    <span class="touch-label">DISPARAR</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ROBOTECH - VERSIÓN COMPLETA CON TODAS LAS FUNCIONALIDADES DEL EDITOR
+        // ==========================================
+        
+        // Configuración por defecto (se sobrescribirá con la del editor)
+        window.CFG_GLOBAL = {
+            nave1W: 150, nave1H: 85, nave1TransW: 137, nave1TransH: 100,
+            nave2W: 120, nave2H: 115, nave2TransW: 135, nave2TransH: 130,
+            nave3W: 137, nave3H: 170, nave31W: 145, nave31H: 200,
+            enemyW: 190, enemyH: 140, enemy2W: 180, enemy2H: 135,
+            jefeW: 346, jefeH: 180, collisionReduce: 0.5,
+            shoot1X: -8, shoot1Y: -5, shoot2X: -5, shoot2Y: 0, shoot3X: -8, shoot3Y: -5, shoot31X: -8, shoot31Y: -5,
+            playerSpeed: 7, proyectilSpeed: 11, homingSpeed: 9, traseroSpeed: 6,
+            enemy1Speed: -6.5, enemy2Speed: -5.5, enemyProjSpeed: 4, jefeContingenciaSpeed: 11.2,
+            sprayAmmo: 100, laserEnergy: 300, laserCost: 10, energyRegen: 5, shotCooldown: 100, misilCooldown: 400, misilTransformTime: 300,
+            spriteNave1: "imagenes/nave1.png", spriteNave1Trans: "imagenes/nave1.1.png",
+            spriteNave2: "imagenes/nave2.png", spriteNave2Trans: "imagenes/nave2.1.png",
+            spriteNave3: "imagenes/nave3.png", spriteNave31: "imagenes/nave3.1.png",
+            spriteEnemy: "imagenes/enemigo.png", spriteEnemy2: "imagenes/enemigo2.png",
+            spriteJefe: "imagenes/jefe.png", spriteExplosion: "imagenes/explosion.png",
+            spriteProyectil: "imagenes/proyectil.png", spriteProyectilEnemy: "imagenes/proyectil_enemigo.png",
+            nave1Frame2: "imagenes/nave1_frame2.png", nave1AnimSpeed: 150, nave1AnimActive: true,
+            nave1Frame2W: 150, nave1Frame2H: 85, nave1Frame2X: 0, nave1Frame2Y: 0,
+            nave2Frame2: "imagenes/nave2_frame2.png", nave2AnimSpeed: 150, nave2AnimActive: true,
+            nave2Frame2W: 120, nave2Frame2H: 115, nave2Frame2X: 0, nave2Frame2Y: 0,
+            nave3Frame2: "imagenes/nave3_frame2.png", nave3AnimSpeed: 150, nave3AnimActive: true,
+            nave3Frame2W: 137, nave3Frame2H: 170, nave3Frame2X: 0, nave3Frame2Y: 0,
+            nave3InvFrame2: "imagenes/nave3_inv_frame2.png", nave3InvAnimSpeed: 150, nave3InvAnimActive: true,
+            nave3InvFrame2W: 137, nave3InvFrame2H: 170, nave3InvFrame2X: 0, nave3InvFrame2Y: 0,
+            shootType1: "recto", shootType2: "recto", shootType3: "recto", shootType3Inv: "recto",
+            homingProjSpeed: 9,
+            musicaFondo: "musica/fondo.mp3", musicaIntro: "musica/intro.mp3", musicaAlarma: "musica/alarma.mp3",
+            musicaJefe: "musica/jefe_epico.mp3", musicaVictoria: "musica/victoria.mp3",
+            sonidoDisparo: "sonidos/disparo.wav", sonidoDisparo2: "sonidos/disparo2.wav",
+            sonidoTransformacion: "sonidos/transformacion.wav", sonidoExplosion: "sonidos/explosion.wav",
+            sonidoAlarma: "sonidos/alarma.wav",
+            volMusica: 1.0, volEfectos: 0.45,
+            bossScore: 25, bossHealth: 120, bgColor1: "#0a0a2a", bgColor2: "#1a0a3a",
+            particulasActivas: true, particulasCantidad: 8, particulasTamañoMin: 3, particulasTamañoMax: 11,
+            particulasVelocidad: 4, particulasDuracion: 500, particulasColor1: "#ff6600", particulasColor2: "#ffaa00",
+            estrellasActivas: true, estrellasCantidad: 150, estrellasBrillo: 0.5, estrellasVelocidad: -3,
+            bossSpeed: -3.5, bossShootDelay: 1500, alarmaJefeActiva: true, alarmaDuracion: 3000,
+            transformacionActiva: true, transformacionCambiaTamaño: true, restaurarAlSoltar: true, transformacionMisiles: true,
+            vidasIniciales: 3, vidasMaximo: 10, invulnerabilidadTiempo: 1000, invulnerabilidadParpadeo: true,
+            transformacionZActiva: true, transformacionZDuración: 50, transformacionZSonido: true,
+            transformacionZSonidoArchivo: "sonidos/transformacion.wav",
+            transformacionZImagen: "imagenes/nave2.1.png", transformacionZImagenW: 135, transformacionZImagenH: 130,
+            transformacionZImagenX: 0, transformacionZImagenY: 0, transformacionZInvertir: true
+        };
+        
+        let CFG = { ...window.CFG_GLOBAL };
+        
+        // ==========================================
+        // VARIABLES DEL JUEGO
+        // ==========================================
+        let DIRECCIONES_MISILES = [-Math.PI / 3.6, -Math.PI / 18, Math.PI / 18, Math.PI / 3.6];
+        let VELOCIDAD_MISILES = CFG.traseroSpeed;
+        let TIEMPO_TRANSFORMACION = CFG.misilTransformTime;
+        
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const WIDTH = 1024;
+        const HEIGHT = 768;
+        
+        let gameStarted = false, gameRunning = false, gameOver = false, victory = false;
+        let score = 0, lives = CFG.vidasIniciales, forma = 1, sprayAmmo = CFG.sprayAmmo, laserEnergy = CFG.laserEnergy, maxEnergy = CFG.laserEnergy;
+        let enemies = [], enemy2List = [], projectiles = [], enemyProjectiles = [], misilesTraseros = [], explosions = [], stars = [], escombros = [];
+        let boss = null, bossCreated = false, bossEstado = "ESPERANDO";
+        let lastShot = 0, lastMisilTrasero = 0, lastEnergyRegen = 0, lastEnemySpawn = 0, lastEnemy2Spawn = 0, lastStarSpawn = 0, lastBossDirectionChange = 0;
+        let ultimoPorcentajeVidaJefe = 100;
+        let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false, KeyX: false, KeyZ: false };
+        let naveTransformada = false, nave3Volteada = false;
+        let puedeDisparar = false;
+        
+        let transformacionFlashActiva = false;
+        let transformacionFlashDestino = 1;
+        
+        let invulnerable = false;
+        let tiempoInvulnerable = 0;
+        let parpadeoVisible = true;
+        let ultimoParpadeo = 0;
+        
+        let alarmaActiva = false;
+        
+        let frameActualNave = { 1: 0, 2: 0, 3: 0 };
+        let ultimoCambioFrame = { 1: 0, 2: 0, 3: 0 };
+        let naveImg1Frame1 = new Image();
+        let naveImg1Frame2 = new Image();
+        let naveImg2Frame1 = new Image();
+        let naveImg2Frame2 = new Image();
+        let naveImg3Frame1 = new Image();
+        let naveImg3Frame2 = new Image();
+        let naveImg3InvFrame2 = new Image();
+        let transformacionZImg = new Image();
+        
+        let homingProjSpeed = CFG.homingProjSpeed;
+        let MAX_ENEMY_PROJECTILES = 50;
+        let ultimoDisparoContingencia = 0;
+        let COOLDOWN_CONTINGENCIA = 500;
+        
+        let audioDisparo = null, audioDisparo2 = null, audioTransformacion = null, audioExplosion = null, audioAlarma = null;
+        let audioTransformacionZ = null;
+        let musicaFondo = null, musicaJefe = null, musicaIntro = null, musicaVictoria = null, musicaAlarmaAudio = null;
+        let musicaActiva = true, musicaJefeActiva = false;
+        let volumenMusica = CFG.volMusica, volumenEfectos = CFG.volEfectos;
+        
+        let naveImg1Trans = new Image();
+        let naveImg2Trans = new Image();
+        let naveImg3Trans = new Image();
+        let imgActual = null;
+        let enemigoImg = new Image();
+        let enemigo2Img = new Image();
+        let jefeImg = new Image();
+        let explosionImg = new Image();
+        let proyectilImg = new Image();
+        let enemigoProyectilImg = new Image();
+        
+        let imagenesCargadas = 0;
+        let totalImagenes = 17;
+        
+        function cargarImagenes() {
+            naveImg1Frame1.src = CFG.spriteNave1;
+            naveImg1Frame2.src = CFG.nave1Frame2;
+            naveImg1Trans.src = CFG.spriteNave1Trans;
+            naveImg2Frame1.src = CFG.spriteNave2;
+            naveImg2Frame2.src = CFG.nave2Frame2;
+            naveImg2Trans.src = CFG.spriteNave2Trans;
+            naveImg3Frame1.src = CFG.spriteNave3;
+            naveImg3Frame2.src = CFG.nave3Frame2;
+            naveImg3InvFrame2.src = CFG.nave3InvFrame2;
+            naveImg3Trans.src = CFG.spriteNave31;
+            enemigoImg.src = CFG.spriteEnemy;
+            enemigo2Img.src = CFG.spriteEnemy2;
+            jefeImg.src = CFG.spriteJefe;
+            explosionImg.src = CFG.spriteExplosion;
+            proyectilImg.src = CFG.spriteProyectil;
+            enemigoProyectilImg.src = CFG.spriteProyectilEnemy;
+            transformacionZImg.src = CFG.transformacionZImagen;
+            
+            imgActual = naveImg1Frame1;
+        }
+        
+        function verificarCargaImagen() {
+            imagenesCargadas++;
+            if (imagenesCargadas === totalImagenes) {
+                document.getElementById('loading').style.display = 'none';
+                initMusica();
+                console.log('Juego listo - Todas las funcionalidades activas');
+            }
+        }
+        
+        naveImg1Frame1.onload = verificarCargaImagen;
+        naveImg1Frame2.onload = verificarCargaImagen;
+        naveImg1Trans.onload = verificarCargaImagen;
+        naveImg2Frame1.onload = verificarCargaImagen;
+        naveImg2Frame2.onload = verificarCargaImagen;
+        naveImg2Trans.onload = verificarCargaImagen;
+        naveImg3Frame1.onload = verificarCargaImagen;
+        naveImg3Frame2.onload = verificarCargaImagen;
+        naveImg3InvFrame2.onload = verificarCargaImagen;
+        naveImg3Trans.onload = verificarCargaImagen;
+        enemigoImg.onload = verificarCargaImagen;
+        enemigo2Img.onload = verificarCargaImagen;
+        jefeImg.onload = verificarCargaImagen;
+        explosionImg.onload = verificarCargaImagen;
+        proyectilImg.onload = verificarCargaImagen;
+        enemigoProyectilImg.onload = verificarCargaImagen;
+        transformacionZImg.onload = verificarCargaImagen;
+        
+        naveImg1Frame1.onerror = function() { console.log('Error:', CFG.spriteNave1); imagenesCargadas++; };
+        naveImg1Frame2.onerror = function() { naveImg1Frame2 = naveImg1Frame1; imagenesCargadas++; };
+        naveImg1Trans.onerror = function() { naveImg1Trans = naveImg1Frame1; imagenesCargadas++; };
+        naveImg2Frame1.onerror = function() { imagenesCargadas++; };
+        naveImg2Frame2.onerror = function() { naveImg2Frame2 = naveImg2Frame1; imagenesCargadas++; };
+        naveImg2Trans.onerror = function() { naveImg2Trans = naveImg2Frame1; imagenesCargadas++; };
+        naveImg3Frame1.onerror = function() { imagenesCargadas++; };
+        naveImg3Frame2.onerror = function() { naveImg3Frame2 = naveImg3Frame1; imagenesCargadas++; };
+        naveImg3InvFrame2.onerror = function() { naveImg3InvFrame2 = naveImg3Frame2; imagenesCargadas++; };
+        naveImg3Trans.onerror = function() { naveImg3Trans = naveImg3Frame1; imagenesCargadas++; };
+        enemigoImg.onerror = function() { imagenesCargadas++; };
+        enemigo2Img.onerror = function() { imagenesCargadas++; };
+        jefeImg.onerror = function() { imagenesCargadas++; };
+        explosionImg.onerror = function() { imagenesCargadas++; };
+        proyectilImg.onerror = function() { imagenesCargadas++; };
+        enemigoProyectilImg.onerror = function() { imagenesCargadas++; };
+        transformacionZImg.onerror = function() { transformacionZImg = naveImg2Trans; imagenesCargadas++; };
+        
+        const FORMAS = {
+            1: { ancho: CFG.nave1W, alto: CFG.nave1H },
+            2: { ancho: CFG.nave2W, alto: CFG.nave2H },
+            3: { ancho: CFG.nave3W, alto: CFG.nave3H }
+        };
+        const FORMAS_TRANS = {
+            1: { ancho: CFG.nave1TransW, alto: CFG.nave1TransH },
+            2: { ancho: CFG.nave2TransW, alto: CFG.nave2TransH },
+            3: { ancho: CFG.nave31W, alto: CFG.nave31H }
+        };
+        
+        let velocidadBase = CFG.playerSpeed;
+        let ENEMIGO_ANCHO = CFG.enemyW, ENEMIGO_ALTO = CFG.enemyH;
+        let ENEMIGO2_ANCHO = CFG.enemy2W, ENEMIGO2_ALTO = CFG.enemy2H;
+        let JEFE_ANCHO = CFG.jefeW, JEFE_ALTO = CFG.jefeH;
+        let ENEMY_SPEED = CFG.enemy1Speed, ENEMY2_SPEED = CFG.enemy2Speed;
+        
+        let player = {
+            x: WIDTH/2 - FORMAS[1].ancho/2,
+            y: HEIGHT - FORMAS[1].alto - 30,
+            width: FORMAS[1].ancho,
+            height: FORMAS[1].alto,
+            speed: velocidadBase
+        };
+        
+        function getImagenNaveActual(forma, transformada = false) {
+            if (transformada) {
+                if (forma === 1) return { img: naveImg1Trans, w: FORMAS_TRANS[1].ancho, h: FORMAS_TRANS[1].alto, xOffset: 0, yOffset: 0 };
+                if (forma === 2) return { img: naveImg2Trans, w: FORMAS_TRANS[2].ancho, h: FORMAS_TRANS[2].alto, xOffset: 0, yOffset: 0 };
+                if (forma === 3) return { img: naveImg3Trans, w: FORMAS_TRANS[3].ancho, h: FORMAS_TRANS[3].alto, xOffset: 0, yOffset: 0 };
+                return { img: naveImg1Frame1, w: FORMAS[1].ancho, h: FORMAS[1].alto, xOffset: 0, yOffset: 0 };
+            }
+            
+            const ahora = performance.now();
+            let animActive = false;
+            let animSpeed = 150;
+            let frame2Img = null;
+            let frame2W = 0, frame2H = 0, frame2X = 0, frame2Y = 0;
+            
+            if (forma === 3 && nave3Volteada && CFG.nave3InvAnimActive) {
+                animActive = CFG.nave3InvAnimActive;
+                animSpeed = CFG.nave3InvAnimSpeed;
+                frame2Img = naveImg3InvFrame2;
+                frame2W = CFG.nave3InvFrame2W;
+                frame2H = CFG.nave3InvFrame2H;
+                frame2X = CFG.nave3InvFrame2X;
+                frame2Y = CFG.nave3InvFrame2Y;
+            } else if (forma === 1) {
+                animActive = CFG.nave1AnimActive;
+                animSpeed = CFG.nave1AnimSpeed;
+                frame2Img = naveImg1Frame2;
+                frame2W = CFG.nave1Frame2W;
+                frame2H = CFG.nave1Frame2H;
+                frame2X = CFG.nave1Frame2X;
+                frame2Y = CFG.nave1Frame2Y;
+            } else if (forma === 2) {
+                animActive = CFG.nave2AnimActive;
+                animSpeed = CFG.nave2AnimSpeed;
+                frame2Img = naveImg2Frame2;
+                frame2W = CFG.nave2Frame2W;
+                frame2H = CFG.nave2Frame2H;
+                frame2X = CFG.nave2Frame2X;
+                frame2Y = CFG.nave2Frame2Y;
+            } else {
+                animActive = CFG.nave3AnimActive;
+                animSpeed = CFG.nave3AnimSpeed;
+                frame2Img = naveImg3Frame2;
+                frame2W = CFG.nave3Frame2W;
+                frame2H = CFG.nave3Frame2H;
+                frame2X = CFG.nave3Frame2X;
+                frame2Y = CFG.nave3Frame2Y;
+            }
+            
+            if (!animActive) {
+                if (forma === 1) return { img: naveImg1Frame1, w: FORMAS[1].ancho, h: FORMAS[1].alto, xOffset: 0, yOffset: 0 };
+                if (forma === 2) return { img: naveImg2Frame1, w: FORMAS[2].ancho, h: FORMAS[2].alto, xOffset: 0, yOffset: 0 };
+                return { img: naveImg3Frame1, w: FORMAS[3].ancho, h: FORMAS[3].alto, xOffset: 0, yOffset: 0 };
+            }
+            
+            if (ahora - ultimoCambioFrame[forma] > animSpeed) {
+                ultimoCambioFrame[forma] = ahora;
+                frameActualNave[forma] = 1 - frameActualNave[forma];
+            }
+            
+            if (frameActualNave[forma] === 0) {
+                if (forma === 1) return { img: naveImg1Frame1, w: FORMAS[1].ancho, h: FORMAS[1].alto, xOffset: 0, yOffset: 0 };
+                if (forma === 2) return { img: naveImg2Frame1, w: FORMAS[2].ancho, h: FORMAS[2].alto, xOffset: 0, yOffset: 0 };
+                return { img: naveImg3Frame1, w: FORMAS[3].ancho, h: FORMAS[3].alto, xOffset: 0, yOffset: 0 };
+            } else {
+                return { img: frame2Img, w: frame2W, h: frame2H, xOffset: frame2X, yOffset: frame2Y };
+            }
+        }
+        
+        function dispararProyectil(origenX, origenY, tipo, esNave3Invertida = false) {
+            let vx = CFG.proyectilSpeed;
+            let vy = 0;
+            
+            if (tipo === "teledirigido") {
+                let target = null;
+                let minDist = Infinity;
+                
+                for (let e of enemies) {
+                    let dx = (e.x + ENEMIGO_ANCHO/2) - origenX;
+                    let dy = (e.y + ENEMIGO_ALTO/2) - origenY;
+                    let dist = Math.hypot(dx, dy);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        target = e;
+                    }
+                }
+                for (let e of enemy2List) {
+                    let dx = (e.x + ENEMIGO2_ANCHO/2) - origenX;
+                    let dy = (e.y + ENEMIGO2_ALTO/2) - origenY;
+                    let dist = Math.hypot(dx, dy);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        target = e;
+                    }
+                }
+                if (boss && bossEstado !== "ENTRANDO") {
+                    let dx = (boss.x + JEFE_ANCHO/2) - origenX;
+                    let dy = (boss.y + JEFE_ALTO/2) - origenY;
+                    let dist = Math.hypot(dx, dy);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        target = boss;
+                    }
+                }
+                
+                if (target && minDist < 500) {
+                    let dx = (target.x + (target.width || ENEMIGO_ANCHO)/2) - origenX;
+                    let dy = (target.y + (target.height || ENEMIGO_ALTO)/2) - origenY;
+                    let len = Math.hypot(dx, dy);
+                    if (len > 0) {
+                        vx = dx / len * homingProjSpeed;
+                        vy = dy / len * homingProjSpeed;
+                    }
+                } else {
+                    if (esNave3Invertida) vx = -CFG.proyectilSpeed;
+                }
+            } else {
+                if (esNave3Invertida) vx = -CFG.proyectilSpeed;
+            }
+            
+            projectiles.push({ x: origenX, y: origenY, w: 12, h: 12, vx: vx, vy: vy });
+        }
+        
+        function loadGameConfig() {
+            const saved = localStorage.getItem('robotechGameConfig');
+            if (saved) {
+                try {
+                    const savedCfg = JSON.parse(saved);
+                    if (savedCfg && typeof savedCfg === 'object') {
+                        Object.assign(CFG, savedCfg);
+                        Object.assign(window.CFG_GLOBAL, savedCfg);
+                        console.log("✅ Configuración cargada del editor");
+                        
+                        velocidadBase = CFG.playerSpeed;
+                        ENEMY_SPEED = CFG.enemy1Speed;
+                        ENEMY2_SPEED = CFG.enemy2Speed;
+                        VELOCIDAD_MISILES = CFG.traseroSpeed;
+                        TIEMPO_TRANSFORMACION = CFG.misilTransformTime;
+                        laserEnergy = CFG.laserEnergy;
+                        maxEnergy = CFG.laserEnergy;
+                        sprayAmmo = CFG.sprayAmmo;
+                        volumenMusica = CFG.volMusica;
+                        volumenEfectos = CFG.volEfectos;
+                        lives = CFG.vidasIniciales;
+                        homingProjSpeed = CFG.homingProjSpeed;
+                        
+                        FORMAS[1].ancho = CFG.nave1W; FORMAS[1].alto = CFG.nave1H;
+                        FORMAS[2].ancho = CFG.nave2W; FORMAS[2].alto = CFG.nave2H;
+                        FORMAS[3].ancho = CFG.nave3W; FORMAS[3].alto = CFG.nave3H;
+                        FORMAS_TRANS[1].ancho = CFG.nave1TransW; FORMAS_TRANS[1].alto = CFG.nave1TransH;
+                        FORMAS_TRANS[2].ancho = CFG.nave2TransW; FORMAS_TRANS[2].alto = CFG.nave2TransH;
+                        FORMAS_TRANS[3].ancho = CFG.nave31W; FORMAS_TRANS[3].alto = CFG.nave31H;
+                        
+                        ENEMIGO_ANCHO = CFG.enemyW; ENEMIGO_ALTO = CFG.enemyH;
+                        ENEMIGO2_ANCHO = CFG.enemy2W; ENEMIGO2_ALTO = CFG.enemy2H;
+                        JEFE_ANCHO = CFG.jefeW; JEFE_ALTO = CFG.jefeH;
+                        player.speed = velocidadBase;
+                        player.width = FORMAS[1].ancho;
+                        player.height = FORMAS[1].alto;
+                        
+                        if (CFG.spriteNave1) naveImg1Frame1.src = CFG.spriteNave1;
+                        if (CFG.nave1Frame2) naveImg1Frame2.src = CFG.nave1Frame2;
+                        if (CFG.spriteNave1Trans) naveImg1Trans.src = CFG.spriteNave1Trans;
+                        if (CFG.spriteNave2) naveImg2Frame1.src = CFG.spriteNave2;
+                        if (CFG.nave2Frame2) naveImg2Frame2.src = CFG.nave2Frame2;
+                        if (CFG.spriteNave2Trans) naveImg2Trans.src = CFG.spriteNave2Trans;
+                        if (CFG.spriteNave3) naveImg3Frame1.src = CFG.spriteNave3;
+                        if (CFG.nave3Frame2) naveImg3Frame2.src = CFG.nave3Frame2;
+                        if (CFG.nave3InvFrame2) naveImg3InvFrame2.src = CFG.nave3InvFrame2;
+                        if (CFG.spriteNave31) naveImg3Trans.src = CFG.spriteNave31;
+                        if (CFG.transformacionZImagen) transformacionZImg.src = CFG.transformacionZImagen;
+                        if (CFG.transformacionZSonidoArchivo && audioTransformacionZ) {
+                            audioTransformacionZ.src = CFG.transformacionZSonidoArchivo;
+                        }
+                    }
+                } catch(e) { console.error("Error cargando configuración:", e); }
+            }
+        }
+        loadGameConfig();
+        
+        function aplicarTransformacion() {
+            if (!CFG.transformacionActiva || naveTransformada) return;
+            naveTransformada = true;
+            
+            if (CFG.transformacionCambiaTamaño) {
+                let cx = player.x + player.width/2, cy = player.y + player.height/2;
+                player.width = FORMAS_TRANS[forma].ancho;
+                player.height = FORMAS_TRANS[forma].alto;
+                player.x = cx - player.width/2;
+                player.y = cy - player.height/2;
+                player.x = Math.min(Math.max(player.x, 10), WIDTH - player.width - 10);
+                player.y = Math.min(Math.max(player.y, 30), HEIGHT - player.height - 20);
+            }
+            
+            if (CFG.transformacionMisiles) lanzarMisilesTraseros();
+        }
+        
+        function restaurarTransformacion() {
+            if (!CFG.restaurarAlSoltar || !naveTransformada) return;
+            naveTransformada = false;
+            
+            if (CFG.transformacionCambiaTamaño) {
+                let cx = player.x + player.width/2, cy = player.y + player.height/2;
+                player.width = FORMAS[forma].ancho;
+                player.height = FORMAS[forma].alto;
+                player.x = cx - player.width/2;
+                player.y = cy - player.height/2;
+                player.x = Math.min(Math.max(player.x, 10), WIDTH - player.width - 10);
+                player.y = Math.min(Math.max(player.y, 30), HEIGHT - player.height - 20);
+            }
+        }
+        
+        function transformarConFlash() {
+            if (!CFG.transformacionZActiva) return;
+            if (transformacionFlashActiva) return;
+            
+            let destino;
+            if (forma === 1) destino = 2;
+            else if (forma === 2) destino = 3;
+            else destino = 1;
+            
+            transformacionFlashDestino = destino;
+            transformacionFlashActiva = true;
+            
+            if (CFG.transformacionZSonido && audioTransformacionZ && CFG.volEfectos > 0) {
+                audioTransformacionZ.currentTime = 0;
+                audioTransformacionZ.volume = CFG.volEfectos;
+                audioTransformacionZ.play().catch(e=>{});
+            }
+            
+            setTimeout(() => {
+                if (transformacionFlashActiva) {
+                    forma = transformacionFlashDestino;
+                    
+                    if (forma === 1) { 
+                        player.width = FORMAS[1].ancho; 
+                        player.height = FORMAS[1].alto; 
+                        player.speed = velocidadBase; 
+                    } else if (forma === 2) { 
+                        player.width = FORMAS[2].ancho; 
+                        player.height = FORMAS[2].alto; 
+                        player.speed = velocidadBase * 0.85; 
+                    } else { 
+                        player.width = FORMAS[3].ancho; 
+                        player.height = FORMAS[3].alto; 
+                        player.speed = velocidadBase * 0.75; 
+                    }
+                    
+                    let cx = player.x + player.width/2, cy = player.y + player.height/2;
+                    player.x = Math.min(Math.max(cx - player.width/2, 10), WIDTH - player.width - 10);
+                    player.y = Math.min(Math.max(cy - player.height/2, 30), HEIGHT - player.height - 20);
+                    
+                    if (forma === 3) { 
+                        let centro = player.x + player.width/2; 
+                        nave3Volteada = centro > WIDTH/2; 
+                    }
+                    
+                    transformacionFlashActiva = false;
+                }
+            }, CFG.transformacionZDuración || 50);
+        }
+        
+        function getCollisionRect(x, y, width, height, esNave3 = false) {
+            let reduce = esNave3 ? CFG.collisionReduce * 0.75 : CFG.collisionReduce;
+            return { x: x + width * (1-reduce)/2, y: y + height * (1-reduce)/2, width: width * reduce, height: height * reduce };
+        }
+        
+        function checkCollision(r1, r2) { return !(r2.x > r1.x + r1.width || r2.x + r2.width < r1.x || r2.y > r1.y + r1.height || r2.y + r2.height < r1.y); }
+        
+        function createExplosion(x, y) { 
+            explosions.push({ x, y, size: 90, frame: 0, maxFrames: 10 });
+            if (audioExplosion && CFG.volEfectos > 0) {
+                audioExplosion.currentTime = 0;
+                audioExplosion.volume = CFG.volEfectos;
+                audioExplosion.play().catch(e=>{});
+            }
+        }
+        
+        function crearEscombros(x, y) {
+            if (!CFG.particulasActivas) return;
+            let num = Math.floor(Math.random() * CFG.particulasCantidad) + 3;
+            for (let i = 0; i < num; i++) {
+                let t = Math.random() * (CFG.particulasTamañoMax - CFG.particulasTamañoMin) + CFG.particulasTamañoMin;
+                let a = Math.random() * Math.PI * 2;
+                let v = Math.random() * CFG.particulasVelocidad + 1;
+                let color = Math.random() > 0.5 ? CFG.particulasColor1 : CFG.particulasColor2;
+                escombros.push({ x, y, vx: Math.cos(a)*v, vy: Math.sin(a)*v, tamaño: t, color: color, vida: CFG.particulasDuracion, creacion: performance.now() });
+            }
+        }
+        
+        function initMusica() {
+            try {
+                musicaFondo = new Audio(CFG.musicaFondo); musicaFondo.loop = true; musicaFondo.volume = volumenMusica;
+                musicaJefe = new Audio(CFG.musicaJefe); musicaJefe.loop = true; musicaJefe.volume = volumenMusica;
+                musicaIntro = new Audio(CFG.musicaIntro); musicaIntro.loop = false; musicaIntro.volume = volumenMusica;
+                musicaVictoria = new Audio(CFG.musicaVictoria); musicaVictoria.loop = false; musicaVictoria.volume = volumenMusica;
+                musicaAlarmaAudio = new Audio(CFG.musicaAlarma); musicaAlarmaAudio.loop = false; musicaAlarmaAudio.volume = volumenEfectos;
+                audioDisparo = new Audio(CFG.sonidoDisparo); audioDisparo.loop = false; audioDisparo.volume = volumenEfectos;
+                audioDisparo2 = new Audio(CFG.sonidoDisparo2); audioDisparo2.loop = false; audioDisparo2.volume = volumenEfectos;
+                audioTransformacion = new Audio(CFG.sonidoTransformacion); audioTransformacion.loop = false; audioTransformacion.volume = volumenEfectos;
+                audioExplosion = new Audio(CFG.sonidoExplosion); audioExplosion.loop = false; audioExplosion.volume = volumenEfectos;
+                audioAlarma = new Audio(CFG.sonidoAlarma); audioAlarma.loop = true; audioAlarma.volume = volumenEfectos;
+                audioTransformacionZ = new Audio(CFG.transformacionZSonidoArchivo);
+                audioTransformacionZ.loop = false;
+                audioTransformacionZ.volume = volumenEfectos;
+                audioDisparo.addEventListener('ended', () => { puedeDisparar = false; });
+            } catch(e) { console.log('Error música:', e); }
+        }
+        
+        function playSonidoTransformacion() { if(audioTransformacion && CFG.transformacionActiva && CFG.volEfectos > 0) { audioTransformacion.currentTime=0; audioTransformacion.play().catch(e=>{}); } }
+        function playDisparoInicio() { if(audioDisparo && CFG.volEfectos > 0) { audioDisparo.currentTime=0; audioDisparo.play().catch(e=>{}); puedeDisparar=true; } }
+        function playDisparoFin() { if(audioDisparo2 && CFG.volEfectos > 0) { if(audioDisparo) audioDisparo.pause(); audioDisparo2.currentTime=0; audioDisparo2.play().catch(e=>{}); puedeDisparar=false; } }
+        
+        function iniciarAlarmaSonido() {
+            if (alarmaActiva) return;
+            alarmaActiva = true;
+            if (audioAlarma && CFG.alarmaJefeActiva && CFG.volEfectos > 0) {
+                audioAlarma.currentTime = 0;
+                audioAlarma.play().catch(e=>{});
+            }
+        }
+        
+        function detenerAlarmaSonido() {
+            if (!alarmaActiva) return;
+            alarmaActiva = false;
+            if (audioAlarma) {
+                audioAlarma.pause();
+                audioAlarma.currentTime = 0;
+            }
+        }
+        
+        function playMusicaFondo() { if (musicaJefeActiva) { if(musicaJefe) { musicaJefe.pause(); musicaJefe.currentTime=0; } musicaJefeActiva=false; } if (musicaFondo && musicaActiva && gameStarted && !victory && !gameOver) { musicaFondo.volume = volumenMusica; musicaFondo.play().catch(e=>{}); } }
+        function activarMusicaJefe() { if (!musicaActiva || musicaJefeActiva) return; if (musicaFondo && !musicaFondo.paused) { musicaFondo.pause(); musicaFondo.currentTime=0; } musicaJefeActiva = true; if (musicaJefe) { musicaJefe.currentTime=0; musicaJefe.volume = volumenMusica; musicaJefe.play().catch(e=>{}); } }
+        
+        function mostrarAlarmaJefe() { 
+            if (!CFG.alarmaJefeActiva) return; 
+            let div = document.createElement('div'); 
+            div.className = 'mensaje-jefe'; 
+            div.textContent = '⚠️ ¡ALARMA! JEFE FINAL ⚠️'; 
+            document.body.appendChild(div); 
+            
+            iniciarAlarmaSonido();
+            
+            setTimeout(() => { 
+                if (div && div.remove) div.remove(); 
+                detenerAlarmaSonido();
+            }, CFG.alarmaDuracion); 
+            
+            if(musicaAlarmaAudio && CFG.volMusica > 0) {
+                musicaAlarmaAudio.currentTime = 0;
+                musicaAlarmaAudio.volume = volumenMusica;
+                musicaAlarmaAudio.play().catch(e=>{});
+            }
+            setTimeout(() => { activarMusicaJefe(); }, 2000);
+        }
+        
+        function activarInvulnerabilidad() {
+            invulnerable = true;
+            tiempoInvulnerable = performance.now();
+            parpadeoVisible = true;
+            ultimoParpadeo = performance.now();
+            setTimeout(() => { invulnerable = false; }, CFG.invulnerabilidadTiempo);
+        }
+        
+        function iniciarJuego() {
+            gameStarted = true; gameRunning = true; gameOver = false; victory = false;
+            score = 0; lives = CFG.vidasIniciales; forma = 1; sprayAmmo = CFG.sprayAmmo; laserEnergy = CFG.laserEnergy; maxEnergy = CFG.laserEnergy;
+            enemies = []; enemy2List = []; projectiles = []; enemyProjectiles = []; misilesTraseros = []; explosions = []; escombros = []; stars = [];
+            boss = null; bossCreated = false; bossEstado = "ESPERANDO"; ultimoPorcentajeVidaJefe = 100;
+            naveTransformada = false; nave3Volteada = false;
+            frameActualNave = { 1: 0, 2: 0, 3: 0 };
+            invulnerable = false;
+            transformacionFlashActiva = false;
+            player.width = FORMAS[1].ancho; player.height = FORMAS[1].alto; 
+            player.x = WIDTH/2 - player.width/2; player.y = HEIGHT - player.height - 30; 
+            player.speed = velocidadBase;
+            imgActual = naveImg1Frame1;
+            document.getElementById('pantallaInicio').style.display = 'none';
+            document.querySelector('.game-container').style.display = 'block';
+            document.querySelector('.title').style.display = 'block';
+            document.getElementById('btnMusica').style.display = 'block';
+            document.getElementById('touchControls').classList.add('active');
+            if (musicaFondo && musicaActiva) { musicaFondo.currentTime = 0; musicaFondo.play().catch(e=>{}); }
+        }
+        
+        function reiniciarJuego() {
+            if (gameOver || victory) {
+                gameOver = false;
+                victory = false;
+                iniciarJuego();
+            }
+        }
+        
+        function cambiarForma() {
+            if (naveTransformada) restaurarTransformacion();
+            forma = forma % 3 + 1;
+            playSonidoTransformacion();
+            
+            if (forma === 1) { 
+                player.width = FORMAS[1].ancho; 
+                player.height = FORMAS[1].alto; 
+                player.speed = velocidadBase; 
+            } else if (forma === 2) { 
+                player.width = FORMAS[2].ancho; 
+                player.height = FORMAS[2].alto; 
+                player.speed = velocidadBase * 0.85; 
+            } else { 
+                player.width = FORMAS[3].ancho; 
+                player.height = FORMAS[3].alto; 
+                player.speed = velocidadBase * 0.75; 
+            }
+            
+            let cx = player.x + player.width/2, cy = player.y + player.height/2;
+            player.x = Math.min(Math.max(cx - player.width/2, 10), WIDTH - player.width - 10);
+            player.y = Math.min(Math.max(cy - player.height/2, 30), HEIGHT - player.height - 20);
+            
+            if (forma === 3) { 
+                let centro = player.x + player.width/2; 
+                nave3Volteada = centro > WIDTH/2; 
+            }
+        }
+        
+        function lanzarMisilesTraseros() {
+            if (!gameRunning || gameOver) return;
+            if (sprayAmmo <= 0) return;
+            sprayAmmo--;
+            let cx = player.x + player.width/2, cy = player.y + player.height/2;
+            let tiempo = performance.now();
+            let dirs = [...DIRECCIONES_MISILES];
+            if (nave3Volteada && forma === 3) dirs = dirs.map(a => -a);
+            for (let a of dirs) {
+                let vx = Math.sin(a) * VELOCIDAD_MISILES;
+                let vy = -Math.cos(a) * VELOCIDAD_MISILES;
+                misilesTraseros.push({ x: cx-8, y: cy-8, w: 16, h: 16, vx, vy, tiempo, transformado: false });
+            }
+        }
+        
+        function encontrarEnemigoMasCercano(x, y) {
+            let cercano = null, distMin = Infinity;
+            for (let e of enemies) { let d = Math.hypot(e.x + ENEMIGO_ANCHO/2 - x, e.y + ENEMIGO_ALTO/2 - y); if (d < distMin) { distMin = d; cercano = e; } }
+            for (let e of enemy2List) { let d = Math.hypot(e.x + ENEMIGO2_ANCHO/2 - x, e.y + ENEMIGO2_ALTO/2 - y); if (d < distMin) { distMin = d; cercano = e; } }
+            if (boss && bossEstado === "PATRULLANDO") { let d = Math.hypot(boss.x + JEFE_ANCHO/2 - x, boss.y + JEFE_ALTO/2 - y); if (d < distMin) cercano = boss; }
+            return cercano;
+        }
+        
+        function transformarMisilEnHoming(m) {
+            let cx = m.x + 8, cy = m.y + 8;
+            let target = encontrarEnemigoMasCercano(cx, cy);
+            if (target) {
+                let tx = target.x + (target.width || ENEMIGO_ANCHO)/2, ty = target.y + (target.height || ENEMIGO_ALTO)/2;
+                let dx = tx - cx, dy = ty - cy, len = Math.hypot(dx, dy);
+                if (len > 0) { let vx = dx/len * CFG.homingSpeed, vy = dy/len * CFG.homingSpeed; projectiles.push({ x: cx-6, y: cy-6, w: 12, h: 12, vx, vy }); }
+                else projectiles.push({ x: cx-6, y: cy-6, w: 12, h: 12, vx: 9, vy: 0 });
+            } else projectiles.push({ x: cx-6, y: cy-6, w: 12, h: 12, vx: 9, vy: 0 });
+        }
+        
+        function shoot() {
+            if (!gameRunning || gameOver) return;
+            
+            let sx = player.x + player.width, sy = player.y + player.height/2;
+            let tipoDisparo = "recto";
+            let esInvertida = false;
+            
+            if (forma === 1) {
+                tipoDisparo = CFG.shootType1;
+                let fx = sx + CFG.shoot1X, fy = sy + CFG.shoot1Y;
+                dispararProyectil(fx, fy, tipoDisparo, false);
+            } else if (forma === 2 && laserEnergy >= CFG.laserCost) {
+                laserEnergy -= CFG.laserCost;
+                tipoDisparo = CFG.shootType2;
+                let fx = sx + CFG.shoot2X;
+                dispararProyectil(fx, player.y + 8, tipoDisparo, false);
+                dispararProyectil(fx, player.y + player.height/2 - 6, tipoDisparo, false);
+                dispararProyectil(fx, player.y + player.height - 18, tipoDisparo, false);
+            } else if (forma === 3) {
+                tipoDisparo = naveTransformada ? CFG.shootType3Inv : CFG.shootType3;
+                esInvertida = nave3Volteada;
+                let fx = sx + (naveTransformada ? CFG.shoot31X : CFG.shoot3X);
+                let fy = sy + (naveTransformada ? CFG.shoot31Y : CFG.shoot3Y);
+                
+                if (tipoDisparo === "teledirigido") {
+                    dispararProyectil(fx, fy, tipoDisparo, esInvertida);
+                } else {
+                    let target = null, minD = Infinity;
+                    for (let e of enemies) { let d = Math.hypot(e.x - player.x, e.y - player.y); if (d < minD) { minD = d; target = e; } }
+                    for (let e of enemy2List) { let d = Math.hypot(e.x - player.x, e.y - player.y); if (d < minD) { minD = d; target = e; } }
+                    if (target && minD < 450) {
+                        let dx = target.x - player.x, dy = target.y - player.y;
+                        if (nave3Volteada) dx = -dx;
+                        let len = Math.hypot(dx, dy);
+                        if (len > 0) { 
+                            let vx = dx/len * 10, vy = dy/len * 10; 
+                            projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx, vy });
+                        } else projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx: nave3Volteada ? -11 : 11, vy: 0 });
+                    } else projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx: nave3Volteada ? -11 : 11, vy: 0 });
+                }
+            }
+        }
+        
+        function enemigoDisparar(e) {
+            let dx = (player.x + player.width/2) - (e.x + ENEMIGO_ANCHO/2);
+            let dy = (player.y + player.height/2) - (e.y + ENEMIGO_ALTO/2);
+            let len = Math.hypot(dx, dy);
+            if (len > 0) { enemyProjectiles.push({ x: e.x + ENEMIGO_ANCHO/2 - 12, y: e.y + ENEMIGO_ALTO/2 - 5, w: 24, h: 10, vx: dx/len * CFG.enemyProjSpeed, vy: dy/len * CFG.enemyProjSpeed, timestamp: performance.now() }); }
+        }
+        
+        function spawnEnemy() { if (!gameRunning || gameOver || boss) return; enemies.push({ x: WIDTH + ENEMIGO_ANCHO/2, y: Math.random() * (HEIGHT - ENEMIGO_ALTO - 60) + 40, vx: ENEMY_SPEED, vy: (Math.random() - 0.5) * 3, health: 3, lastShoot: 0 }); }
+        function spawnEnemy2() { if (!gameRunning || gameOver || boss) return; enemy2List.push({ x: WIDTH + ENEMIGO2_ANCHO/2, y: Math.random() * (HEIGHT - ENEMIGO2_ALTO - 60) + 40, vx: ENEMY2_SPEED, vy: (Math.random() - 0.5) * 2.8, health: 3, lastShoot: 0 }); }
+        
+        function activarJefe() {
+            if (bossCreated || boss) return;
+            if (score < CFG.bossScore) return;
+            bossCreated = true; bossEstado = "ENTRANDO";
+            mostrarAlarmaJefe();
+            boss = { x: WIDTH + 100, y: HEIGHT/2 - JEFE_ALTO/2, vx: CFG.bossSpeed, vy: 0, health: CFG.bossHealth, maxHealth: CFG.bossHealth, lastShoot: 0 };
+        }
+        
+        function jefeDisparoContingencia() {
+            if (!boss) return;
+            let ahora = performance.now();
+            if (ahora - ultimoDisparoContingencia < COOLDOWN_CONTINGENCIA) return;
+            ultimoDisparoContingencia = ahora;
+            if (enemyProjectiles.length > MAX_ENEMY_PROJECTILES) return;
+            
+            let cx = boss.x + JEFE_ANCHO/2, cy = boss.y + JEFE_ALTO/2;
+            let px = player.x + player.width/2, py = player.y + player.height/2;
+            let dx = px - cx, dy = py - cy, len = Math.hypot(dx, dy);
+            if (len > 0) {
+                let vel = CFG.jefeContingenciaSpeed;
+                let desv = [-0.25, -0.1, 0.1, 0.25];
+                for (let d of desv) {
+                    let a = Math.atan2(dy, dx) + d;
+                    enemyProjectiles.push({ x: cx - 12, y: cy - 5, w: 24, h: 10, vx: Math.cos(a) * vel, vy: Math.sin(a) * vel, timestamp: ahora });
+                }
+            }
+        }
+        
+        function limpiarProyectilesViejos(ahora) {
+            if (enemyProjectiles.length > 80) {
+                enemyProjectiles.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                enemyProjectiles = enemyProjectiles.slice(0, MAX_ENEMY_PROJECTILES);
+            }
+        }
+        
+        function dibujarProyectilConRotacion(x, y, w, h, ang, img) {
+            ctx.save(); ctx.translate(x + w/2, y + h/2); ctx.rotate(ang);
+            if (img && img.complete) ctx.drawImage(img, -w/2, -h/2, w, h);
+            else { ctx.fillStyle = '#ff6644'; ctx.fillRect(-w/2, -h/2, w, h); }
+            ctx.restore();
+        }
+        
+        function dibujarNaveConVolteo(imgObj, x, y, w, h, volteada) {
+            if (volteada) { ctx.save(); ctx.translate(x + w/2, y + h/2); ctx.scale(-1, 1); ctx.drawImage(imgObj.img, -w/2, -h/2, w, h); ctx.restore(); }
+            else { ctx.drawImage(imgObj.img, x, y, w, h); }
+        }
+        
+        function draw() {
+            const grad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
+            grad.addColorStop(0, CFG.bgColor1);
+            grad.addColorStop(1, CFG.bgColor2);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            
+            if (CFG.estrellasActivas) {
+                for (let s of stars) { ctx.fillStyle = `rgba(255,255,255,${s.brightness || CFG.estrellasBrillo})`; ctx.fillRect(s.x, s.y, 2, 2); }
+            }
+            for (let e of enemies) { if (enemigoImg.complete) ctx.drawImage(enemigoImg, e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); else { ctx.fillStyle='#ff4444'; ctx.fillRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); } }
+            for (let e of enemy2List) { if (enemigo2Img.complete) ctx.drawImage(enemigo2Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); else { ctx.fillStyle='#ff8844'; ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); } }
+            if (boss && jefeImg.complete) ctx.drawImage(jefeImg, boss.x, boss.y, JEFE_ANCHO, JEFE_ALTO);
+            for (let p of projectiles) { if (proyectilImg.complete) ctx.drawImage(proyectilImg, p.x, p.y, p.w, p.h); else { ctx.fillStyle='#ffff44'; ctx.fillRect(p.x, p.y, p.w, p.h); } }
+            for (let m of misilesTraseros) { if (proyectilImg.complete) ctx.drawImage(proyectilImg, m.x, m.y, m.w, m.h); else { ctx.fillStyle='#ffaa44'; ctx.fillRect(m.x, m.y, m.w, m.h); } }
+            for (let p of enemyProjectiles) { let ang = Math.atan2(p.vy, p.vx); dibujarProyectilConRotacion(p.x, p.y, p.w, p.h, ang, enemigoProyectilImg); }
+            for (let ex of explosions) { if (explosionImg.complete && ex.frame<5) { ctx.drawImage(explosionImg, ex.x-ex.size/2, ex.y-ex.size/2, ex.size, ex.size); ex.frame++; } }
+            for (let e of escombros) { ctx.fillStyle = e.color; ctx.fillRect(e.x - e.tamaño/2, e.y - e.tamaño/2, e.tamaño, e.tamaño); }
+            
+            if (transformacionFlashActiva && CFG.transformacionZActiva) {
+                let w = CFG.transformacionZImagenW || 135;
+                let h = CFG.transformacionZImagenH || 130;
+                let xOffset = CFG.transformacionZImagenX || 0;
+                let yOffset = CFG.transformacionZImagenY || 0;
+                
+                ctx.save();
+                ctx.translate(player.x + player.width/2 + xOffset, player.y + player.height/2 + yOffset);
+                if (CFG.transformacionZInvertir) {
+                    ctx.scale(1, -1);
+                }
+                if (transformacionZImg.complete) {
+                    ctx.drawImage(transformacionZImg, -w/2, -h/2, w, h);
+                } else {
+                    ctx.fillStyle = '#ffaa44';
+                    ctx.fillRect(-w/2, -h/2, w, h);
+                }
+                ctx.restore();
+            } else {
+                let imgNave = getImagenNaveActual(forma, naveTransformada);
+                let debeDibujar = true;
+                if (CFG.invulnerabilidadParpadeo && invulnerable) {
+                    let ahora = performance.now();
+                    if (ahora - ultimoParpadeo > 50) {
+                        ultimoParpadeo = ahora;
+                        parpadeoVisible = !parpadeoVisible;
+                    }
+                    debeDibujar = parpadeoVisible;
+                }
+                
+                if (debeDibujar && imgNave && imgNave.img) {
+                    let w = imgNave.w || player.width;
+                    let h = imgNave.h || player.height;
+                    let xOffset = imgNave.xOffset || 0;
+                    let yOffset = imgNave.yOffset || 0;
+                    if (forma === 3) {
+                        dibujarNaveConVolteo(imgNave, player.x + xOffset, player.y + yOffset, w, h, nave3Volteada);
+                    } else {
+                        ctx.drawImage(imgNave.img, player.x + xOffset, player.y + yOffset, w, h);
+                    }
+                }
+            }
+            
+            ctx.fillStyle = '#ff4444'; ctx.fillRect(15, 15, 150, 15);
+            ctx.fillStyle = '#44ff44'; ctx.fillRect(15, 15, 150 * (lives / CFG.vidasMaximo), 15);
+            ctx.fillStyle = '#fff'; ctx.font = 'bold 14px monospace';
+            ctx.fillText(`VIDA: ${lives}/${CFG.vidasMaximo}`, 15, 45);
+            ctx.fillStyle = '#ffff44'; ctx.fillText(`PUNTOS: ${score}`, 15, 70);
+            ctx.fillStyle = '#88ff88'; ctx.fillText(`FORMA: ${forma}`, 15, 95);
+            if (forma === 2) {
+                ctx.fillStyle = '#888888'; ctx.fillRect(WIDTH - 180, 15, 165, 15);
+                ctx.fillStyle = '#44aaff'; ctx.fillRect(WIDTH - 180, 15, 165 * (laserEnergy / maxEnergy), 15);
+                ctx.fillStyle = '#fff'; ctx.fillText(`ENERGÍA: ${Math.floor(laserEnergy)}/${maxEnergy}`, WIDTH - 200, 45);
+            }
+            if (boss && bossEstado !== "ENTRANDO") {
+                ctx.fillStyle = '#ff6666'; ctx.fillRect(15, HEIGHT - 25, WIDTH - 30, 10);
+                ctx.fillStyle = '#ff0000'; ctx.fillRect(15, HEIGHT - 25, (WIDTH - 30) * (boss.health / CFG.bossHealth), 10);
+                ctx.fillStyle = '#fff'; ctx.fillText(`JEFE: ${Math.round(boss.health/CFG.bossHealth*100)}%`, WIDTH/2 - 40, HEIGHT - 30);
+            }
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                ctx.fillStyle = '#ff4444'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER', WIDTH/2, HEIGHT/2 - 40);
+                ctx.font = '18px monospace'; ctx.fillStyle = '#ffff44';
+                ctx.fillText('Presiona ⟳ para reiniciar', WIDTH/2, HEIGHT/2 + 40);
+                ctx.textAlign = 'left';
+            }
+            if (victory) {
+                ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                ctx.fillStyle = '#44ff44'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
+                ctx.fillText('¡VICTORIA!', WIDTH/2, HEIGHT/2 - 40);
+                ctx.textAlign = 'left';
+                if (musicaVictoria && musicaActiva && !gameOver) {
+                    musicaVictoria.volume = volumenMusica;
+                    musicaVictoria.play().catch(e=>{});
+                }
+            }
+        }
+        
+        function updateGame(timestamp) {
+            if (!gameRunning || gameOver || victory) return;
+            let posXAnterior = player.x;
+            if (keys.ArrowLeft && player.x > 15) player.x -= player.speed;
+            if (keys.ArrowRight && player.x < WIDTH - player.width - 15) player.x += player.speed;
+            if (keys.ArrowUp && player.y > 40) player.y -= player.speed;
+            if (keys.ArrowDown && player.y < HEIGHT - player.height - 25) player.y += player.speed;
+            if (forma === 3) { let centroActual = player.x + player.width/2; if (centroActual > WIDTH/2 && posXAnterior + player.width/2 <= WIDTH/2) nave3Volteada = true; else if (centroActual <= WIDTH/2 && posXAnterior + player.width/2 > WIDTH/2) nave3Volteada = false; }
+            if (keys.KeyX && puedeDisparar && timestamp - lastShot > CFG.shotCooldown) { lastShot = timestamp; shoot(); }
+            if (keys.ArrowLeft && CFG.transformacionActiva && !naveTransformada) { aplicarTransformacion(); playSonidoTransformacion(); }
+            if (keys.KeyZ && timestamp - lastMisilTrasero > 250) { lastMisilTrasero = timestamp; transformarConFlash(); keys.KeyZ = false; }
+            if (timestamp - lastEnergyRegen > 500 && laserEnergy < maxEnergy) { lastEnergyRegen = timestamp; laserEnergy = Math.min(maxEnergy, laserEnergy + CFG.energyRegen); }
+            if (!boss && !bossCreated && score >= CFG.bossScore) activarJefe();
+            if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemySpawn > 1500) { lastEnemySpawn = timestamp; spawnEnemy(); }
+            if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemy2Spawn > 1800) { lastEnemy2Spawn = timestamp; spawnEnemy2(); }
+            if (CFG.estrellasActivas && timestamp - lastStarSpawn > 100) { lastStarSpawn = timestamp; stars.push({ x: WIDTH, y: Math.random() * HEIGHT, vx: CFG.estrellasVelocidad, brightness: Math.random() * 0.5 + CFG.estrellasBrillo }); }
+            
+            let ahora = performance.now();
+            for (let i = 0; i < misilesTraseros.length; i++) { let m = misilesTraseros[i]; if (!m.transformado && ahora - m.tiempo >= TIEMPO_TRANSFORMACION) { transformarMisilEnHoming(m); misilesTraseros.splice(i, 1); i--; } }
+            for (let i = 0; i < misilesTraseros.length; i++) { let m = misilesTraseros[i]; m.x += m.vx; m.y += m.vy; if (m.x + m.w < 0 || m.x > WIDTH || m.y + m.h < 0 || m.y > HEIGHT) { misilesTraseros.splice(i, 1); i--; } }
+            for (let i = 0; i < projectiles.length; i++) { let p = projectiles[i]; p.x += p.vx; p.y += p.vy; if (p.x + p.w < 0 || p.x > WIDTH || p.y + p.h < 0 || p.y > HEIGHT) { projectiles.splice(i, 1); i--; } }
+            for (let e of enemies) { if (timestamp - (e.lastShoot||0) > 1600) { e.lastShoot = timestamp; enemigoDisparar(e); } }
+            
+            let playerCol = getCollisionRect(player.x, player.y, player.width, player.height, forma === 3);
+            for (let i = 0; i < enemies.length; i++) {
+                let e = enemies[i]; e.x += e.vx; e.y += e.vy;
+                if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
+                let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
+                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { projectiles.splice(j, 1); e.health--; if (e.health <= 0) { createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); crearEscombros(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); enemies.splice(i, 1); score++; i--; } break; } }
+                if (!invulnerable && checkCollision(playerCol, enemyCol)) { createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); enemies.splice(i, 1); lives--; i--; activarInvulnerabilidad(); if (lives <= 0) { gameOver = true; if(musicaFondo) musicaFondo.pause(); if(musicaJefe) musicaJefe.pause(); } }
+            }
+            for (let i = 0; i < enemy2List.length; i++) {
+                let e = enemy2List[i]; e.x += e.vx; e.y += e.vy;
+                if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
+                let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
+                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { projectiles.splice(j, 1); e.health--; if (e.health <= 0) { createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); crearEscombros(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); enemy2List.splice(i, 1); score++; i--; } break; } }
+                if (!invulnerable && checkCollision(playerCol, enemyCol)) { createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); enemy2List.splice(i, 1); lives--; i--; activarInvulnerabilidad(); if (lives <= 0) { gameOver = true; if(musicaFondo) musicaFondo.pause(); if(musicaJefe) musicaJefe.pause(); } }
+            }
+            
+            if (boss) {
+                boss.x += boss.vx; boss.y += boss.vy;
+                if (bossEstado === "ENTRANDO" && boss.x <= WIDTH - JEFE_ANCHO - 30) { bossEstado = "PATRULLANDO"; boss.vx = (Math.random() - 0.5) * 7; boss.vy = (Math.random() - 0.5) * 6; }
+                if (bossEstado === "PATRULLANDO") {
+                    if (timestamp - (boss.lastShoot||0) > CFG.bossShootDelay) { boss.lastShoot = timestamp; let dx = (player.x+player.width/2)-(boss.x+JEFE_ANCHO/2), dy = (player.y+player.height/2)-(boss.y+JEFE_ALTO/2), len = Math.hypot(dx,dy); if(len>0) enemyProjectiles.push({ x: boss.x+JEFE_ANCHO/2-12, y: boss.y+JEFE_ALTO/2-5, w:24, h:10, vx: dx/len*5, vy: dy/len*5, timestamp: timestamp }); }
+                    if (timestamp - lastBossDirectionChange > 1000) { lastBossDirectionChange = timestamp; boss.vx = (Math.random() - 0.5) * 7; boss.vy = (Math.random() - 0.5) * 6; }
+                    if (boss.x < 30) { boss.x = 30; boss.vx = Math.abs(boss.vx); }
+                    if (boss.x > WIDTH - JEFE_ANCHO - 30) { boss.x = WIDTH - JEFE_ANCHO - 30; boss.vx = -Math.abs(boss.vx); }
+                    if (boss.y < 30) { boss.y = 30; boss.vy = Math.abs(boss.vy); }
+                    if (boss.y > HEIGHT - JEFE_ALTO - 30) { boss.y = HEIGHT - JEFE_ALTO - 30; boss.vy = -Math.abs(boss.vy); }
+                }
+                let bossCol = getCollisionRect(boss.x, boss.y, JEFE_ANCHO, JEFE_ALTO);
+                for (let j = 0; j < projectiles.length; j++) { 
+                    let p = projectiles[j]; 
+                    if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, bossCol)) { 
+                        projectiles.splice(j, 1); 
+                        createExplosion(boss.x + JEFE_ANCHO/2 + (Math.random() - 0.5) * 60, boss.y + JEFE_ALTO/2 + (Math.random() - 0.5) * 50);
+                        crearEscombros(boss.x + JEFE_ANCHO/2 + (Math.random() - 0.5) * 80, boss.y + JEFE_ALTO/2 + (Math.random() - 0.5) * 70);
+                        
+                        let porcentajeActual = (boss.health / CFG.bossHealth) * 100; 
+                        let perdido = ultimoPorcentajeVidaJefe - porcentajeActual; 
+                        if (perdido >= 10 && boss.health > 0) { 
+                            jefeDisparoContingencia(); 
+                            ultimoPorcentajeVidaJefe = Math.floor(porcentajeActual); 
+                        } 
+                        boss.health--; 
+                        if (boss.health <= 0) { 
+                            createExplosion(boss.x + JEFE_ANCHO/2, boss.y + JEFE_ALTO/2); 
+                            crearEscombros(boss.x + JEFE_ANCHO/2, boss.y + JEFE_ALTO/2);
+                            boss = null; 
+                            victory = true; 
+                            gameRunning = false; 
+                            if(musicaJefe) musicaJefe.pause(); 
+                            if(musicaFondo && musicaActiva) musicaFondo.play().catch(e=>{}); 
+                        } 
+                        break; 
+                    } 
+                }
+                if (!invulnerable && checkCollision(playerCol, bossCol)) { lives--; activarInvulnerabilidad(); if (lives <= 0) { gameOver = true; if(musicaFondo) musicaFondo.pause(); if(musicaJefe) musicaJefe.pause(); } }
+            }
+            
+            for (let i = 0; i < enemyProjectiles.length; i++) { 
+                let p = enemyProjectiles[i]; 
+                p.x += p.vx; 
+                p.y += p.vy; 
+                if (p.x + p.w < 0 || p.x > WIDTH || p.y + p.h < 0 || p.y > HEIGHT) { 
+                    enemyProjectiles.splice(i, 1); 
+                    i--; 
+                } else if (!invulnerable && player.x < p.x + p.w && player.x + player.width > p.x && player.y < p.y + p.h && player.y + player.height > p.y) { 
+                    createExplosion(p.x + p.w/2, p.y + p.h/2); 
+                    enemyProjectiles.splice(i, 1); 
+                    lives--; 
+                    i--; 
+                    activarInvulnerabilidad();
+                    if (lives <= 0) { 
+                        gameOver = true; 
+                        if(musicaFondo) musicaFondo.pause(); 
+                        if(musicaJefe) musicaJefe.pause(); 
+                    } 
+                } 
+            }
+            
+            limpiarProyectilesViejos(timestamp);
+            
+            for (let i = 0; i < explosions.length; i++) { explosions[i].frame++; if (explosions[i].frame >= 10) { explosions.splice(i, 1); i--; } }
+            for (let i = 0; i < escombros.length; i++) { let e = escombros[i]; e.x += e.vx; e.y += e.vy; if (ahora - e.creacion >= CFG.particulasDuracion) { escombros.splice(i, 1); i--; } }
+            if (CFG.estrellasActivas) { for (let i = 0; i < stars.length; i++) { stars[i].x += stars[i].vx; if (stars[i].x < 0) { stars.splice(i, 1); i--; } } }
+        }
+        
+        function gameLoop(timestamp) {
+            if (gameStarted && gameRunning && !gameOver && !victory) updateGame(timestamp);
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function toggleMusica() {
+            const btn = document.getElementById('btnMusica');
+            if (musicaActiva) { if (musicaFondo) musicaFondo.pause(); if (musicaJefe) musicaJefe.pause(); musicaActiva = false; btn.innerHTML = '🔇 MUSICA OFF'; btn.style.color = '#ff4444'; }
+            else { musicaActiva = true; if (!musicaJefeActiva && musicaFondo && gameStarted) musicaFondo.play().catch(e=>{}); btn.innerHTML = '🔊 MUSICA ON'; btn.style.color = '#0f0'; }
+        }
+        
+        // ==========================================
+        // CONTROLES TÁCTILES
+        // ==========================================
+        function setupTouchControls() {
+            const btnUp = document.getElementById('btnUp');
+            const btnDown = document.getElementById('btnDown');
+            const btnLeft = document.getElementById('btnLeft');
+            const btnRight = document.getElementById('btnRight');
+            const btnC = document.getElementById('btnC');
+            const btnX = document.getElementById('btnX');
+            const btnZ = document.getElementById('btnZ');
+            const btnReset = document.getElementById('btnReset');
+            const teclaC = document.getElementById('teclaC');
+            
+            // D-PAD
+            function setupDpadButton(el, keyName, esLeft = false) {
+                el.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    keys[keyName] = true;
+                    el.classList.add('pressed');
+                    if (esLeft && CFG.transformacionActiva && !naveTransformada) {
+                        aplicarTransformacion();
+                        playSonidoTransformacion();
+                    }
+                });
+                el.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    keys[keyName] = false;
+                    el.classList.remove('pressed');
+                    if (esLeft && naveTransformada) {
+                        restaurarTransformacion();
+                    }
+                });
+                el.addEventListener('touchcancel', (e) => {
+                    keys[keyName] = false;
+                    el.classList.remove('pressed');
+                    if (esLeft && naveTransformada) {
+                        restaurarTransformacion();
+                    }
+                });
+                el.addEventListener('mousedown', () => {
+                    keys[keyName] = true;
+                    el.classList.add('pressed');
+                    if (esLeft && CFG.transformacionActiva && !naveTransformada) {
+                        aplicarTransformacion();
+                        playSonidoTransformacion();
+                    }
+                });
+                el.addEventListener('mouseup', () => {
+                    keys[keyName] = false;
+                    el.classList.remove('pressed');
+                    if (esLeft && naveTransformada) {
+                        restaurarTransformacion();
+                    }
+                });
+                el.addEventListener('mouseleave', () => {
+                    keys[keyName] = false;
+                    el.classList.remove('pressed');
+                    if (esLeft && naveTransformada) {
+                        restaurarTransformacion();
+                    }
+                });
+            }
+            
+            setupDpadButton(btnUp, 'ArrowUp', false);
+            setupDpadButton(btnDown, 'ArrowDown', false);
+            setupDpadButton(btnLeft, 'ArrowLeft', true);
+            setupDpadButton(btnRight, 'ArrowRight', false);
+            
+            // Botón C
+            function iniciarJuegoDesdeTouch() {
+                if (!gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') {
+                    iniciarJuego();
+                }
+            }
+            
+            btnC.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                btnC.classList.add('pressed');
+                iniciarJuegoDesdeTouch();
+            });
+            btnC.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                btnC.classList.remove('pressed');
+            });
+            btnC.addEventListener('touchcancel', (e) => {
+                btnC.classList.remove('pressed');
+            });
+            btnC.addEventListener('mousedown', () => {
+                btnC.classList.add('pressed');
+                iniciarJuegoDesdeTouch();
+            });
+            btnC.addEventListener('mouseup', () => {
+                btnC.classList.remove('pressed');
+            });
+            btnC.addEventListener('mouseleave', () => {
+                btnC.classList.remove('pressed');
+            });
+            
+            // Tecla C en pantalla de inicio
+            teclaC.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                teclaC.style.transform = 'scale(0.92)';
+                teclaC.style.background = '#444';
+                iniciarJuegoDesdeTouch();
+            });
+            teclaC.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                teclaC.style.transform = '';
+                teclaC.style.background = '';
+            });
+            teclaC.addEventListener('touchcancel', (e) => {
+                teclaC.style.transform = '';
+                teclaC.style.background = '';
+            });
+            teclaC.addEventListener('mousedown', () => {
+                teclaC.style.transform = 'scale(0.92)';
+                teclaC.style.background = '#444';
+                iniciarJuegoDesdeTouch();
+            });
+            teclaC.addEventListener('mouseup', () => {
+                teclaC.style.transform = '';
+                teclaC.style.background = '';
+            });
+            teclaC.addEventListener('mouseleave', () => {
+                teclaC.style.transform = '';
+                teclaC.style.background = '';
+            });
+            
+            // Botón X
+            btnX.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys.KeyX = true;
+                btnX.classList.add('pressed');
+                if (!puedeDisparar) playDisparoInicio();
+            });
+            btnX.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys.KeyX = false;
+                btnX.classList.remove('pressed');
+                playDisparoFin();
+            });
+            btnX.addEventListener('touchcancel', (e) => {
+                keys.KeyX = false;
+                btnX.classList.remove('pressed');
+                playDisparoFin();
+            });
+            btnX.addEventListener('mousedown', () => {
+                keys.KeyX = true;
+                btnX.classList.add('pressed');
+                if (!puedeDisparar) playDisparoInicio();
+            });
+            btnX.addEventListener('mouseup', () => {
+                keys.KeyX = false;
+                btnX.classList.remove('pressed');
+                playDisparoFin();
+            });
+            btnX.addEventListener('mouseleave', () => {
+                keys.KeyX = false;
+                btnX.classList.remove('pressed');
+                playDisparoFin();
+            });
+            
+            // Botón Z
+            function transformarDesdeTouch() {
+                if (gameStarted && !gameOver && !victory) {
+                    if (performance.now() - lastMisilTrasero > 250) {
+                        lastMisilTrasero = performance.now();
+                        transformarConFlash();
+                    }
+                }
+            }
+            
+            btnZ.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                btnZ.classList.add('pressed');
+                transformarDesdeTouch();
+            });
+            btnZ.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                btnZ.classList.remove('pressed');
+            });
+            btnZ.addEventListener('touchcancel', (e) => {
+                btnZ.classList.remove('pressed');
+            });
+            btnZ.addEventListener('mousedown', () => {
+                btnZ.classList.add('pressed');
+                transformarDesdeTouch();
+            });
+            btnZ.addEventListener('mouseup', () => {
+                btnZ.classList.remove('pressed');
+            });
+            btnZ.addEventListener('mouseleave', () => {
+                btnZ.classList.remove('pressed');
+            });
+            
+            // Botón Reset
+            btnReset.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                btnReset.classList.add('pressed');
+                reiniciarJuego();
+            });
+            btnReset.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                btnReset.classList.remove('pressed');
+            });
+            btnReset.addEventListener('touchcancel', (e) => {
+                btnReset.classList.remove('pressed');
+            });
+            btnReset.addEventListener('mousedown', () => {
+                btnReset.classList.add('pressed');
+                reiniciarJuego();
+            });
+            btnReset.addEventListener('mouseup', () => {
+                btnReset.classList.remove('pressed');
+            });
+            btnReset.addEventListener('mouseleave', () => {
+                btnReset.classList.remove('pressed');
+            });
+        }
+        
+        let timestamp = 0;
+        function gameLoopWrapper(time) {
+            timestamp = time;
+            gameLoop(time);
+        }
+        
+        document.getElementById('btnMusica').addEventListener('click', toggleMusica);
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'KeyC' && !gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') { iniciarJuego(); }
+            if (gameStarted) {
+                if (e.code === 'ArrowLeft') { keys.ArrowLeft = true; e.preventDefault(); }
+                if (e.code === 'ArrowRight') keys.ArrowRight = true;
+                if (e.code === 'ArrowUp') keys.ArrowUp = true;
+                if (e.code === 'ArrowDown') keys.ArrowDown = true;
+                if (e.code === 'KeyX') { keys.KeyX = true; playDisparoInicio(); e.preventDefault(); }
+                if (e.code === 'KeyZ') { keys.KeyZ = true; e.preventDefault(); }
+            }
+        });
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft') { keys.ArrowLeft = false; restaurarTransformacion(); }
+            if (e.code === 'ArrowRight') keys.ArrowRight = false;
+            if (e.code === 'ArrowUp') keys.ArrowUp = false;
+            if (e.code === 'ArrowDown') keys.ArrowDown = false;
+            if (e.code === 'KeyX') { keys.KeyX = false; playDisparoFin(); }
+            if (e.code === 'KeyZ') keys.KeyZ = false;
+        });
+        
+        cargarImagenes();
+        setupTouchControls();
+        gameLoopWrapper(0);
+        window.CFG = CFG;
+    </script>
+</body>
+</html>
