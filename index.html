@@ -236,51 +236,66 @@
 
     <script>
         // ==========================================
-        // ROBOTECH - CON JOYSTICK ANALÓGICO Y TRANSFORMACIÓN AL MOVER A LA IZQUIERDA
+        // ROBOTECH - CON PARÁMETROS ACTUALIZADOS
         // ==========================================
         
+        // CONFIGURACIÓN ACTUALIZADA CON LOS NUEVOS PARÁMETROS
         window.CFG_GLOBAL = {
-            nave1W: 150, nave1H: 85, nave1TransW: 137, nave1TransH: 100,
-            nave2W: 120, nave2H: 115, nave2TransW: 135, nave2TransH: 130,
-            nave3W: 137, nave3H: 170, nave31W: 145, nave31H: 200,
+            nave1W: 165, nave1H: 102, nave1TransW: 180, nave1TransH: 145,
+            nave2W: 128, nave2H: 113, nave2TransW: 180, nave2TransH: 145,
+            nave3W: 121, nave3H: 162, nave31W: 145, nave31H: 200,
             enemyW: 190, enemyH: 140, enemy2W: 180, enemy2H: 135,
             jefeW: 346, jefeH: 180, collisionReduce: 0.5,
-            shoot1X: -8, shoot1Y: -5, shoot2X: -5, shoot2Y: 0, shoot3X: -8, shoot3Y: -5, shoot31X: -8, shoot31Y: -5,
-            playerSpeed: 7, proyectilSpeed: 11, homingSpeed: 9, traseroSpeed: 6,
-            enemy1Speed: -6.5, enemy2Speed: -5.5, enemyProjSpeed: 4, jefeContingenciaSpeed: 11.2,
-            sprayAmmo: 100, laserEnergy: 300, laserCost: 10, energyRegen: 5, shotCooldown: 100, misilCooldown: 400, misilTransformTime: 300,
-            spriteNave1: "imagenes/nave1.png", spriteNave1Trans: "imagenes/nave1.1.png",
+            shoot1X: -70, shoot1Y: 25, shoot2X: -5, shoot2Y: 0, shoot3X: -8, shoot3Y: -5, shoot31X: -70, shoot31Y: -5,
+            playerSpeed: 10, proyectilSpeed: 11, homingSpeed: 9.5, traseroSpeed: 6,
+            speedNave1: 0.8, speedNave1Trans: 0.7,
+            speedNave2: 0.7, speedNave2Trans: 0.6,
+            speedNave3: 0.6, speedNave3Trans: 0.5,
+            speedNave3Inv: 0.6, speedNave3InvTrans: 0.55,
+            enemy1Speed: -6, enemy2Speed: -4, enemyProjSpeed: 5, jefeContingenciaSpeed: 8,
+            sprayAmmo: 100, laserEnergy: 1000, laserCost: 20, energyRegen: 20, shotCooldown: 150, misilCooldown: 400, misilTransformTime: 300,
+            spriteNave1: "imagenes/nave1.png", spriteNave1Trans: "imagenes/nave2.1.png",
             spriteNave2: "imagenes/nave2.png", spriteNave2Trans: "imagenes/nave2.1.png",
             spriteNave3: "imagenes/nave3.png", spriteNave31: "imagenes/nave3.1.png",
             spriteEnemy: "imagenes/enemigo.png", spriteEnemy2: "imagenes/enemigo2.png",
             spriteJefe: "imagenes/jefe.png", spriteExplosion: "imagenes/explosion.png",
             spriteProyectil: "imagenes/proyectil.png", spriteProyectilEnemy: "imagenes/proyectil_enemigo.png",
-            nave1Frame2: "imagenes/nave1_frame2.png", nave1AnimSpeed: 150, nave1AnimActive: true,
-            nave1Frame2W: 150, nave1Frame2H: 85, nave1Frame2X: 0, nave1Frame2Y: 0,
-            nave2Frame2: "imagenes/nave2_frame2.png", nave2AnimSpeed: 150, nave2AnimActive: true,
-            nave2Frame2W: 120, nave2Frame2H: 115, nave2Frame2X: 0, nave2Frame2Y: 0,
-            nave3Frame2: "imagenes/nave3_frame2.png", nave3AnimSpeed: 150, nave3AnimActive: true,
-            nave3Frame2W: 137, nave3Frame2H: 170, nave3Frame2X: 0, nave3Frame2Y: 0,
-            nave3InvFrame2: "imagenes/nave3_inv_frame2.png", nave3InvAnimSpeed: 150, nave3InvAnimActive: true,
-            nave3InvFrame2W: 137, nave3InvFrame2H: 170, nave3InvFrame2X: 0, nave3InvFrame2Y: 0,
+            nave1Frame2: "imagenes/nave1_frame2.png", nave1AnimSpeed: 50, nave1AnimActive: true,
+            nave1Frame2W: 160, nave1Frame2H: 100, nave1Frame2X: 6, nave1Frame2Y: 0,
+            nave2Frame2: "imagenes/nave2_frame2.png", nave2AnimSpeed: 50, nave2AnimActive: true,
+            nave2Frame2W: 130, nave2Frame2H: 125, nave2Frame2X: -2, nave2Frame2Y: -4,
+            nave3Frame2: "imagenes/nave3_frame2.png", nave3AnimSpeed: 50, nave3AnimActive: true,
+            nave3Frame2W: 136, nave3Frame2H: 168, nave3Frame2X: -17, nave3Frame2Y: 0,
+            nave3InvFrame2: "imagenes/nave3_inv_frame2.png", nave3InvAnimSpeed: 50, nave3InvAnimActive: true,
+            nave3InvFrame2W: 138, nave3InvFrame2H: 170, nave3InvFrame2X: 0, nave3InvFrame2Y: 0,
             shootType1: "recto", shootType2: "recto", shootType3: "recto", shootType3Inv: "recto",
-            homingProjSpeed: 9,
-            musicaFondo: "musica/fondo.mp3", musicaIntro: "musica/intro.mp3", musicaAlarma: "musica/alarma.mp3",
+            homingProjSpeed: 15,
+            musicaFondo: "musica/fondo.mp3", musicaIntro: "musica/intro.mp3", musicaAlarma: "musica/alarma1.mp3",
             musicaJefe: "musica/jefe_epico.mp3", musicaVictoria: "musica/victoria.mp3",
             sonidoDisparo: "sonidos/disparo.wav", sonidoDisparo2: "sonidos/disparo2.wav",
             sonidoTransformacion: "sonidos/transformacion.wav", sonidoExplosion: "sonidos/explosion.wav",
-            sonidoAlarma: "sonidos/alarma.wav",
-            volMusica: 1.0, volEfectos: 0.45,
-            bossScore: 25, bossHealth: 120, bgColor1: "#0a0a2a", bgColor2: "#1a0a3a",
-            particulasActivas: true, particulasCantidad: 8, particulasTamañoMin: 3, particulasTamañoMax: 11,
-            particulasVelocidad: 4, particulasDuracion: 500, particulasColor1: "#ff6600", particulasColor2: "#ffaa00",
-            estrellasActivas: true, estrellasCantidad: 150, estrellasBrillo: 0.5, estrellasVelocidad: -3,
-            bossSpeed: -3.5, bossShootDelay: 1500, alarmaJefeActiva: true, alarmaDuracion: 3000,
+            sonidoAlarma: "sonidos/alarma1.wav",
+            volMusica: 0.55, volEfectos: 0.20,
+            volIntro: 0.40, muteIntro: false,
+            volFondo: 0, muteFondo: false,
+            volAlarmaMusica: 1.0, muteAlarmaMusica: false,
+            volJefe: 0, muteJefe: false,
+            volVictoria: 1.0, muteVictoria: false,
+            volDisparo: 0.77, muteDisparo: false,
+            volDisparo2: 0.78, muteDisparo2: false,
+            volTransformacion: 0.67, muteTransformacion: false,
+            volExplosion: 0.79, muteExplosion: false,
+            volAlarmaEfecto: 1.0, muteAlarmaEfecto: true,
+            bossScore: 50, bossHealth: 120, bgColor1: "#0a0a2a", bgColor2: "#1a0a3a",
+            particulasActivas: true, particulasCantidad: 20, particulasTamañoMin: 3, particulasTamañoMax: 13.5,
+            particulasVelocidad: 4, particulasDuracion: 300, particulasColor1: "#ff6600", particulasColor2: "#ffaa00",
+            estrellasActivas: true, estrellasCantidad: 150, estrellasBrillo: 0.5, estrellasVelocidad: -6,
+            bossSpeed: -3.5, bossShootDelay: 1500, alarmaJefeActiva: true, alarmaDuracion: 4000,
             transformacionActiva: true, transformacionCambiaTamaño: true, restaurarAlSoltar: true, transformacionMisiles: true,
-            vidasIniciales: 3, vidasMaximo: 10, invulnerabilidadTiempo: 1000, invulnerabilidadParpadeo: true,
-            transformacionZActiva: true, transformacionZDuración: 50, transformacionZSonido: true,
+            vidasIniciales: 8, vidasMaximo: 17, invulnerabilidadTiempo: 1500, invulnerabilidadParpadeo: true,
+            transformacionZActiva: true, transformacionZDuración: 110, transformacionZSonido: true,
             transformacionZSonidoArchivo: "sonidos/transformacion.wav",
-            transformacionZImagen: "imagenes/nave2.1.png", transformacionZImagenW: 135, transformacionZImagenH: 130,
+            transformacionZImagen: "imagenes/nave2.2.png", transformacionZImagenW: 135, transformacionZImagenH: 130,
             transformacionZImagenX: 0, transformacionZImagenY: 0, transformacionZInvertir: true
         };
         
@@ -450,9 +465,6 @@
         let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false, KeyX: false, KeyZ: false };
         let naveTransformada = false, nave3Volteada = false;
         let puedeDisparar = false;
-        
-        // Variable para controlar si el joystick está hacia la izquierda
-        let joystickLeftPresionado = false;
         
         let transformacionFlashActiva = false;
         let transformacionFlashDestino = 1;
@@ -771,9 +783,6 @@
         }
         loadGameConfig();
         
-        // ==========================================
-        // FUNCIONES DE TRANSFORMACIÓN
-        // ==========================================
         function aplicarTransformacion() {
             if (!CFG.transformacionActiva || naveTransformada) return;
             naveTransformada = true;
@@ -881,9 +890,9 @@
         
         function createExplosion(x, y) { 
             explosions.push({ x, y, size: 90, frame: 0, maxFrames: 10 });
-            if (audioExplosion && CFG.volEfectos > 0) {
+            if (audioExplosion && CFG.volEfectos > 0 && !CFG.muteExplosion) {
                 audioExplosion.currentTime = 0;
-                audioExplosion.volume = CFG.volEfectos;
+                audioExplosion.volume = CFG.volExplosion * CFG.volEfectos;
                 audioExplosion.play().catch(e=>{});
             }
         }
@@ -902,32 +911,54 @@
         
         function initMusica() {
             try {
-                musicaFondo = new Audio(CFG.musicaFondo); musicaFondo.loop = true; musicaFondo.volume = volumenMusica;
-                musicaJefe = new Audio(CFG.musicaJefe); musicaJefe.loop = true; musicaJefe.volume = volumenMusica;
-                musicaIntro = new Audio(CFG.musicaIntro); musicaIntro.loop = false; musicaIntro.volume = volumenMusica;
-                musicaVictoria = new Audio(CFG.musicaVictoria); musicaVictoria.loop = false; musicaVictoria.volume = volumenMusica;
-                musicaAlarmaAudio = new Audio(CFG.musicaAlarma); musicaAlarmaAudio.loop = false; musicaAlarmaAudio.volume = volumenEfectos;
-                audioDisparo = new Audio(CFG.sonidoDisparo); audioDisparo.loop = false; audioDisparo.volume = volumenEfectos;
-                audioDisparo2 = new Audio(CFG.sonidoDisparo2); audioDisparo2.loop = false; audioDisparo2.volume = volumenEfectos;
-                audioTransformacion = new Audio(CFG.sonidoTransformacion); audioTransformacion.loop = false; audioTransformacion.volume = volumenEfectos;
-                audioExplosion = new Audio(CFG.sonidoExplosion); audioExplosion.loop = false; audioExplosion.volume = volumenEfectos;
-                audioAlarma = new Audio(CFG.sonidoAlarma); audioAlarma.loop = true; audioAlarma.volume = volumenEfectos;
+                musicaFondo = new Audio(CFG.musicaFondo); musicaFondo.loop = true;
+                musicaJefe = new Audio(CFG.musicaJefe); musicaJefe.loop = true;
+                musicaIntro = new Audio(CFG.musicaIntro); musicaIntro.loop = false;
+                musicaVictoria = new Audio(CFG.musicaVictoria); musicaVictoria.loop = false;
+                musicaAlarmaAudio = new Audio(CFG.musicaAlarma); musicaAlarmaAudio.loop = false;
+                audioDisparo = new Audio(CFG.sonidoDisparo); audioDisparo.loop = false;
+                audioDisparo2 = new Audio(CFG.sonidoDisparo2); audioDisparo2.loop = false;
+                audioTransformacion = new Audio(CFG.sonidoTransformacion); audioTransformacion.loop = false;
+                audioExplosion = new Audio(CFG.sonidoExplosion); audioExplosion.loop = false;
+                audioAlarma = new Audio(CFG.sonidoAlarma); audioAlarma.loop = true;
                 audioTransformacionZ = new Audio(CFG.transformacionZSonidoArchivo);
                 audioTransformacionZ.loop = false;
-                audioTransformacionZ.volume = volumenEfectos;
                 audioDisparo.addEventListener('ended', () => { puedeDisparar = false; });
             } catch(e) { console.log('Error música:', e); }
         }
         
-        function playSonidoTransformacion() { if(audioTransformacion && CFG.transformacionActiva && CFG.volEfectos > 0) { audioTransformacion.currentTime=0; audioTransformacion.play().catch(e=>{}); } }
-        function playDisparoInicio() { if(audioDisparo && CFG.volEfectos > 0) { audioDisparo.currentTime=0; audioDisparo.play().catch(e=>{}); puedeDisparar=true; } }
-        function playDisparoFin() { if(audioDisparo2 && CFG.volEfectos > 0) { if(audioDisparo) audioDisparo.pause(); audioDisparo2.currentTime=0; audioDisparo2.play().catch(e=>{}); puedeDisparar=false; } }
+        function playSonidoTransformacion() { 
+            if(audioTransformacion && CFG.transformacionActiva && CFG.volEfectos > 0 && !CFG.muteTransformacion) { 
+                audioTransformacion.currentTime=0; 
+                audioTransformacion.volume = CFG.volTransformacion * CFG.volEfectos;
+                audioTransformacion.play().catch(e=>{}); 
+            } 
+        }
+        
+        function playDisparoInicio() { 
+            if(audioDisparo && CFG.volEfectos > 0 && !CFG.muteDisparo) { 
+                audioDisparo.currentTime=0; 
+                audioDisparo.volume = CFG.volDisparo * CFG.volEfectos;
+                audioDisparo.play().catch(e=>{}); 
+                puedeDisparar=true; 
+            } 
+        }
+        function playDisparoFin() { 
+            if(audioDisparo2 && CFG.volEfectos > 0 && !CFG.muteDisparo2) { 
+                if(audioDisparo) audioDisparo.pause(); 
+                audioDisparo2.currentTime=0; 
+                audioDisparo2.volume = CFG.volDisparo2 * CFG.volEfectos;
+                audioDisparo2.play().catch(e=>{}); 
+                puedeDisparar=false; 
+            } 
+        }
         
         function iniciarAlarmaSonido() {
             if (alarmaActiva) return;
             alarmaActiva = true;
-            if (audioAlarma && CFG.alarmaJefeActiva && CFG.volEfectos > 0) {
+            if (audioAlarma && CFG.alarmaJefeActiva && CFG.volEfectos > 0 && !CFG.muteAlarmaEfecto) {
                 audioAlarma.currentTime = 0;
+                audioAlarma.volume = CFG.volAlarmaEfecto * CFG.volEfectos;
                 audioAlarma.play().catch(e=>{});
             }
         }
@@ -941,8 +972,33 @@
             }
         }
         
-        function playMusicaFondo() { if (musicaJefeActiva) { if(musicaJefe) { musicaJefe.pause(); musicaJefe.currentTime=0; } musicaJefeActiva=false; } if (musicaFondo && musicaActiva && gameStarted && !victory && !gameOver) { musicaFondo.volume = volumenMusica; musicaFondo.play().catch(e=>{}); } }
-        function activarMusicaJefe() { if (!musicaActiva || musicaJefeActiva) return; if (musicaFondo && !musicaFondo.paused) { musicaFondo.pause(); musicaFondo.currentTime=0; } musicaJefeActiva = true; if (musicaJefe) { musicaJefe.currentTime=0; musicaJefe.volume = volumenMusica; musicaJefe.play().catch(e=>{}); } }
+        function playMusicaFondo() { 
+            if (musicaJefeActiva) { 
+                if(musicaJefe) { 
+                    musicaJefe.pause(); 
+                    musicaJefe.currentTime=0; 
+                } 
+                musicaJefeActiva=false; 
+            } 
+            if (musicaFondo && musicaActiva && gameStarted && !victory && !gameOver && !CFG.muteFondo) { 
+                musicaFondo.volume = CFG.volFondo * CFG.volMusica; 
+                musicaFondo.play().catch(e=>{}); 
+            } 
+        }
+        
+        function activarMusicaJefe() { 
+            if (!musicaActiva || musicaJefeActiva) return; 
+            if (musicaFondo && !musicaFondo.paused) { 
+                musicaFondo.pause(); 
+                musicaFondo.currentTime=0; 
+            } 
+            musicaJefeActiva = true; 
+            if (musicaJefe && !CFG.muteJefe) { 
+                musicaJefe.currentTime=0; 
+                musicaJefe.volume = CFG.volJefe * CFG.volMusica; 
+                musicaJefe.play().catch(e=>{}); 
+            } 
+        }
         
         function mostrarAlarmaJefe() { 
             if (!CFG.alarmaJefeActiva) return; 
@@ -958,9 +1014,9 @@
                 detenerAlarmaSonido();
             }, CFG.alarmaDuracion); 
             
-            if(musicaAlarmaAudio && CFG.volMusica > 0) {
+            if(musicaAlarmaAudio && CFG.volMusica > 0 && !CFG.muteAlarmaMusica) {
                 musicaAlarmaAudio.currentTime = 0;
-                musicaAlarmaAudio.volume = volumenMusica;
+                musicaAlarmaAudio.volume = CFG.volAlarmaMusica * CFG.volMusica;
                 musicaAlarmaAudio.play().catch(e=>{});
             }
             setTimeout(() => { activarMusicaJefe(); }, 2000);
@@ -983,7 +1039,6 @@
             frameActualNave = { 1: 0, 2: 0, 3: 0 };
             invulnerable = false;
             transformacionFlashActiva = false;
-            joystickLeftPresionado = false;
             player.width = FORMAS[1].ancho; player.height = FORMAS[1].alto; 
             player.x = WIDTH/2 - player.width/2; player.y = HEIGHT - player.height - 30; 
             player.speed = velocidadBase;
@@ -994,7 +1049,11 @@
             document.getElementById('btnMusica').style.display = 'block';
             document.getElementById('touchControls').classList.add('active');
             resizeCanvas();
-            if (musicaFondo && musicaActiva) { musicaFondo.currentTime = 0; musicaFondo.play().catch(e=>{}); }
+            if (musicaFondo && musicaActiva && !CFG.muteFondo) { 
+                musicaFondo.currentTime = 0; 
+                musicaFondo.volume = CFG.volFondo * CFG.volMusica;
+                musicaFondo.play().catch(e=>{}); 
+            }
         }
         
         function reiniciarJuego() {
@@ -1244,8 +1303,8 @@
                 ctx.fillStyle = '#44ff44'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
                 ctx.fillText('¡VICTORIA!', WIDTH/2, HEIGHT/2 - 40);
                 ctx.textAlign = 'left';
-                if (musicaVictoria && musicaActiva && !gameOver) {
-                    musicaVictoria.volume = volumenMusica;
+                if (musicaVictoria && musicaActiva && !gameOver && !CFG.muteVictoria) {
+                    musicaVictoria.volume = CFG.volVictoria * CFG.volMusica;
                     musicaVictoria.play().catch(e=>{});
                 }
             }
@@ -1267,7 +1326,20 @@
             if (keys.ArrowUp) moveY = -1;
             if (keys.ArrowDown) moveY = 1;
             
-            const speed = player.speed;
+            // Calcular velocidad según la forma y transformación
+            let multiplicador = 1;
+            if (naveTransformada) {
+                if (forma === 1) multiplicador = CFG.speedNave1Trans;
+                else if (forma === 2) multiplicador = CFG.speedNave2Trans;
+                else if (forma === 3) multiplicador = nave3Volteada ? CFG.speedNave3InvTrans : CFG.speedNave3Trans;
+            } else {
+                if (forma === 1) multiplicador = CFG.speedNave1;
+                else if (forma === 2) multiplicador = CFG.speedNave2;
+                else if (forma === 3) multiplicador = nave3Volteada ? CFG.speedNave3Inv : CFG.speedNave3;
+            }
+            const speed = velocidadBase * multiplicador;
+            player.speed = speed;
+            
             if (moveX !== 0 || moveY !== 0) {
                 const len = Math.hypot(moveX, moveY);
                 const normX = moveX / len;
@@ -1282,9 +1354,7 @@
             if (forma === 3) { let centroActual = player.x + player.width/2; if (centroActual > WIDTH/2 && posXAnterior + player.width/2 <= WIDTH/2) nave3Volteada = true; else if (centroActual <= WIDTH/2 && posXAnterior + player.width/2 > WIDTH/2) nave3Volteada = false; }
             if (keys.KeyX && puedeDisparar && timestamp - lastShot > CFG.shotCooldown) { lastShot = timestamp; shoot(); }
             
-            // ==========================================
             // TRANSFORMACIÓN: Tecla ← O Joystick hacia la izquierda
-            // ==========================================
             const leftPresionado = keys.ArrowLeft || (moveX < -0.5);
             
             if (leftPresionado && CFG.transformacionActiva && !naveTransformada) { 
@@ -1353,7 +1423,7 @@
                             victory = true; 
                             gameRunning = false; 
                             if(musicaJefe) musicaJefe.pause(); 
-                            if(musicaFondo && musicaActiva) musicaFondo.play().catch(e=>{}); 
+                            if(musicaFondo && musicaActiva && !CFG.muteFondo) musicaFondo.play().catch(e=>{}); 
                         } 
                         break; 
                     } 
@@ -1388,9 +1458,7 @@
             for (let i = 0; i < escombros.length; i++) { let e = escombros[i]; e.x += e.vx; e.y += e.vy; if (ahora - e.creacion >= CFG.particulasDuracion) { escombros.splice(i, 1); i--; } }
             if (CFG.estrellasActivas) { for (let i = 0; i < stars.length; i++) { stars[i].x += stars[i].vx; if (stars[i].x < 0) { stars.splice(i, 1); i--; } } }
             
-            // ==========================================
-            // RESTAURAR TRANSFORMACIÓN AL SOLTAR IZQUIERDA (TECLADO O JOYSTICK)
-            // ==========================================
+            // RESTAURAR TRANSFORMACIÓN AL SOLTAR IZQUIERDA
             const leftSuelto = !keys.ArrowLeft && !(moveX < -0.5);
             if (leftSuelto && naveTransformada) {
                 restaurarTransformacion();
@@ -1405,8 +1473,21 @@
         
         function toggleMusica() {
             const btn = document.getElementById('btnMusica');
-            if (musicaActiva) { if (musicaFondo) musicaFondo.pause(); if (musicaJefe) musicaJefe.pause(); musicaActiva = false; btn.innerHTML = '🔇 MUSICA OFF'; btn.style.color = '#ff4444'; }
-            else { musicaActiva = true; if (!musicaJefeActiva && musicaFondo && gameStarted) musicaFondo.play().catch(e=>{}); btn.innerHTML = '🔊 MUSICA ON'; btn.style.color = '#0f0'; }
+            if (musicaActiva) { 
+                if (musicaFondo) musicaFondo.pause(); 
+                if (musicaJefe) musicaJefe.pause(); 
+                musicaActiva = false; 
+                btn.innerHTML = '🔇 MUSICA OFF'; 
+                btn.style.color = '#ff4444'; 
+            } else { 
+                musicaActiva = true; 
+                if (!musicaJefeActiva && musicaFondo && gameStarted && !CFG.muteFondo) {
+                    musicaFondo.volume = CFG.volFondo * CFG.volMusica;
+                    musicaFondo.play().catch(e=>{}); 
+                }
+                btn.innerHTML = '🔊 MUSICA ON'; 
+                btn.style.color = '#0f0'; 
+            }
         }
         
         // ==========================================
