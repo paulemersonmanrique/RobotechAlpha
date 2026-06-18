@@ -2,25 +2,39 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, viewport-fit=cover">
     <title>Robotech - Space Shooter COMPLETO</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #0a0a2a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Courier New', monospace;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+            background: #0a0a2a;
+            font-family: 'Courier New', monospace;
             touch-action: none;
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
-        .game-container { position: relative; display: none; }
-        canvas { display: block; margin: 0 auto; box-shadow: 0 0 20px rgba(0,0,255,0.3); cursor: none; touch-action: none; }
-        /* ELIMINADO: .controls { ... } */
+        .game-container { 
+            position: relative; 
+            width: 100%; 
+            height: 100%; 
+            display: none; 
+            background: #0a0a2a;
+            overflow: hidden;
+        }
+        canvas { 
+            display: block; 
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #0a0a2a;
+            touch-action: none;
+            image-rendering: pixelated;
+        }
         .title { position: fixed; top: 10px; left: 0; right: 0; text-align: center; color: #ffcc00; font-size: 16px; font-weight: bold; text-shadow: 0 0 5px #ff6600; z-index: 100; background: rgba(0,0,0,0.5); padding: 5px; display: none; }
         .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ffcc00; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; z-index: 200; text-align: center; font-size: 14px; }
         .mensaje-jefe { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); color: #ff0000; background: rgba(0,0,0,0.9); padding: 20px 40px; border-radius: 10px; font-family: monospace; font-size: 28px; font-weight: bold; z-index: 300; text-align: center; white-space: nowrap; pointer-events: none; border: 3px solid #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); animation: alarmaParpadeo 0.3s ease-in-out infinite; }
@@ -34,7 +48,7 @@
         .pantalla-inicio small { color: #aaa; margin-top: 20px; font-size: 12px; }
         @media (max-width: 1100px) { .pantalla-inicio h1 { font-size: 36px; } }
         
-        /* CONTROLES TÁCTILES - ESTILO NINTENDO */
+        /* JOYSTICK ANALÓGICO */
         .touch-controls {
             position: fixed;
             bottom: 0;
@@ -50,52 +64,61 @@
         .touch-controls.active { display: block; }
         .touch-controls > * { pointer-events: auto; }
         
-        /* D-PAD (IZQUIERDA) */
-        .dpad {
+        .joystick-container {
             position: absolute;
             bottom: 20px;
             left: 20px;
-            width: 150px;
-            height: 150px;
-        }
-        .dpad-btn {
-            position: absolute;
-            width: 46px;
-            height: 46px;
-            background: rgba(255,255,255,0.20);
-            border: 2px solid rgba(255,255,255,0.5);
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 22px;
-            color: rgba(255,255,255,0.8);
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.10);
+            border: 2px solid rgba(255,255,255,0.20);
             touch-action: none;
             cursor: pointer;
             user-select: none;
             -webkit-user-select: none;
-            transition: background 0.1s;
         }
-        .dpad-btn:active, .dpad-btn.pressed {
-            background: rgba(255,255,255,0.5);
-            border-color: #ffcc00;
-        }
-        .dpad-up { top: 0; left: 52px; }
-        .dpad-down { bottom: 0; left: 52px; }
-        .dpad-left { top: 52px; left: 0; }
-        .dpad-right { top: 52px; right: 0; }
-        .dpad-center {
+        .joystick-base {
             position: absolute;
-            top: 52px;
-            left: 52px;
-            width: 46px;
-            height: 46px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.15);
+            top: 50%;
+            left: 50%;
+            width: 60px;
+            height: 60px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.25);
+        }
+        .joystick-thumb {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 44px;
+            height: 44px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.5), rgba(255,255,255,0.15));
+            border: 2px solid rgba(255,255,255,0.4);
+            box-shadow: 0 0 20px rgba(255,204,0,0.1);
+            transition: none;
+            touch-action: none;
+        }
+        .joystick-thumb.active {
+            background: radial-gradient(circle, rgba(255,204,0,0.6), rgba(255,204,0,0.2));
+            border-color: #ffcc00;
+            box-shadow: 0 0 30px rgba(255,204,0,0.2);
+        }
+        .joystick-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 9px;
+            letter-spacing: 1px;
+            white-space: nowrap;
         }
         
-        /* BOTONES DERECHA */
         .right-buttons {
             position: absolute;
             bottom: 30px;
@@ -105,10 +128,7 @@
             gap: 12px;
             align-items: center;
         }
-        .right-row {
-            display: flex;
-            gap: 14px;
-        }
+        .right-row { display: flex; gap: 14px; }
         .action-btn {
             width: 62px;
             height: 62px;
@@ -133,86 +153,37 @@
             border-color: #ffcc00;
             box-shadow: 0 0 25px rgba(255,204,0,0.3);
         }
+        .btn-c { background: rgba(50,255,50,0.25); border-color: #44ff88; }
+        .btn-c:active, .btn-c.pressed { background: rgba(50,255,50,0.6); border-color: #88ff44; }
+        .btn-x { background: rgba(255,50,50,0.25); border-color: #ff4444; }
+        .btn-x:active, .btn-x.pressed { background: rgba(255,50,50,0.6); border-color: #ff8800; }
+        .btn-z { background: rgba(50,150,255,0.25); border-color: #4488ff; }
+        .btn-z:active, .btn-z.pressed { background: rgba(50,150,255,0.6); border-color: #88ccff; }
+        .btn-reset { background: rgba(255,200,50,0.25); border-color: #ffaa44; font-size: 20px; width: 52px; height: 52px; }
+        .btn-reset:active, .btn-reset.pressed { background: rgba(255,200,50,0.6); border-color: #ffcc44; }
         
-        .btn-c {
-            background: rgba(50,255,50,0.25);
-            border-color: #44ff88;
-        }
-        .btn-c:active, .btn-c.pressed {
-            background: rgba(50,255,50,0.6);
-            border-color: #88ff44;
-        }
-        
-        .btn-x {
-            background: rgba(255,50,50,0.25);
-            border-color: #ff4444;
-        }
-        .btn-x:active, .btn-x.pressed {
-            background: rgba(255,50,50,0.6);
-            border-color: #ff8800;
-        }
-        
-        .btn-z {
-            background: rgba(50,150,255,0.25);
-            border-color: #4488ff;
-        }
-        .btn-z:active, .btn-z.pressed {
-            background: rgba(50,150,255,0.6);
-            border-color: #88ccff;
-        }
-        
-        .btn-reset {
-            background: rgba(255,200,50,0.25);
-            border-color: #ffaa44;
-            font-size: 20px;
-            width: 52px;
-            height: 52px;
-        }
-        .btn-reset:active, .btn-reset.pressed {
-            background: rgba(255,200,50,0.6);
-            border-color: #ffcc44;
-        }
-        
-        .touch-label {
-            font-size: 9px;
-            margin-top: 2px;
-            color: rgba(255,255,255,0.5);
-            text-align: center;
-            letter-spacing: 0.5px;
-        }
-        .touch-btn-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1px;
-        }
+        .touch-label { font-size: 9px; margin-top: 2px; color: rgba(255,255,255,0.5); text-align: center; letter-spacing: 0.5px; }
+        .touch-btn-wrapper { display: flex; flex-direction: column; align-items: center; gap: 1px; }
         
         @media (max-width: 600px) {
-            .dpad { width: 120px; height: 120px; left: 10px; bottom: 15px; }
-            .dpad-btn { width: 38px; height: 38px; font-size: 18px; border-radius: 8px; }
-            .dpad-up { top: 0; left: 41px; }
-            .dpad-down { bottom: 0; left: 41px; }
-            .dpad-left { top: 41px; left: 0; }
-            .dpad-right { top: 41px; right: 0; }
-            .dpad-center { top: 41px; left: 41px; width: 38px; height: 38px; }
+            .joystick-container { width: 110px; height: 110px; left: 12px; bottom: 15px; }
+            .joystick-base { width: 50px; height: 50px; }
+            .joystick-thumb { width: 38px; height: 38px; }
             .action-btn { width: 52px; height: 52px; font-size: 20px; }
             .btn-reset { width: 44px; height: 44px; font-size: 16px; }
             .right-buttons { right: 10px; bottom: 20px; gap: 8px; }
             .right-row { gap: 10px; }
-            .touch-label { font-size: 8px; }
+            .touch-controls { height: 190px; }
         }
         @media (max-width: 400px) {
-            .dpad { width: 100px; height: 100px; left: 5px; bottom: 10px; }
-            .dpad-btn { width: 32px; height: 32px; font-size: 14px; border-radius: 6px; }
-            .dpad-up { top: 0; left: 34px; }
-            .dpad-down { bottom: 0; left: 34px; }
-            .dpad-left { top: 34px; left: 0; }
-            .dpad-right { top: 34px; right: 0; }
-            .dpad-center { top: 34px; left: 34px; width: 32px; height: 32px; }
+            .joystick-container { width: 90px; height: 90px; left: 8px; bottom: 10px; }
+            .joystick-base { width: 40px; height: 40px; }
+            .joystick-thumb { width: 32px; height: 32px; }
             .action-btn { width: 44px; height: 44px; font-size: 16px; }
             .btn-reset { width: 38px; height: 38px; font-size: 14px; }
             .right-buttons { right: 5px; bottom: 15px; gap: 6px; }
             .right-row { gap: 8px; }
+            .touch-controls { height: 170px; }
         }
     </style>
 </head>
@@ -226,25 +197,21 @@
         <p>🎮 Controles: ← → ↑ ↓ | <span class="tecla">X</span> disparar | <span class="tecla">Z</span> transformar nave</p>
         <p style="margin-top: 15px;">🔁 <span class="tecla">←</span> TRANSFORMA la nave (cambia sprite y lanza misiles)</p>
         <small>✨ Z: Transformación con flash, sonido e imagen personalizable</small>
-        <small style="color:#ffaa00;">📱 Táctil: D-Pad + Botones C, X, Z</small>
+        <small style="color:#ffaa00;">📱 Joystick analógico + Botones C, X, Z</small>
     </div>
     <div class="game-container">
         <canvas id="gameCanvas" width="1024" height="768"></canvas>
     </div>
-    <!-- ELIMINADO: <div class="controls">...</div> -->
 
-    <!-- CONTROLES TÁCTILES ESTILO NINTENDO -->
     <div id="touchControls" class="touch-controls">
-        <!-- D-PAD (IZQUIERDA) -->
-        <div class="dpad" id="dpad">
-            <div class="dpad-btn dpad-up" id="btnUp">▲</div>
-            <div class="dpad-btn dpad-down" id="btnDown">▼</div>
-            <div class="dpad-btn dpad-left" id="btnLeft">◀</div>
-            <div class="dpad-btn dpad-right" id="btnRight">▶</div>
-            <div class="dpad-center"></div>
+        <!-- JOYSTICK ANALÓGICO -->
+        <div class="joystick-container" id="joystickContainer">
+            <div class="joystick-base" id="joystickBase">
+                <div class="joystick-thumb" id="joystickThumb"></div>
+            </div>
+            <span class="joystick-label">MOVIMIENTO</span>
         </div>
         
-        <!-- BOTONES DERECHA -->
         <div class="right-buttons">
             <div class="right-row">
                 <div class="touch-btn-wrapper">
@@ -271,7 +238,7 @@
 
     <script>
         // ==========================================
-        // ROBOTECH - VERSIÓN COMPLETA CON TODAS LAS FUNCIONALIDADES DEL EDITOR
+        // ROBOTECH - VERSIÓN CON JOYSTICK ANALÓGICO Y REDIMENSIONAMIENTO
         // ==========================================
         
         // Configuración por defecto (se sobrescribirá con la del editor)
@@ -323,14 +290,164 @@
         let CFG = { ...window.CFG_GLOBAL };
         
         // ==========================================
+        // ESCALADO DEL CANVAS
+        // ==========================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const GAME_WIDTH = 1024;
+        const GAME_HEIGHT = 768;
+        
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            
+            // Calcular escala para mantener relación de aspecto
+            const scaleX = containerWidth / GAME_WIDTH;
+            const scaleY = containerHeight / GAME_HEIGHT;
+            const scale = Math.min(scaleX, scaleY);
+            
+            // Establecer tamaño del canvas en píxeles
+            canvas.width = GAME_WIDTH;
+            canvas.height = GAME_HEIGHT;
+            
+            // Establecer tamaño visual
+            const displayWidth = Math.floor(GAME_WIDTH * scale);
+            const displayHeight = Math.floor(GAME_HEIGHT * scale);
+            canvas.style.width = displayWidth + 'px';
+            canvas.style.height = displayHeight + 'px';
+            
+            // Centrar el canvas
+            canvas.style.position = 'absolute';
+            canvas.style.top = '50%';
+            canvas.style.left = '50%';
+            canvas.style.transform = 'translate(-50%, -50%)';
+        }
+        
+        // Redimensionar al cargar y al cambiar tamaño
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(resizeCanvas, 300);
+        });
+        
+        // ==========================================
+        // JOYSTICK ANALÓGICO
+        // ==========================================
+        let joystickActive = false;
+        let joystickTouchId = null;
+        let joystickDelta = { x: 0, y: 0 };
+        const joystickContainer = document.getElementById('joystickContainer');
+        const joystickThumb = document.getElementById('joystickThumb');
+        let joystickRadius = 0;
+        let joystickCenter = { x: 0, y: 0 };
+        
+        function initJoystick() {
+            const rect = joystickContainer.getBoundingClientRect();
+            const containerSize = Math.min(rect.width, rect.height);
+            joystickRadius = containerSize / 2 - 15;
+            joystickCenter = {
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2
+            };
+        }
+        
+        function updateJoystick(clientX, clientY) {
+            const dx = clientX - joystickCenter.x;
+            const dy = clientY - joystickCenter.y;
+            const dist = Math.hypot(dx, dy);
+            
+            let limitedX = dx;
+            let limitedY = dy;
+            if (dist > joystickRadius) {
+                limitedX = (dx / dist) * joystickRadius;
+                limitedY = (dy / dist) * joystickRadius;
+            }
+            
+            joystickThumb.style.transform = `translate(calc(-50% + ${limitedX}px), calc(-50% + ${limitedY}px))`;
+            
+            const maxDist = joystickRadius;
+            joystickDelta.x = limitedX / maxDist;
+            joystickDelta.y = limitedY / maxDist;
+            
+            if (dist > 5) {
+                joystickThumb.classList.add('active');
+            } else {
+                joystickThumb.classList.remove('active');
+            }
+        }
+        
+        function resetJoystick() {
+            joystickDelta.x = 0;
+            joystickDelta.y = 0;
+            joystickThumb.style.transform = 'translate(-50%, -50%)';
+            joystickThumb.classList.remove('active');
+            joystickActive = false;
+            joystickTouchId = null;
+        }
+        
+        // Eventos táctiles
+        joystickContainer.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            joystickTouchId = touch.identifier;
+            joystickActive = true;
+            initJoystick();
+            updateJoystick(touch.clientX, touch.clientY);
+        }, { passive: false });
+        
+        document.addEventListener('touchmove', (e) => {
+            if (!joystickActive) return;
+            for (let touch of e.changedTouches) {
+                if (touch.identifier === joystickTouchId) {
+                    e.preventDefault();
+                    initJoystick();
+                    updateJoystick(touch.clientX, touch.clientY);
+                    break;
+                }
+            }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', (e) => {
+            for (let touch of e.changedTouches) {
+                if (touch.identifier === joystickTouchId) {
+                    resetJoystick();
+                    break;
+                }
+            }
+        });
+        
+        document.addEventListener('touchcancel', resetJoystick);
+        
+        // Soporte para mouse (debugging en PC)
+        let mouseJoystick = false;
+        joystickContainer.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            mouseJoystick = true;
+            joystickActive = true;
+            initJoystick();
+            updateJoystick(e.clientX, e.clientY);
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!mouseJoystick) return;
+            initJoystick();
+            updateJoystick(e.clientX, e.clientY);
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (mouseJoystick) {
+                mouseJoystick = false;
+                resetJoystick();
+            }
+        });
+        
+        // ==========================================
         // VARIABLES DEL JUEGO
         // ==========================================
         let DIRECCIONES_MISILES = [-Math.PI / 3.6, -Math.PI / 18, Math.PI / 18, Math.PI / 3.6];
         let VELOCIDAD_MISILES = CFG.traseroSpeed;
         let TIEMPO_TRANSFORMACION = CFG.misilTransformTime;
         
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
         const WIDTH = 1024;
         const HEIGHT = 768;
         
@@ -863,6 +980,7 @@
             document.querySelector('.title').style.display = 'block';
             document.getElementById('btnMusica').style.display = 'block';
             document.getElementById('touchControls').classList.add('active');
+            resizeCanvas();
             if (musicaFondo && musicaActiva) { musicaFondo.currentTime = 0; musicaFondo.play().catch(e=>{}); }
         }
         
@@ -1138,13 +1256,41 @@
         function updateGame(timestamp) {
             if (!gameRunning || gameOver || victory) return;
             let posXAnterior = player.x;
-            if (keys.ArrowLeft && player.x > 15) player.x -= player.speed;
-            if (keys.ArrowRight && player.x < WIDTH - player.width - 15) player.x += player.speed;
-            if (keys.ArrowUp && player.y > 40) player.y -= player.speed;
-            if (keys.ArrowDown && player.y < HEIGHT - player.height - 25) player.y += player.speed;
+            
+            // MOVIMIENTO CON JOYSTICK ANALÓGICO + TECLADO
+            const deadZone = 0.1;
+            let moveX = 0, moveY = 0;
+            
+            // Joystick
+            if (Math.abs(joystickDelta.x) > deadZone) moveX = joystickDelta.x;
+            if (Math.abs(joystickDelta.y) > deadZone) moveY = joystickDelta.y;
+            
+            // Teclado (sobrescribe joystick para PC)
+            if (keys.ArrowLeft) moveX = -1;
+            if (keys.ArrowRight) moveX = 1;
+            if (keys.ArrowUp) moveY = -1;
+            if (keys.ArrowDown) moveY = 1;
+            
+            // Aplicar movimiento
+            const speed = player.speed;
+            if (moveX !== 0 || moveY !== 0) {
+                const len = Math.hypot(moveX, moveY);
+                const normX = moveX / len;
+                const normY = moveY / len;
+                player.x += normX * speed * len;
+                player.y += normY * speed * len;
+            }
+            
+            // Limitar al canvas
+            player.x = Math.max(15, Math.min(WIDTH - player.width - 15, player.x));
+            player.y = Math.max(40, Math.min(HEIGHT - player.height - 25, player.y));
+            
             if (forma === 3) { let centroActual = player.x + player.width/2; if (centroActual > WIDTH/2 && posXAnterior + player.width/2 <= WIDTH/2) nave3Volteada = true; else if (centroActual <= WIDTH/2 && posXAnterior + player.width/2 > WIDTH/2) nave3Volteada = false; }
             if (keys.KeyX && puedeDisparar && timestamp - lastShot > CFG.shotCooldown) { lastShot = timestamp; shoot(); }
+            
+            // Transformación SOLO con tecla ← (no con joystick)
             if (keys.ArrowLeft && CFG.transformacionActiva && !naveTransformada) { aplicarTransformacion(); playSonidoTransformacion(); }
+            
             if (keys.KeyZ && timestamp - lastMisilTrasero > 250) { lastMisilTrasero = timestamp; transformarConFlash(); keys.KeyZ = false; }
             if (timestamp - lastEnergyRegen > 500 && laserEnergy < maxEnergy) { lastEnergyRegen = timestamp; laserEnergy = Math.min(maxEnergy, laserEnergy + CFG.energyRegen); }
             if (!boss && !bossCreated && score >= CFG.bossScore) activarJefe();
@@ -1241,6 +1387,11 @@
             for (let i = 0; i < explosions.length; i++) { explosions[i].frame++; if (explosions[i].frame >= 10) { explosions.splice(i, 1); i--; } }
             for (let i = 0; i < escombros.length; i++) { let e = escombros[i]; e.x += e.vx; e.y += e.vy; if (ahora - e.creacion >= CFG.particulasDuracion) { escombros.splice(i, 1); i--; } }
             if (CFG.estrellasActivas) { for (let i = 0; i < stars.length; i++) { stars[i].x += stars[i].vx; if (stars[i].x < 0) { stars.splice(i, 1); i--; } } }
+            
+            // Restaurar transformación al soltar izquierda (solo teclado)
+            if (!keys.ArrowLeft && naveTransformada) {
+                restaurarTransformacion();
+            }
         }
         
         function gameLoop(timestamp) {
@@ -1256,75 +1407,15 @@
         }
         
         // ==========================================
-        // CONTROLES TÁCTILES
+        // CONTROLES TÁCTILES (botones)
         // ==========================================
         function setupTouchControls() {
-            const btnUp = document.getElementById('btnUp');
-            const btnDown = document.getElementById('btnDown');
-            const btnLeft = document.getElementById('btnLeft');
-            const btnRight = document.getElementById('btnRight');
             const btnC = document.getElementById('btnC');
             const btnX = document.getElementById('btnX');
             const btnZ = document.getElementById('btnZ');
             const btnReset = document.getElementById('btnReset');
             const teclaC = document.getElementById('teclaC');
             
-            // D-PAD
-            function setupDpadButton(el, keyName, esLeft = false) {
-                el.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    keys[keyName] = true;
-                    el.classList.add('pressed');
-                    if (esLeft && CFG.transformacionActiva && !naveTransformada) {
-                        aplicarTransformacion();
-                        playSonidoTransformacion();
-                    }
-                });
-                el.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    keys[keyName] = false;
-                    el.classList.remove('pressed');
-                    if (esLeft && naveTransformada) {
-                        restaurarTransformacion();
-                    }
-                });
-                el.addEventListener('touchcancel', (e) => {
-                    keys[keyName] = false;
-                    el.classList.remove('pressed');
-                    if (esLeft && naveTransformada) {
-                        restaurarTransformacion();
-                    }
-                });
-                el.addEventListener('mousedown', () => {
-                    keys[keyName] = true;
-                    el.classList.add('pressed');
-                    if (esLeft && CFG.transformacionActiva && !naveTransformada) {
-                        aplicarTransformacion();
-                        playSonidoTransformacion();
-                    }
-                });
-                el.addEventListener('mouseup', () => {
-                    keys[keyName] = false;
-                    el.classList.remove('pressed');
-                    if (esLeft && naveTransformada) {
-                        restaurarTransformacion();
-                    }
-                });
-                el.addEventListener('mouseleave', () => {
-                    keys[keyName] = false;
-                    el.classList.remove('pressed');
-                    if (esLeft && naveTransformada) {
-                        restaurarTransformacion();
-                    }
-                });
-            }
-            
-            setupDpadButton(btnUp, 'ArrowUp', false);
-            setupDpadButton(btnDown, 'ArrowDown', false);
-            setupDpadButton(btnLeft, 'ArrowLeft', true);
-            setupDpadButton(btnRight, 'ArrowRight', false);
-            
-            // Botón C
             function iniciarJuegoDesdeTouch() {
                 if (!gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') {
                     iniciarJuego();
@@ -1354,7 +1445,6 @@
                 btnC.classList.remove('pressed');
             });
             
-            // Tecla C en pantalla de inicio
             teclaC.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 teclaC.style.transform = 'scale(0.92)';
@@ -1384,7 +1474,6 @@
                 teclaC.style.background = '';
             });
             
-            // Botón X
             btnX.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 keys.KeyX = true;
@@ -1418,7 +1507,6 @@
                 playDisparoFin();
             });
             
-            // Botón Z
             function transformarDesdeTouch() {
                 if (gameStarted && !gameOver && !victory) {
                     if (performance.now() - lastMisilTrasero > 250) {
@@ -1451,7 +1539,6 @@
                 btnZ.classList.remove('pressed');
             });
             
-            // Botón Reset
             btnReset.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 btnReset.classList.add('pressed');
@@ -1505,6 +1592,7 @@
         
         cargarImagenes();
         setupTouchControls();
+        setTimeout(resizeCanvas, 100);
         gameLoopWrapper(0);
         window.CFG = CFG;
     </script>
