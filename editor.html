@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Robotech - Editor de Configuración Avanzado</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0a0a2a, #1a0a3a);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .editor-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.9);
+            border-radius: 20px;
+            border: 2px solid #ffcc00;
+            padding: 20px;
+            box-shadow: 0 0 40px rgba(255,204,0,0.3);
+        }
+        h1 { text-align: center; color: #ffcc00; margin-bottom: 10px; font-size: 28px; }
+        .subtitle { text-align: center; color: #aaa; margin-bottom: 25px; font-size: 12px; }
+        .info-panel {
+            background: rgba(0,0,0,0.6);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .info-panel h3 { color: #0f0; margin-bottom: 15px; font-size: 16px; }
+        .info-panel p { color: #ccc; font-size: 12px; margin: 5px 0; }
+        .grid-config { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; }
+        .config-panel { background: rgba(0,0,0,0.6); border: 1px solid #ffcc00; border-radius: 10px; padding: 15px; }
+        .config-panel h3 { color: #0f0; margin-bottom: 15px; font-size: 16px; text-align: center; border-bottom: 1px solid #ffcc00; padding-bottom: 5px; }
+        .param-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; flex-wrap: wrap; }
+        .param-row label { color: #ccc; font-size: 12px; min-width: 200px; }
+        .param-row input, .param-row select { background: #222; border: 1px solid #ffcc00; color: #ffcc00; padding: 5px 8px; border-radius: 5px; font-size: 12px; flex: 1; }
+        .param-row .value-display { color: #0f0; min-width: 50px; text-align: right; }
+        input[type="range"] { flex: 2; cursor: pointer; }
+        .file-input-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .file-input-row label { color: #ccc; font-size: 11px; min-width: 140px; }
+        .file-input-row input { flex: 2; background: #222; color: #ffcc00; border: 1px solid #ffcc00; padding: 5px; border-radius: 5px; font-size: 11px; }
+        .color-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .color-row label { color: #ccc; font-size: 11px; min-width: 100px; }
+        .color-row input { width: 60px; height: 35px; cursor: pointer; border: 1px solid #ffcc00; border-radius: 5px; }
+        .checkbox-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .checkbox-row label { color: #0f0; font-size: 12px; cursor: pointer; }
+        .checkbox-row input { width: 18px; height: 18px; cursor: pointer; }
+        .button-group { display: flex; justify-content: center; gap: 20px; margin-top: 30px; flex-wrap: wrap; }
+        button { background: linear-gradient(135deg, #ff6600, #ffcc00); border: none; color: #000; font-weight: bold; padding: 12px 25px; border-radius: 30px; cursor: pointer; font-size: 16px; transition: transform 0.2s; }
+        button:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(255,204,0,0.5); }
+        .save-btn { background: linear-gradient(135deg, #0066ff, #00ccff); color: #fff; }
+        .reset-btn { background: linear-gradient(135deg, #444, #222); color: #ffcc00; border: 1px solid #ffcc00; }
+        .load-btn, .export-btn { background: linear-gradient(135deg, #00aa66, #00cc88); color: #fff; }
+        .status { text-align: center; margin-top: 15px; padding: 10px; border-radius: 10px; font-size: 12px; }
+        .status.success { background: rgba(0,255,0,0.2); color: #0f0; border: 1px solid #0f0; }
+        .status.error { background: rgba(255,0,0,0.2); color: #f00; border: 1px solid #f00; }
+        .status.info { background: rgba(0,100,255,0.2); color: #0af; border: 1px solid #0af; }
+        hr { border-color: #ffcc00; margin: 15px 0; }
+        .sub-panel { background: rgba(0,0,0,0.4); border-radius: 8px; padding: 8px; margin-top: 10px; }
+        .sub-panel h4 { color: #ffaa44; font-size: 12px; margin-bottom: 8px; }
+        .load-panel {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #00ccff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .load-panel label { color: #0af; font-size: 14px; font-weight: bold; }
+        .load-panel input { background: #222; border: 1px solid #0af; color: #0af; padding: 8px 12px; border-radius: 5px; font-size: 14px; flex: 2; min-width: 250px; }
+        .load-panel button { background: linear-gradient(135deg, #0088aa, #00aacc); padding: 8px 20px; font-size: 14px; }
+        .velocidad-nave {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .volumen-individual {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        @media (max-width: 1100px) { .grid-config { grid-template-columns: 1fr; } .param-row { flex-direction: column; align-items: stretch; } }
+    </style>
+</head>
+<body>
+<div class="editor-container">
+    <h1>⚡ ROBOTECH - EDITOR DE CONFIGURACIÓN AVANZADO ⚡</h1>
+    <div class="subtitle">Velocidad individual por nave | Volumen individual por sonido</div>
+
+    <div class="load-panel">
+        <label>📂 RUTA DEL JUEGO:</label>
+        <input type="text" id="cfg_loadPath" placeholder="Ej: index.html" value="index.html">
+        <button id="loadFromGameBtn" class="load-btn">🔍 CARGAR CONFIGURACIÓN</button>
+        <button id="exportJsonBtn" class="export-btn">💾 EXPORTAR A JSON</button>
+        <button id="loadJsonBtn" class="load-btn">📂 CARGAR DESDE JSON</button>
+        <input type="file" id="jsonUpload" accept=".json" style="display:none">
+    </div>
+
+    <div class="info-panel">
+        <h3>📌 INSTRUCCIONES</h3>
+        <p>1. Modifica los valores que quieras</p>
+        <p>2. Haz clic en <strong>"💾 EXPORTAR A JSON"</strong> para guardar la configuración actual en un archivo <strong>robotech_config.json</strong></p>
+        <p>3. También puedes usar <strong>"💾 GUARDAR CONFIGURACIÓN"</strong> para guardar en localStorage (útil para el juego)</p>
+        <p>4. Presiona <strong>C</strong> en el juego para comenzar la misión</p>
+        <p style="color: #ffaa00;">✨ Velocidad INDIVIDUAL para Nave1, Nave2, Nave3 y Nave3 Invertida</p>
+        <p style="color: #ffaa00;">✨ Volumen INDIVIDUAL para cada música y cada efecto de sonido</p>
+    </div>
+
+    <div class="grid-config">
+        <!-- PANEL 1: TAMAÑOS DE SPRITES Y COLISIONES -->
+        <div class="config-panel">
+            <h3>📐 TAMAÑOS DE SPRITES</h3>
+            <div class="param-row"><label>Nave1 normal (ancho x alto):</label><input type="number" id="cfg_nave1W" value="150" step="1" style="width:80px"><input type="number" id="cfg_nave1H" value="85" step="1" style="width:80px"></div>
+            <div class="param-row"><label>Nave1 transformada (←):</label><input type="number" id="cfg_nave1TransW" value="137" step="1" style="width:80px"><input type="number" id="cfg_nave1TransH" value="100" step="1" style="width:80px"></div>
+            <div class="param-row"><label>Nave2 normal (ancho x alto):</label><input type="number" id="cfg_nave2W" value="120" step="1" style="width:80px"><input type="number" id="cfg_nave2H" value="115" step="1" style="width:80px"></div>
+            <div class="param-row"><label>Nave2 transformada (←):</label><input type="number" id="cfg_nave2TransW" value="135" step="1" style="width:80px"><input type="number" id="cfg_nave2TransH" value="130" step="1" style="width:80px"></div>
+            <div class="param-row"><label>Nave3 normal (ancho x alto):</label><input type="number" id="cfg_nave3W" value="137" step="1" style="width:80px"><input type="number" id="cfg_nave3H" value="170" step="1" style="width:80px"></div>
+            <div class="param-row"><label>Nave3 transformada (←):</label><input type="number" id="cfg_nave31W" value="145" step="1" style="width:80px"><input type="number" id="cfg_nave31H" value="200" step="1" style="width:80px"></div>
+            <div class="param-row"><label>Enemigo1:</label><input type="number" id="cfg_enemyW" value="190" step="1" style="width:80px"><input type="number" id="cfg_enemyH" value="140" step="1" style="width:80px"></div>
+            <div class="param-row"><label>Enemigo2:</label><input type="number" id="cfg_enemy2W" value="180" step="1" style="width:80px"><input type="number" id="cfg_enemy2H" value="135" step="1" style="width:80px"></div>
+            <div class="param-row"><label>Jefe:</label><input type="number" id="cfg_jefeW" value="346" step="1" style="width:80px"><input type="number" id="cfg_jefeH" value="180" step="1" style="width:80px"></div>
+            
+            <hr>
+            <h4 style="color:#ffaa44;">🎯 AJUSTE DE COLISIONES</h4>
+            <div class="param-row"><label>Reducción colisiones global:</label><input type="range" id="cfg_collisionReduce" min="10" max="80" value="50"><span id="cfg_collisionReduceVal">50%</span></div>
+            <div class="param-row"><label>Reducción Nave1:</label><input type="range" id="cfg_collisionNave1" min="10" max="80" step="5" value="50"><span id="cfg_collisionNave1Val">50%</span></div>
+            <div class="param-row"><label>Reducción Nave2:</label><input type="range" id="cfg_collisionNave2" min="10" max="80" step="5" value="50"><span id="cfg_collisionNave2Val">50%</span></div>
+            <div class="param-row"><label>Reducción Nave3:</label><input type="range" id="cfg_collisionNave3" min="10" max="80" step="5" value="50"><span id="cfg_collisionNave3Val">50%</span></div>
+            <div class="param-row"><label>Reducción Enemigo1:</label><input type="range" id="cfg_collisionEnemy" min="10" max="80" step="5" value="50"><span id="cfg_collisionEnemyVal">50%</span></div>
+            <div class="param-row"><label>Reducción Enemigo2:</label><input type="range" id="cfg_collisionEnemy2" min="10" max="80" step="5" value="50"><span id="cfg_collisionEnemy2Val">50%</span></div>
+            <div class="param-row"><label>Reducción Jefe:</label><input type="range" id="cfg_collisionJefe" min="10" max="80" step="5" value="50"><span id="cfg_collisionJefeVal">50%</span></div>
+            <div class="param-row"><label>Reducción Proyectil:</label><input type="range" id="cfg_collisionProyectil" min="10" max="80" step="5" value="50"><span id="cfg_collisionProyectilVal">50%</span></div>
+        </div>
+
+        <!-- PANEL 2: SPRITES PRINCIPALES -->
+        <div class="config-panel">
+            <h3>🖼️ SPRITES PRINCIPALES</h3>
+            <div class="file-input-row"><label>Nave1 normal:</label><input type="text" id="cfg_spriteNave1" value="imagenes/nave1.png"></div>
+            <div class="file-input-row"><label>Nave1 transformada:</label><input type="text" id="cfg_spriteNave1Trans" value="imagenes/nave1.1.png"></div>
+            <div class="file-input-row"><label>Nave2 normal:</label><input type="text" id="cfg_spriteNave2" value="imagenes/nave2.png"></div>
+            <div class="file-input-row"><label>Nave2 transformada:</label><input type="text" id="cfg_spriteNave2Trans" value="imagenes/nave2.1.png"></div>
+            <div class="file-input-row"><label>Nave3 normal:</label><input type="text" id="cfg_spriteNave3" value="imagenes/nave3.png"></div>
+            <div class="file-input-row"><label>Nave3 transformada:</label><input type="text" id="cfg_spriteNave31" value="imagenes/nave3.1.png"></div>
+            <div class="file-input-row"><label>Enemigo1:</label><input type="text" id="cfg_spriteEnemy" value="imagenes/enemigo.png"></div>
+            <div class="file-input-row"><label>Enemigo2:</label><input type="text" id="cfg_spriteEnemy2" value="imagenes/enemigo2.png"></div>
+            <div class="file-input-row"><label>Jefe:</label><input type="text" id="cfg_spriteJefe" value="imagenes/jefe.png"></div>
+            <div class="file-input-row"><label>Explosión:</label><input type="text" id="cfg_spriteExplosion" value="imagenes/explosion.png"></div>
+            <div class="file-input-row"><label>Proyectil:</label><input type="text" id="cfg_spriteProyectil" value="imagenes/proyectil.png"></div>
+            <div class="file-input-row"><label>Proyectil Enemigo:</label><input type="text" id="cfg_spriteProyectilEnemy" value="imagenes/proyectil_enemigo.png"></div>
+        </div>
+
+        <!-- PANEL 3: ANIMACIÓN POR FRAMES -->
+        <div class="config-panel">
+            <h3>🎬 ANIMACIÓN POR FRAMES (como GIF)</h3>
+            <div class="sub-panel"><h4>🟢 NAVE 1 - Frame 2</h4>
+                <div class="file-input-row"><label>Imagen Frame 2:</label><input type="text" id="cfg_nave1Frame2" value="imagenes/nave1_frame2.png"></div>
+                <div class="param-row"><label>Velocidad animación (ms):</label><input type="range" id="cfg_nave1AnimSpeed" min="50" max="500" step="10" value="150"><span id="cfg_nave1AnimSpeedVal">150ms</span></div>
+                <div class="param-row"><label>Activar animación:</label><div class="checkbox-row"><input type="checkbox" id="cfg_nave1AnimActive" checked> <label>Alternar frames</label></div></div>
+                <div class="param-row"><label>Tamaño Frame 2 (ancho x alto):</label><input type="number" id="cfg_nave1Frame2W" value="150" step="1" style="width:70px"><input type="number" id="cfg_nave1Frame2H" value="85" step="1" style="width:70px"></div>
+                <div class="param-row"><label>Offset Frame 2 (X, Y):</label><input type="number" id="cfg_nave1Frame2X" value="0" step="1" style="width:60px"><input type="number" id="cfg_nave1Frame2Y" value="0" step="1" style="width:60px"></div>
+            </div>
+            <div class="sub-panel"><h4>🔵 NAVE 2 - Frame 2</h4>
+                <div class="file-input-row"><label>Imagen Frame 2:</label><input type="text" id="cfg_nave2Frame2" value="imagenes/nave2_frame2.png"></div>
+                <div class="param-row"><label>Velocidad animación (ms):</label><input type="range" id="cfg_nave2AnimSpeed" min="50" max="500" step="10" value="150"><span id="cfg_nave2AnimSpeedVal">150ms</span></div>
+                <div class="param-row"><label>Activar animación:</label><div class="checkbox-row"><input type="checkbox" id="cfg_nave2AnimActive" checked> <label>Alternar frames</label></div></div>
+                <div class="param-row"><label>Tamaño Frame 2 (ancho x alto):</label><input type="number" id="cfg_nave2Frame2W" value="120" step="1" style="width:70px"><input type="number" id="cfg_nave2Frame2H" value="115" step="1" style="width:70px"></div>
+                <div class="param-row"><label>Offset Frame 2 (X, Y):</label><input type="number" id="cfg_nave2Frame2X" value="0" step="1" style="width:60px"><input type="number" id="cfg_nave2Frame2Y" value="0" step="1" style="width:60px"></div>
+            </div>
+            <div class="sub-panel"><h4>🟣 NAVE 3 - Frame 2</h4>
+                <div class="file-input-row"><label>Imagen Frame 2:</label><input type="text" id="cfg_nave3Frame2" value="imagenes/nave3_frame2.png"></div>
+                <div class="param-row"><label>Velocidad animación (ms):</label><input type="range" id="cfg_nave3AnimSpeed" min="50" max="500" step="10" value="150"><span id="cfg_nave3AnimSpeedVal">150ms</span></div>
+                <div class="param-row"><label>Activar animación:</label><div class="checkbox-row"><input type="checkbox" id="cfg_nave3AnimActive" checked> <label>Alternar frames</label></div></div>
+                <div class="param-row"><label>Tamaño Frame 2 (ancho x alto):</label><input type="number" id="cfg_nave3Frame2W" value="137" step="1" style="width:70px"><input type="number" id="cfg_nave3Frame2H" value="170" step="1" style="width:70px"></div>
+                <div class="param-row"><label>Offset Frame 2 (X, Y):</label><input type="number" id="cfg_nave3Frame2X" value="0" step="1" style="width:60px"><input type="number" id="cfg_nave3Frame2Y" value="0" step="1" style="width:60px"></div>
+            </div>
+            <div class="sub-panel"><h4>🟠 NAVE 3 INVERTIDA - Frame 2</h4>
+                <div class="file-input-row"><label>Imagen Frame 2 (invertida):</label><input type="text" id="cfg_nave3InvFrame2" value="imagenes/nave3_inv_frame2.png"></div>
+                <div class="param-row"><label>Velocidad animación (ms):</label><input type="range" id="cfg_nave3InvAnimSpeed" min="50" max="500" step="10" value="150"><span id="cfg_nave3InvAnimSpeedVal">150ms</span></div>
+                <div class="param-row"><label>Activar animación invertida:</label><div class="checkbox-row"><input type="checkbox" id="cfg_nave3InvAnimActive" checked> <label>Alternar frames en modo invertido</label></div></div>
+                <div class="param-row"><label>Tamaño Frame 2 invertido (ancho x alto):</label><input type="number" id="cfg_nave3InvFrame2W" value="137" step="1" style="width:70px"><input type="number" id="cfg_nave3InvFrame2H" value="170" step="1" style="width:70px"></div>
+                <div class="param-row"><label>Offset Frame 2 invertido (X, Y):</label><input type="number" id="cfg_nave3InvFrame2X" value="0" step="1" style="width:60px"><input type="number" id="cfg_nave3InvFrame2Y" value="0" step="1" style="width:60px"></div>
+            </div>
+        </div>
+
+        <!-- PANEL 4: CONFIGURACIÓN DE DISPAROS -->
+        <div class="config-panel">
+            <h3>🎯 CONFIGURACIÓN DE DISPAROS</h3>
+            <div class="sub-panel">
+                <h4>NAVE 1</h4>
+                <div class="param-row"><label>Tipo de disparo:</label><select id="cfg_shootType1"><option value="recto">Recto (normal)</option><option value="teledirigido">Teledirigido (hacia enemigo)</option></select></div>
+                <div class="param-row"><label>Tipo de ráfaga:</label><select id="cfg_burstType1"><option value="1">1 disparo</option><option value="2">2 disparos</option><option value="3">3 disparos</option><option value="spray">Spray (4 misiles)</option></select></div>
+                <div class="param-row"><label>Separación ráfaga (px):</label><input type="number" id="cfg_burstSpread1" value="15" step="5"></div>
+            </div>
+            <div class="sub-panel">
+                <h4>NAVE 2</h4>
+                <div class="param-row"><label>Tipo de disparo:</label><select id="cfg_shootType2"><option value="recto">Recto (normal)</option><option value="teledirigido">Teledirigido (hacia enemigo)</option></select></div>
+                <div class="param-row"><label>Tipo de ráfaga:</label><select id="cfg_burstType2"><option value="1">1 disparo</option><option value="2">2 disparos</option><option value="3">3 disparos</option><option value="spray">Spray (4 misiles)</option></select></div>
+                <div class="param-row"><label>Separación ráfaga (px):</label><input type="number" id="cfg_burstSpread2" value="15" step="5"></div>
+            </div>
+            <div class="sub-panel">
+                <h4>NAVE 3</h4>
+                <div class="param-row"><label>Tipo de disparo:</label><select id="cfg_shootType3"><option value="recto">Recto (normal)</option><option value="teledirigido">Teledirigido (hacia enemigo)</option></select></div>
+                <div class="param-row"><label>Tipo de ráfaga:</label><select id="cfg_burstType3"><option value="1">1 disparo</option><option value="2">2 disparos</option><option value="3">3 disparos</option><option value="spray">Spray (4 misiles)</option></select></div>
+                <div class="param-row"><label>Separación ráfaga (px):</label><input type="number" id="cfg_burstSpread3" value="15" step="5"></div>
+            </div>
+            <div class="sub-panel">
+                <h4>NAVE 3 INVERTIDA (volteada)</h4>
+                <div class="param-row"><label>Tipo de disparo:</label><select id="cfg_shootType3Inv"><option value="recto">Recto (normal)</option><option value="teledirigido">Teledirigido (hacia enemigo)</option></select></div>
+                <div class="param-row"><label>Tipo de ráfaga:</label><select id="cfg_burstType3Inv"><option value="1">1 disparo</option><option value="2">2 disparos</option><option value="3">3 disparos</option><option value="spray">Spray (4 misiles)</option></select></div>
+                <div class="param-row"><label>Separación ráfaga (px):</label><input type="number" id="cfg_burstSpread3Inv" value="15" step="5"></div>
+            </div>
+            <div class="param-row"><label>Velocidad proyectil teledirigido:</label><input type="range" id="cfg_homingProjSpeed" min="5" max="15" step="0.5" value="9"><span id="cfg_homingProjSpeedVal">9</span></div>
+        </div>
+
+        <!-- PANEL 5: TRANSFORMACIÓN NAVES -->
+        <div class="config-panel">
+            <h3>🔄 TRANSFORMACIÓN NAVES (Tecla ←)</h3>
+            <div class="param-row"><label>Activar transformación general:</label><div class="checkbox-row"><input type="checkbox" id="cfg_transformacionActiva" checked> <label>Cambiar sprite al presionar ←</label></div></div>
+            <div class="param-row"><label>Cambiar tamaño al transformar:</label><div class="checkbox-row"><input type="checkbox" id="cfg_transformacionCambiaTamaño" checked> <label>Usar tamaños alternativos</label></div></div>
+            <div class="param-row"><label>Restaurar al soltar ←:</label><div class="checkbox-row"><input type="checkbox" id="cfg_restaurarAlSoltar" checked> <label>Volver al sprite/tamaño normal</label></div></div>
+            <div class="param-row"><label>Lanzar misiles al transformar:</label><div class="checkbox-row"><input type="checkbox" id="cfg_transformacionMisiles" checked> <label>Lanzar 4 misiles homing</label></div></div>
+            <hr>
+            <h4 style="color:#ffaa00; text-align:center;">🔘 TRANSFORMACIÓN CON TECLA Z (Flash)</h4>
+            <div class="param-row"><label>Activar transformación con tecla Z:</label><div class="checkbox-row"><input type="checkbox" id="cfg_transformacionZActiva" checked> <label>Mostrar imagen flash y cambiar forma</label></div></div>
+            <div class="param-row"><label>Duración del flash Z (ms):</label><input type="range" id="cfg_transformacionZDuración" min="30" max="200" step="10" value="50"><span id="cfg_transformacionZDuraciónVal">50ms</span></div>
+            <div class="param-row"><label>Reproducir sonido al presionar Z:</label><div class="checkbox-row"><input type="checkbox" id="cfg_transformacionZSonido" checked> <label>Activar sonido</label></div></div>
+            <div class="file-input-row"><label>Archivo de sonido Z:</label><input type="text" id="cfg_transformacionZSonidoArchivo" value="sonidos/transformacion.wav"></div>
+            <div class="sub-panel"><h4>🖼️ IMAGEN DEL FLASH Z</h4>
+                <div class="file-input-row"><label>Imagen flash Z:</label><input type="text" id="cfg_transformacionZImagen" value="imagenes/nave2.1.png"></div>
+                <div class="param-row"><label>Tamaño imagen (ancho x alto):</label><input type="number" id="cfg_transformacionZImagenW" value="135" step="1" style="width:70px"><input type="number" id="cfg_transformacionZImagenH" value="130" step="1" style="width:70px"></div>
+                <div class="param-row"><label>Posición offset (X, Y):</label><input type="number" id="cfg_transformacionZImagenX" value="0" step="1" style="width:60px"><input type="number" id="cfg_transformacionZImagenY" value="0" step="1" style="width:60px"></div>
+                <div class="param-row"><label>Invertir verticalmente:</label><div class="checkbox-row"><input type="checkbox" id="cfg_transformacionZInvertir" checked> <label>Efecto espejo Y</label></div></div>
+            </div>
+        </div>
+
+        <!-- PANEL 6: VIDAS -->
+        <div class="config-panel">
+            <h3>❤️ CONFIGURACIÓN DE VIDAS</h3>
+            <div class="param-row"><label>Vidas iniciales:</label><input type="range" id="cfg_vidasIniciales" min="1" max="10" step="1" value="3"><span id="cfg_vidasInicialesVal">3</span></div>
+            <div class="param-row"><label>Vidas máximo:</label><input type="range" id="cfg_vidasMaximo" min="3" max="20" step="1" value="10"><span id="cfg_vidasMaximoVal">10</span></div>
+            <div class="param-row"><label>Invulnerabilidad después de golpe (ms):</label><input type="number" id="cfg_invulnerabilidadTiempo" value="1000" step="100"></div>
+            <div class="param-row"><label>Efecto parpadeo al recibir daño:</label><div class="checkbox-row"><input type="checkbox" id="cfg_invulnerabilidadParpadeo" checked> <label>Activar parpadeo</label></div></div>
+        </div>
+
+        <!-- PANEL 7: PARTÍCULAS Y ESCOMBROS -->
+        <div class="config-panel">
+            <h3>✨ PARTÍCULAS (ESCOMBROS)</h3>
+            <div class="param-row"><label>Activar/Desactivar partículas:</label><div class="checkbox-row"><input type="checkbox" id="cfg_particulasActivas" checked> <label>Mostrar escombros</label></div></div>
+            <div class="param-row"><label>Tipo de partícula:</label><select id="cfg_particulaTipo"><option value="cuadrado">Cuadrado</option><option value="circulo">Círculo</option><option value="triangulo">Triángulo</option><option value="estrella">Estrella (4 puntas)</option></select></div>
+            <div class="param-row"><label>Cantidad de partículas:</label><input type="range" id="cfg_particulasCantidad" min="0" max="20" step="1" value="8"><span id="cfg_particulasCantidadVal">8</span></div>
+            <div class="param-row"><label>Tamaño mínimo:</label><input type="range" id="cfg_particulasTamañoMin" min="2" max="10" step="0.5" value="3"><span id="cfg_particulasTamañoMinVal">3</span></div>
+            <div class="param-row"><label>Tamaño máximo:</label><input type="range" id="cfg_particulasTamañoMax" min="4" max="20" step="0.5" value="11"><span id="cfg_particulasTamañoMaxVal">11</span></div>
+            <div class="param-row"><label>Velocidad partículas:</label><input type="range" id="cfg_particulasVelocidad" min="1" max="8" step="0.5" value="4"><span id="cfg_particulasVelocidadVal">4</span></div>
+            <div class="param-row"><label>Duración (ms):</label><input type="range" id="cfg_particulasDuracion" min="200" max="1500" step="50" value="500"><span id="cfg_particulasDuracionVal">500</span></div>
+            <div class="param-row"><label>Color 1:</label><input type="color" id="cfg_particulasColor1" value="#ff6600"></div>
+            <div class="param-row"><label>Color 2:</label><input type="color" id="cfg_particulasColor2" value="#ffaa00"></div>
+        </div>
+
+        <!-- PANEL 8: POSICIÓN DE DISPAROS -->
+        <div class="config-panel">
+            <h3>🎯 POSICIÓN DE DISPAROS</h3>
+            <div class="param-row"><label>Nave1 offset X,Y:</label><input type="number" id="cfg_shoot1X" value="-8" step="1" style="width:60px"><input type="number" id="cfg_shoot1Y" value="-5" step="1" style="width:60px"></div>
+            <div class="param-row"><label>Nave1 offset ráfaga (X,Y):</label><input type="number" id="cfg_shoot1BX" value="0" step="5" style="width:60px"><input type="number" id="cfg_shoot1BY" value="0" step="5" style="width:60px"></div>
+            <div class="param-row"><label>Nave2 offset X,Y:</label><input type="number" id="cfg_shoot2X" value="-5" step="1" style="width:60px"><input type="number" id="cfg_shoot2Y" value="0" step="1" style="width:60px"></div>
+            <div class="param-row"><label>Nave2 offset ráfaga (X,Y):</label><input type="number" id="cfg_shoot2BX" value="0" step="5" style="width:60px"><input type="number" id="cfg_shoot2BY" value="0" step="5" style="width:60px"></div>
+            <div class="param-row"><label>Nave3 offset X,Y:</label><input type="number" id="cfg_shoot3X" value="-8" step="1" style="width:60px"><input type="number" id="cfg_shoot3Y" value="-5" step="1" style="width:60px"></div>
+            <div class="param-row"><label>Nave3 offset ráfaga (X,Y):</label><input type="number" id="cfg_shoot3BX" value="0" step="5" style="width:60px"><input type="number" id="cfg_shoot3BY" value="0" step="5" style="width:60px"></div>
+            <div class="param-row"><label>Nave3 transformada offset X,Y:</label><input type="number" id="cfg_shoot31X" value="-8" step="1" style="width:60px"><input type="number" id="cfg_shoot31Y" value="-5" step="1" style="width:60px"></div>
+            <div class="param-row"><label>Nave3 inv offset ráfaga (X,Y):</label><input type="number" id="cfg_shoot31BX" value="0" step="5" style="width:60px"><input type="number" id="cfg_shoot31BY" value="0" step="5" style="width:60px"></div>
+        </div>
+
+        <!-- PANEL 9: VELOCIDADES -->
+        <div class="config-panel">
+            <h3>⚡ VELOCIDADES</h3>
+            <div class="param-row"><label>Velocidad Base (referencia):</label><input type="range" id="cfg_playerSpeed" min="3" max="15" step="0.5" value="7"><span id="cfg_playerSpeedVal">7</span></div>
+            <div class="param-row"><small style="color:#ffaa44;">Multiplicadores sobre la velocidad base</small></div>
+            <div class="velocidad-nave"><h4 style="color:#44ff44;">🚀 NAVE 1</h4>
+                <div class="param-row"><label>Velocidad Nave 1:</label><input type="range" id="cfg_speedNave1" min="0.5" max="1.5" step="0.05" value="1.0"><span id="cfg_speedNave1Val">1.00</span></div>
+                <div class="param-row"><label>Velocidad Nave 1 Transformada:</label><input type="range" id="cfg_speedNave1Trans" min="0.5" max="1.5" step="0.05" value="1.0"><span id="cfg_speedNave1TransVal">1.00</span></div>
+            </div>
+            <div class="velocidad-nave"><h4 style="color:#44ff44;">🚀 NAVE 2</h4>
+                <div class="param-row"><label>Velocidad Nave 2:</label><input type="range" id="cfg_speedNave2" min="0.5" max="1.5" step="0.05" value="0.85"><span id="cfg_speedNave2Val">0.85</span></div>
+                <div class="param-row"><label>Velocidad Nave 2 Transformada:</label><input type="range" id="cfg_speedNave2Trans" min="0.5" max="1.5" step="0.05" value="1.0"><span id="cfg_speedNave2TransVal">1.00</span></div>
+            </div>
+            <div class="velocidad-nave"><h4 style="color:#44ff44;">🚀 NAVE 3</h4>
+                <div class="param-row"><label>Velocidad Nave 3:</label><input type="range" id="cfg_speedNave3" min="0.5" max="1.5" step="0.05" value="0.75"><span id="cfg_speedNave3Val">0.75</span></div>
+                <div class="param-row"><label>Velocidad Nave 3 Transformada:</label><input type="range" id="cfg_speedNave3Trans" min="0.5" max="1.5" step="0.05" value="1.0"><span id="cfg_speedNave3TransVal">1.00</span></div>
+            </div>
+            <div class="velocidad-nave"><h4 style="color:#44ff44;">🔄 NAVE 3 INVERTIDA</h4>
+                <div class="param-row"><label>Velocidad Nave 3 Invertida:</label><input type="range" id="cfg_speedNave3Inv" min="0.5" max="1.5" step="0.05" value="1.0"><span id="cfg_speedNave3InvVal">1.00</span></div>
+                <div class="param-row"><label>Velocidad Nave 3 Inv Transformada:</label><input type="range" id="cfg_speedNave3InvTrans" min="0.5" max="1.5" step="0.05" value="1.0"><span id="cfg_speedNave3InvTransVal">1.00</span></div>
+            </div>
+            <hr>
+            <div class="param-row"><label>Vel. Proyectil:</label><input type="range" id="cfg_proyectilSpeed" min="5" max="20" step="1" value="11"><span id="cfg_proyectilSpeedVal">11</span></div>
+            <div class="param-row"><label>Vel. Misil Homing:</label><input type="range" id="cfg_homingSpeed" min="5" max="15" step="0.5" value="9"><span id="cfg_homingSpeedVal">9</span></div>
+            <div class="param-row"><label>Vel. Misil Trasero:</label><input type="range" id="cfg_traseroSpeed" min="3" max="12" step="0.5" value="6"><span id="cfg_traseroSpeedVal">6</span></div>
+            <div class="param-row"><label>Vel. Enemigo1:</label><input type="range" id="cfg_enemy1Speed" min="-12" max="-2" step="0.5" value="-6.5"><span id="cfg_enemy1SpeedVal">-6.5</span></div>
+            <div class="param-row"><label>Vel. Enemigo2:</label><input type="range" id="cfg_enemy2Speed" min="-10" max="-2" step="0.5" value="-5.5"><span id="cfg_enemy2SpeedVal">-5.5</span></div>
+            <div class="param-row"><label>Vel. Proyectil Enemigo:</label><input type="range" id="cfg_enemyProjSpeed" min="2" max="8" step="0.5" value="4"><span id="cfg_enemyProjSpeedVal">4</span></div>
+            <div class="param-row"><label>Vel. Jefe Contingencia:</label><input type="range" id="cfg_jefeContingenciaSpeed" min="8" max="18" step="0.5" value="11.2"><span id="cfg_jefeContingenciaSpeedVal">11.2</span></div>
+        </div>
+
+        <!-- PANEL 10: MUNICIÓN Y ENERGÍA -->
+        <div class="config-panel">
+            <h3>💪 MUNICIÓN Y ENERGÍA</h3>
+            <div class="param-row"><label>Spray inicial:</label><input type="number" id="cfg_sprayAmmo" value="100" step="10"></div>
+            <div class="param-row"><label>Energía Láser Nave2:</label><input type="number" id="cfg_laserEnergy" value="300" step="10"></div>
+            <div class="param-row"><label>Costo Láser:</label><input type="number" id="cfg_laserCost" value="10" step="1"></div>
+            <div class="param-row"><label>Regeneración Energía:</label><input type="number" id="cfg_energyRegen" value="5" step="1"></div>
+            <div class="param-row"><label>Cooldown disparo (ms):</label><input type="number" id="cfg_shotCooldown" value="100" step="10"></div>
+            <div class="param-row"><label>Cooldown Misil Trasero:</label><input type="number" id="cfg_misilCooldown" value="400" step="50"></div>
+            <div class="param-row"><label>Tiempo transformación misil:</label><input type="number" id="cfg_misilTransformTime" value="300" step="50"></div>
+        </div>
+
+        <!-- PANEL 11: MÚSICA Y SONIDOS -->
+        <div class="config-panel">
+            <h3>🎵 MÚSICA Y SONIDOS</h3>
+            <div class="sub-panel"><h4>🎚️ CONTROLES GENERALES</h4>
+                <div class="param-row"><label>Volumen Música (global):</label><input type="range" id="cfg_volMusica" min="0" max="100" value="100"><span id="cfg_volMusicaVal">100%</span></div>
+                <div class="param-row"><label>Volumen Efectos (global):</label><input type="range" id="cfg_volEfectos" min="0" max="100" value="45"><span id="cfg_volEfectosVal">45%</span></div>
+            </div>
+            <div class="sub-panel"><h4>🎼 MÚSICA (volumen individual)</h4>
+                <div class="file-input-row"><label>Música Intro:</label><input type="text" id="cfg_musicaIntro" value="musica/intro.mp3"></div>
+                <div class="param-row"><label>Volumen Intro:</label><input type="range" id="cfg_volIntro" min="0" max="100" value="100"><span id="cfg_volIntroVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteIntro"> <label>Silenciar Intro</label></div>
+                <div class="file-input-row"><label>Música Fondo:</label><input type="text" id="cfg_musicaFondo" value="musica/fondo.mp3"></div>
+                <div class="param-row"><label>Volumen Fondo:</label><input type="range" id="cfg_volFondo" min="0" max="100" value="100"><span id="cfg_volFondoVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteFondo"> <label>Silenciar Fondo</label></div>
+                <div class="file-input-row"><label>Música Alarma Jefe:</label><input type="text" id="cfg_musicaAlarma" value="musica/alarma.mp3"></div>
+                <div class="param-row"><label>Volumen Alarma:</label><input type="range" id="cfg_volAlarmaMusica" min="0" max="100" value="100"><span id="cfg_volAlarmaMusicaVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteAlarmaMusica"> <label>Silenciar Alarma</label></div>
+                <div class="file-input-row"><label>Música Jefe:</label><input type="text" id="cfg_musicaJefe" value="musica/jefe_epico.mp3"></div>
+                <div class="param-row"><label>Volumen Jefe:</label><input type="range" id="cfg_volJefe" min="0" max="100" value="100"><span id="cfg_volJefeVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteJefe"> <label>Silenciar Jefe</label></div>
+                <div class="file-input-row"><label>Música Victoria:</label><input type="text" id="cfg_musicaVictoria" value="musica/victoria.mp3"></div>
+                <div class="param-row"><label>Volumen Victoria:</label><input type="range" id="cfg_volVictoria" min="0" max="100" value="100"><span id="cfg_volVictoriaVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteVictoria"> <label>Silenciar Victoria</label></div>
+            </div>
+            <div class="sub-panel"><h4>🔊 EFECTOS DE SONIDO (volumen individual)</h4>
+                <div class="file-input-row"><label>Sonido Disparo:</label><input type="text" id="cfg_sonidoDisparo" value="sonidos/disparo.wav"></div>
+                <div class="param-row"><label>Volumen Disparo:</label><input type="range" id="cfg_volDisparo" min="0" max="100" value="100"><span id="cfg_volDisparoVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteDisparo"> <label>Silenciar Disparo</label></div>
+                <div class="file-input-row"><label>Sonido Disparo2:</label><input type="text" id="cfg_sonidoDisparo2" value="sonidos/disparo2.wav"></div>
+                <div class="param-row"><label>Volumen Disparo2:</label><input type="range" id="cfg_volDisparo2" min="0" max="100" value="100"><span id="cfg_volDisparo2Val">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteDisparo2"> <label>Silenciar Disparo2</label></div>
+                <div class="file-input-row"><label>Sonido Transformación:</label><input type="text" id="cfg_sonidoTransformacion" value="sonidos/transformacion.wav"></div>
+                <div class="param-row"><label>Volumen Transformación:</label><input type="range" id="cfg_volTransformacion" min="0" max="100" value="100"><span id="cfg_volTransformacionVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteTransformacion"> <label>Silenciar Transformación</label></div>
+                <div class="file-input-row"><label>Sonido Explosión:</label><input type="text" id="cfg_sonidoExplosion" value="sonidos/explosion.wav"></div>
+                <div class="param-row"><label>Volumen Explosión:</label><input type="range" id="cfg_volExplosion" min="0" max="100" value="100"><span id="cfg_volExplosionVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteExplosion"> <label>Silenciar Explosión</label></div>
+                <div class="file-input-row"><label>Sonido Alarma:</label><input type="text" id="cfg_sonidoAlarma" value="sonidos/alarma.wav"></div>
+                <div class="param-row"><label>Volumen Alarma Efecto:</label><input type="range" id="cfg_volAlarmaEfecto" min="0" max="100" value="100"><span id="cfg_volAlarmaEfectoVal">100%</span></div>
+                <div class="checkbox-row"><input type="checkbox" id="cfg_muteAlarmaEfecto"> <label>Silenciar Alarma Efecto</label></div>
+            </div>
+        </div>
+
+        <!-- PANEL 12: FONDO Y EFECTOS VISUALES -->
+        <div class="config-panel">
+            <h3>🎨 FONDO Y EFECTOS VISUALES</h3>
+            <div class="color-row"><label>Color Fondo 1:</label><input type="color" id="cfg_bgColor1" value="#0a0a2a"></div>
+            <div class="color-row"><label>Color Fondo 2:</label><input type="color" id="cfg_bgColor2" value="#1a0a3a"></div>
+            <div class="param-row"><label>Estrellas de fondo:</label><div class="checkbox-row"><input type="checkbox" id="cfg_estrellasActivas" checked> <label>Mostrar estrellas</label></div></div>
+            <div class="param-row"><label>Cantidad de estrellas:</label><input type="range" id="cfg_estrellasCantidad" min="50" max="300" step="10" value="150"><span id="cfg_estrellasCantidadVal">150</span></div>
+            <div class="param-row"><label>Brillo estrellas:</label><input type="range" id="cfg_estrellasBrillo" min="0.2" max="1" step="0.05" value="0.5"><span id="cfg_estrellasBrilloVal">0.5</span></div>
+            <div class="param-row"><label>Velocidad estrellas:</label><input type="range" id="cfg_estrellasVelocidad" min="-6" max="-1" step="0.5" value="-3"><span id="cfg_estrellasVelocidadVal">-3</span></div>
+            <hr>
+            <h4 style="color:#ffaa44;">🎆 OBJETOS DECORATIVOS</h4>
+            <div class="param-row"><label>Mostrar nubes:</label><div class="checkbox-row"><input type="checkbox" id="cfg_nubesActivas"> <label>Activar nubes decorativas</label></div></div>
+            <div class="param-row"><label>Cantidad nubes:</label><input type="range" id="cfg_nubesCantidad" min="0" max="30" step="2" value="10"><span id="cfg_nubesCantidadVal">10</span></div>
+            <div class="param-row"><label>Velocidad nubes:</label><input type="range" id="cfg_nubesVelocidad" min="-3" max="3" step="0.5" value="-1"><span id="cfg_nubesVelocidadVal">-1</span></div>
+            <div class="param-row"><label>Mostrar asteroides:</label><div class="checkbox-row"><input type="checkbox" id="cfg_asteroidesActivos"> <label>Activar asteroides decorativos</label></div></div>
+            <div class="param-row"><label>Cantidad asteroides:</label><input type="range" id="cfg_asteroidesCantidad" min="0" max="20" step="1" value="8"><span id="cfg_asteroidesCantidadVal">8</span></div>
+            <div class="param-row"><label>Velocidad asteroides:</label><input type="range" id="cfg_asteroidesVelocidad" min="-4" max="4" step="0.5" value="-2"><span id="cfg_asteroidesVelocidadVal">-2</span></div>
+        </div>
+
+        <!-- PANEL 13: JEFE Y OTROS -->
+        <div class="config-panel">
+            <h3>👾 JEFE Y OTROS</h3>
+            <div class="param-row"><label>Puntos para activar Jefe:</label><input type="number" id="cfg_bossScore" value="25" step="5"></div>
+            <div class="param-row"><label>Vida del Jefe:</label><input type="number" id="cfg_bossHealth" value="120" step="10"></div>
+            <div class="param-row"><label>Velocidad Jefe:</label><input type="range" id="cfg_bossSpeed" min="-8" max="-2" step="0.5" value="-3.5"><span id="cfg_bossSpeedVal">-3.5</span></div>
+            <div class="param-row"><label>Intervalo disparo Jefe (ms):</label><input type="number" id="cfg_bossShootDelay" value="1500" step="100"></div>
+            <div class="param-row"><label>Alarma Jefe:</label><div class="checkbox-row"><input type="checkbox" id="cfg_alarmaJefeActiva" checked> <label>Activar alarma visual y sonora</label></div></div>
+            <div class="param-row"><label>Duración alarma (ms):</label><input type="number" id="cfg_alarmaDuracion" value="3000" step="500"></div>
+        </div>
+    </div>
+
+    <hr>
+    <div class="button-group">
+        <button class="reset-btn" id="resetEditorBtn">⟳ Restaurar Valores Originales</button>
+        <button class="save-btn" id="saveToGameBtn">💾 GUARDAR CONFIGURACIÓN (localStorage)</button>
+    </div>
+    <div id="editorStatus" class="status"></div>
+</div>
+
+<script>
+    // ==========================================
+    // CONFIGURACIÓN POR DEFECTO (con todas las nuevas opciones)
+    // ==========================================
+    const DEFAULT_CONFIG = {
+        nave1W:150, nave1H:85, nave1TransW:137, nave1TransH:100,
+        nave2W:120, nave2H:115, nave2TransW:135, nave2TransH:130,
+        nave3W:137, nave3H:170, nave31W:145, nave31H:200,
+        enemyW:190, enemyH:140, enemy2W:180, enemy2H:135,
+        jefeW:346, jefeH:180, collisionReduce:50,
+        collisionNave1:50, collisionNave2:50, collisionNave3:50,
+        collisionEnemy:50, collisionEnemy2:50, collisionJefe:50, collisionProyectil:50,
+        shoot1X:-8, shoot1Y:-5, shoot1BX:0, shoot1BY:0,
+        shoot2X:-5, shoot2Y:0, shoot2BX:0, shoot2BY:0,
+        shoot3X:-8, shoot3Y:-5, shoot3BX:0, shoot3BY:0,
+        shoot31X:-8, shoot31Y:-5, shoot31BX:0, shoot31BY:0,
+        playerSpeed:7, proyectilSpeed:11, homingSpeed:9, traseroSpeed:6,
+        speedNave1:1.0, speedNave1Trans:1.0,
+        speedNave2:0.85, speedNave2Trans:1.0,
+        speedNave3:0.75, speedNave3Trans:1.0,
+        speedNave3Inv:1.0, speedNave3InvTrans:1.0,
+        enemy1Speed:-6.5, enemy2Speed:-5.5, enemyProjSpeed:4, jefeContingenciaSpeed:11.2,
+        sprayAmmo:100, laserEnergy:300, laserCost:10, energyRegen:5, shotCooldown:100, misilCooldown:400, misilTransformTime:300,
+        spriteNave1:"imagenes/nave1.png", spriteNave1Trans:"imagenes/nave1.1.png",
+        spriteNave2:"imagenes/nave2.png", spriteNave2Trans:"imagenes/nave2.1.png",
+        spriteNave3:"imagenes/nave3.png", spriteNave31:"imagenes/nave3.1.png",
+        spriteEnemy:"imagenes/enemigo.png", spriteEnemy2:"imagenes/enemigo2.png",
+        spriteJefe:"imagenes/jefe.png", spriteExplosion:"imagenes/explosion.png",
+        spriteProyectil:"imagenes/proyectil.png", spriteProyectilEnemy:"imagenes/proyectil_enemigo.png",
+        nave1Frame2:"imagenes/nave1_frame2.png", nave1AnimSpeed:150, nave1AnimActive:true, nave1Frame2W:150, nave1Frame2H:85, nave1Frame2X:0, nave1Frame2Y:0,
+        nave2Frame2:"imagenes/nave2_frame2.png", nave2AnimSpeed:150, nave2AnimActive:true, nave2Frame2W:120, nave2Frame2H:115, nave2Frame2X:0, nave2Frame2Y:0,
+        nave3Frame2:"imagenes/nave3_frame2.png", nave3AnimSpeed:150, nave3AnimActive:true, nave3Frame2W:137, nave3Frame2H:170, nave3Frame2X:0, nave3Frame2Y:0,
+        nave3InvFrame2:"imagenes/nave3_inv_frame2.png", nave3InvAnimSpeed:150, nave3InvAnimActive:true, nave3InvFrame2W:137, nave3InvFrame2H:170, nave3InvFrame2X:0, nave3InvFrame2Y:0,
+        shootType1:"recto", shootType2:"recto", shootType3:"recto", shootType3Inv:"recto",
+        burstType1:"1", burstType2:"1", burstType3:"1", burstType3Inv:"1",
+        burstSpread1:15, burstSpread2:15, burstSpread3:15, burstSpread3Inv:15,
+        homingProjSpeed:9,
+        transformacionActiva:true, transformacionCambiaTamaño:true, restaurarAlSoltar:true, transformacionMisiles:true,
+        transformacionZActiva:true, transformacionZDuración:50, transformacionZSonido:true,
+        transformacionZSonidoArchivo:"sonidos/transformacion.wav",
+        transformacionZImagen:"imagenes/nave2.1.png", transformacionZImagenW:135, transformacionZImagenH:130,
+        transformacionZImagenX:0, transformacionZImagenY:0, transformacionZInvertir:true,
+        vidasIniciales:3, vidasMaximo:10, invulnerabilidadTiempo:1000, invulnerabilidadParpadeo:true,
+        musicaFondo:"musica/fondo.mp3", musicaIntro:"musica/intro.mp3", musicaAlarma:"musica/alarma.mp3",
+        musicaJefe:"musica/jefe_epico.mp3", musicaVictoria:"musica/victoria.mp3",
+        sonidoDisparo:"sonidos/disparo.wav", sonidoDisparo2:"sonidos/disparo2.wav",
+        sonidoTransformacion:"sonidos/transformacion.wav", sonidoExplosion:"sonidos/explosion.wav",
+        sonidoAlarma:"sonidos/alarma.wav",
+        volMusica:100, volEfectos:45,
+        volIntro:100, muteIntro:false, volFondo:100, muteFondo:false,
+        volAlarmaMusica:100, muteAlarmaMusica:false, volJefe:100, muteJefe:false, volVictoria:100, muteVictoria:false,
+        volDisparo:100, muteDisparo:false, volDisparo2:100, muteDisparo2:false,
+        volTransformacion:100, muteTransformacion:false, volExplosion:100, muteExplosion:false, volAlarmaEfecto:100, muteAlarmaEfecto:false,
+        particulasActivas:true, particulaTipo:"cuadrado", particulasCantidad:8, particulasTamañoMin:3, particulasTamañoMax:11,
+        particulasVelocidad:4, particulasDuracion:500, particulasColor1:"#ff6600", particulasColor2:"#ffaa00",
+        estrellasActivas:true, estrellasCantidad:150, estrellasBrillo:0.5, estrellasVelocidad:-3,
+        nubesActivas:false, nubesCantidad:10, nubesVelocidad:-1,
+        asteroidesActivos:false, asteroidesCantidad:8, asteroidesVelocidad:-2,
+        bossScore:25, bossHealth:120, bossSpeed:-3.5, bossShootDelay:1500, alarmaJefeActiva:true, alarmaDuracion:3000,
+        bgColor1:"#0a0a2a", bgColor2:"#1a0a3a"
+    };
+
+    // ==========================================
+    // FUNCIONES DE ACTUALIZACIÓN DE DISPLAYS
+    // ==========================================
+    function updateDisplays() {
+        // Sliders originales
+        document.getElementById('cfg_collisionReduceVal').innerText = document.getElementById('cfg_collisionReduce').value + '%';
+        document.getElementById('cfg_collisionNave1Val').innerText = document.getElementById('cfg_collisionNave1').value + '%';
+        document.getElementById('cfg_collisionNave2Val').innerText = document.getElementById('cfg_collisionNave2').value + '%';
+        document.getElementById('cfg_collisionNave3Val').innerText = document.getElementById('cfg_collisionNave3').value + '%';
+        document.getElementById('cfg_collisionEnemyVal').innerText = document.getElementById('cfg_collisionEnemy').value + '%';
+        document.getElementById('cfg_collisionEnemy2Val').innerText = document.getElementById('cfg_collisionEnemy2').value + '%';
+        document.getElementById('cfg_collisionJefeVal').innerText = document.getElementById('cfg_collisionJefe').value + '%';
+        document.getElementById('cfg_collisionProyectilVal').innerText = document.getElementById('cfg_collisionProyectil').value + '%';
+        document.getElementById('cfg_playerSpeedVal').innerText = document.getElementById('cfg_playerSpeed').value;
+        document.getElementById('cfg_proyectilSpeedVal').innerText = document.getElementById('cfg_proyectilSpeed').value;
+        document.getElementById('cfg_homingSpeedVal').innerText = document.getElementById('cfg_homingSpeed').value;
+        document.getElementById('cfg_traseroSpeedVal').innerText = document.getElementById('cfg_traseroSpeed').value;
+        document.getElementById('cfg_enemy1SpeedVal').innerText = document.getElementById('cfg_enemy1Speed').value;
+        document.getElementById('cfg_enemy2SpeedVal').innerText = document.getElementById('cfg_enemy2Speed').value;
+        document.getElementById('cfg_enemyProjSpeedVal').innerText = document.getElementById('cfg_enemyProjSpeed').value;
+        document.getElementById('cfg_jefeContingenciaSpeedVal').innerText = document.getElementById('cfg_jefeContingenciaSpeed').value;
+        document.getElementById('cfg_volMusicaVal').innerText = document.getElementById('cfg_volMusica').value + '%';
+        document.getElementById('cfg_volEfectosVal').innerText = document.getElementById('cfg_volEfectos').value + '%';
+        document.getElementById('cfg_particulasCantidadVal').innerText = document.getElementById('cfg_particulasCantidad').value;
+        document.getElementById('cfg_particulasTamañoMinVal').innerText = document.getElementById('cfg_particulasTamañoMin').value;
+        document.getElementById('cfg_particulasTamañoMaxVal').innerText = document.getElementById('cfg_particulasTamañoMax').value;
+        document.getElementById('cfg_particulasVelocidadVal').innerText = document.getElementById('cfg_particulasVelocidad').value;
+        document.getElementById('cfg_particulasDuracionVal').innerText = document.getElementById('cfg_particulasDuracion').value;
+        document.getElementById('cfg_estrellasCantidadVal').innerText = document.getElementById('cfg_estrellasCantidad').value;
+        document.getElementById('cfg_estrellasBrilloVal').innerText = document.getElementById('cfg_estrellasBrillo').value;
+        document.getElementById('cfg_estrellasVelocidadVal').innerText = document.getElementById('cfg_estrellasVelocidad').value;
+        document.getElementById('cfg_bossSpeedVal').innerText = document.getElementById('cfg_bossSpeed').value;
+        document.getElementById('cfg_vidasInicialesVal').innerText = document.getElementById('cfg_vidasIniciales').value;
+        document.getElementById('cfg_vidasMaximoVal').innerText = document.getElementById('cfg_vidasMaximo').value;
+        document.getElementById('cfg_nave1AnimSpeedVal').innerText = document.getElementById('cfg_nave1AnimSpeed').value + 'ms';
+        document.getElementById('cfg_nave2AnimSpeedVal').innerText = document.getElementById('cfg_nave2AnimSpeed').value + 'ms';
+        document.getElementById('cfg_nave3AnimSpeedVal').innerText = document.getElementById('cfg_nave3AnimSpeed').value + 'ms';
+        document.getElementById('cfg_nave3InvAnimSpeedVal').innerText = document.getElementById('cfg_nave3InvAnimSpeed').value + 'ms';
+        document.getElementById('cfg_homingProjSpeedVal').innerText = document.getElementById('cfg_homingProjSpeed').value;
+        document.getElementById('cfg_transformacionZDuraciónVal').innerText = document.getElementById('cfg_transformacionZDuración').value + 'ms';
+        document.getElementById('cfg_speedNave1Val').innerText = parseFloat(document.getElementById('cfg_speedNave1').value).toFixed(2);
+        document.getElementById('cfg_speedNave1TransVal').innerText = parseFloat(document.getElementById('cfg_speedNave1Trans').value).toFixed(2);
+        document.getElementById('cfg_speedNave2Val').innerText = parseFloat(document.getElementById('cfg_speedNave2').value).toFixed(2);
+        document.getElementById('cfg_speedNave2TransVal').innerText = parseFloat(document.getElementById('cfg_speedNave2Trans').value).toFixed(2);
+        document.getElementById('cfg_speedNave3Val').innerText = parseFloat(document.getElementById('cfg_speedNave3').value).toFixed(2);
+        document.getElementById('cfg_speedNave3TransVal').innerText = parseFloat(document.getElementById('cfg_speedNave3Trans').value).toFixed(2);
+        document.getElementById('cfg_speedNave3InvVal').innerText = parseFloat(document.getElementById('cfg_speedNave3Inv').value).toFixed(2);
+        document.getElementById('cfg_speedNave3InvTransVal').innerText = parseFloat(document.getElementById('cfg_speedNave3InvTrans').value).toFixed(2);
+        document.getElementById('cfg_volIntroVal').innerText = document.getElementById('cfg_volIntro').value + '%';
+        document.getElementById('cfg_volFondoVal').innerText = document.getElementById('cfg_volFondo').value + '%';
+        document.getElementById('cfg_volAlarmaMusicaVal').innerText = document.getElementById('cfg_volAlarmaMusica').value + '%';
+        document.getElementById('cfg_volJefeVal').innerText = document.getElementById('cfg_volJefe').value + '%';
+        document.getElementById('cfg_volVictoriaVal').innerText = document.getElementById('cfg_volVictoria').value + '%';
+        document.getElementById('cfg_volDisparoVal').innerText = document.getElementById('cfg_volDisparo').value + '%';
+        document.getElementById('cfg_volDisparo2Val').innerText = document.getElementById('cfg_volDisparo2').value + '%';
+        document.getElementById('cfg_volTransformacionVal').innerText = document.getElementById('cfg_volTransformacion').value + '%';
+        document.getElementById('cfg_volExplosionVal').innerText = document.getElementById('cfg_volExplosion').value + '%';
+        document.getElementById('cfg_volAlarmaEfectoVal').innerText = document.getElementById('cfg_volAlarmaEfecto').value + '%';
+        document.getElementById('cfg_nubesCantidadVal').innerText = document.getElementById('cfg_nubesCantidad').value;
+        document.getElementById('cfg_nubesVelocidadVal').innerText = document.getElementById('cfg_nubesVelocidad').value;
+        document.getElementById('cfg_asteroidesCantidadVal').innerText = document.getElementById('cfg_asteroidesCantidad').value;
+        document.getElementById('cfg_asteroidesVelocidadVal').innerText = document.getElementById('cfg_asteroidesVelocidad').value;
+    }
+
+    // ==========================================
+    // FUNCIONES DE APLICACIÓN Y OBTENCIÓN
+    // ==========================================
+    function getConfigFromEditor() {
+        return {
+            // Tamaños
+            nave1W: parseInt(document.getElementById('cfg_nave1W').value),
+            nave1H: parseInt(document.getElementById('cfg_nave1H').value),
+            nave1TransW: parseInt(document.getElementById('cfg_nave1TransW').value),
+            nave1TransH: parseInt(document.getElementById('cfg_nave1TransH').value),
+            nave2W: parseInt(document.getElementById('cfg_nave2W').value),
+            nave2H: parseInt(document.getElementById('cfg_nave2H').value),
+            nave2TransW: parseInt(document.getElementById('cfg_nave2TransW').value),
+            nave2TransH: parseInt(document.getElementById('cfg_nave2TransH').value),
+            nave3W: parseInt(document.getElementById('cfg_nave3W').value),
+            nave3H: parseInt(document.getElementById('cfg_nave3H').value),
+            nave31W: parseInt(document.getElementById('cfg_nave31W').value),
+            nave31H: parseInt(document.getElementById('cfg_nave31H').value),
+            enemyW: parseInt(document.getElementById('cfg_enemyW').value),
+            enemyH: parseInt(document.getElementById('cfg_enemyH').value),
+            enemy2W: parseInt(document.getElementById('cfg_enemy2W').value),
+            enemy2H: parseInt(document.getElementById('cfg_enemy2H').value),
+            jefeW: parseInt(document.getElementById('cfg_jefeW').value),
+            jefeH: parseInt(document.getElementById('cfg_jefeH').value),
+            collisionReduce: parseInt(document.getElementById('cfg_collisionReduce').value),
+            collisionNave1: parseInt(document.getElementById('cfg_collisionNave1').value),
+            collisionNave2: parseInt(document.getElementById('cfg_collisionNave2').value),
+            collisionNave3: parseInt(document.getElementById('cfg_collisionNave3').value),
+            collisionEnemy: parseInt(document.getElementById('cfg_collisionEnemy').value),
+            collisionEnemy2: parseInt(document.getElementById('cfg_collisionEnemy2').value),
+            collisionJefe: parseInt(document.getElementById('cfg_collisionJefe').value),
+            collisionProyectil: parseInt(document.getElementById('cfg_collisionProyectil').value),
+            shoot1X: parseInt(document.getElementById('cfg_shoot1X').value),
+            shoot1Y: parseInt(document.getElementById('cfg_shoot1Y').value),
+            shoot1BX: parseInt(document.getElementById('cfg_shoot1BX').value),
+            shoot1BY: parseInt(document.getElementById('cfg_shoot1BY').value),
+            shoot2X: parseInt(document.getElementById('cfg_shoot2X').value),
+            shoot2Y: parseInt(document.getElementById('cfg_shoot2Y').value),
+            shoot2BX: parseInt(document.getElementById('cfg_shoot2BX').value),
+            shoot2BY: parseInt(document.getElementById('cfg_shoot2BY').value),
+            shoot3X: parseInt(document.getElementById('cfg_shoot3X').value),
+            shoot3Y: parseInt(document.getElementById('cfg_shoot3Y').value),
+            shoot3BX: parseInt(document.getElementById('cfg_shoot3BX').value),
+            shoot3BY: parseInt(document.getElementById('cfg_shoot3BY').value),
+            shoot31X: parseInt(document.getElementById('cfg_shoot31X').value),
+            shoot31Y: parseInt(document.getElementById('cfg_shoot31Y').value),
+            shoot31BX: parseInt(document.getElementById('cfg_shoot31BX').value),
+            shoot31BY: parseInt(document.getElementById('cfg_shoot31BY').value),
+            playerSpeed: parseFloat(document.getElementById('cfg_playerSpeed').value),
+            speedNave1: parseFloat(document.getElementById('cfg_speedNave1').value),
+            speedNave1Trans: parseFloat(document.getElementById('cfg_speedNave1Trans').value),
+            speedNave2: parseFloat(document.getElementById('cfg_speedNave2').value),
+            speedNave2Trans: parseFloat(document.getElementById('cfg_speedNave2Trans').value),
+            speedNave3: parseFloat(document.getElementById('cfg_speedNave3').value),
+            speedNave3Trans: parseFloat(document.getElementById('cfg_speedNave3Trans').value),
+            speedNave3Inv: parseFloat(document.getElementById('cfg_speedNave3Inv').value),
+            speedNave3InvTrans: parseFloat(document.getElementById('cfg_speedNave3InvTrans').value),
+            proyectilSpeed: parseInt(document.getElementById('cfg_proyectilSpeed').value),
+            homingSpeed: parseFloat(document.getElementById('cfg_homingSpeed').value),
+            traseroSpeed: parseFloat(document.getElementById('cfg_traseroSpeed').value),
+            enemy1Speed: parseFloat(document.getElementById('cfg_enemy1Speed').value),
+            enemy2Speed: parseFloat(document.getElementById('cfg_enemy2Speed').value),
+            enemyProjSpeed: parseFloat(document.getElementById('cfg_enemyProjSpeed').value),
+            jefeContingenciaSpeed: parseFloat(document.getElementById('cfg_jefeContingenciaSpeed').value),
+            sprayAmmo: parseInt(document.getElementById('cfg_sprayAmmo').value),
+            laserEnergy: parseInt(document.getElementById('cfg_laserEnergy').value),
+            laserCost: parseInt(document.getElementById('cfg_laserCost').value),
+            energyRegen: parseInt(document.getElementById('cfg_energyRegen').value),
+            shotCooldown: parseInt(document.getElementById('cfg_shotCooldown').value),
+            misilCooldown: parseInt(document.getElementById('cfg_misilCooldown').value),
+            misilTransformTime: parseInt(document.getElementById('cfg_misilTransformTime').value),
+            spriteNave1: document.getElementById('cfg_spriteNave1').value,
+            spriteNave1Trans: document.getElementById('cfg_spriteNave1Trans').value,
+            spriteNave2: document.getElementById('cfg_spriteNave2').value,
+            spriteNave2Trans: document.getElementById('cfg_spriteNave2Trans').value,
+            spriteNave3: document.getElementById('cfg_spriteNave3').value,
+            spriteNave31: document.getElementById('cfg_spriteNave31').value,
+            nave1Frame2: document.getElementById('cfg_nave1Frame2').value,
+            nave1AnimSpeed: parseInt(document.getElementById('cfg_nave1AnimSpeed').value),
+            nave1AnimActive: document.getElementById('cfg_nave1AnimActive').checked,
+            nave1Frame2W: parseInt(document.getElementById('cfg_nave1Frame2W').value),
+            nave1Frame2H: parseInt(document.getElementById('cfg_nave1Frame2H').value),
+            nave1Frame2X: parseInt(document.getElementById('cfg_nave1Frame2X').value),
+            nave1Frame2Y: parseInt(document.getElementById('cfg_nave1Frame2Y').value),
+            nave2Frame2: document.getElementById('cfg_nave2Frame2').value,
+            nave2AnimSpeed: parseInt(document.getElementById('cfg_nave2AnimSpeed').value),
+            nave2AnimActive: document.getElementById('cfg_nave2AnimActive').checked,
+            nave2Frame2W: parseInt(document.getElementById('cfg_nave2Frame2W').value),
+            nave2Frame2H: parseInt(document.getElementById('cfg_nave2Frame2H').value),
+            nave2Frame2X: parseInt(document.getElementById('cfg_nave2Frame2X').value),
+            nave2Frame2Y: parseInt(document.getElementById('cfg_nave2Frame2Y').value),
+            nave3Frame2: document.getElementById('cfg_nave3Frame2').value,
+            nave3AnimSpeed: parseInt(document.getElementById('cfg_nave3AnimSpeed').value),
+            nave3AnimActive: document.getElementById('cfg_nave3AnimActive').checked,
+            nave3Frame2W: parseInt(document.getElementById('cfg_nave3Frame2W').value),
+            nave3Frame2H: parseInt(document.getElementById('cfg_nave3Frame2H').value),
+            nave3Frame2X: parseInt(document.getElementById('cfg_nave3Frame2X').value),
+            nave3Frame2Y: parseInt(document.getElementById('cfg_nave3Frame2Y').value),
+            nave3InvFrame2: document.getElementById('cfg_nave3InvFrame2').value,
+            nave3InvAnimSpeed: parseInt(document.getElementById('cfg_nave3InvAnimSpeed').value),
+            nave3InvAnimActive: document.getElementById('cfg_nave3InvAnimActive').checked,
+            nave3InvFrame2W: parseInt(document.getElementById('cfg_nave3InvFrame2W').value),
+            nave3InvFrame2H: parseInt(document.getElementById('cfg_nave3InvFrame2H').value),
+            nave3InvFrame2X: parseInt(document.getElementById('cfg_nave3InvFrame2X').value),
+            nave3InvFrame2Y: parseInt(document.getElementById('cfg_nave3InvFrame2Y').value),
+            shootType1: document.getElementById('cfg_shootType1').value,
+            shootType2: document.getElementById('cfg_shootType2').value,
+            shootType3: document.getElementById('cfg_shootType3').value,
+            shootType3Inv: document.getElementById('cfg_shootType3Inv').value,
+            burstType1: document.getElementById('cfg_burstType1').value,
+            burstType2: document.getElementById('cfg_burstType2').value,
+            burstType3: document.getElementById('cfg_burstType3').value,
+            burstType3Inv: document.getElementById('cfg_burstType3Inv').value,
+            burstSpread1: parseInt(document.getElementById('cfg_burstSpread1').value),
+            burstSpread2: parseInt(document.getElementById('cfg_burstSpread2').value),
+            burstSpread3: parseInt(document.getElementById('cfg_burstSpread3').value),
+            burstSpread3Inv: parseInt(document.getElementById('cfg_burstSpread3Inv').value),
+            homingProjSpeed: parseFloat(document.getElementById('cfg_homingProjSpeed').value),
+            transformacionActiva: document.getElementById('cfg_transformacionActiva').checked,
+            transformacionCambiaTamaño: document.getElementById('cfg_transformacionCambiaTamaño').checked,
+            restaurarAlSoltar: document.getElementById('cfg_restaurarAlSoltar').checked,
+            transformacionMisiles: document.getElementById('cfg_transformacionMisiles').checked,
+            transformacionZActiva: document.getElementById('cfg_transformacionZActiva').checked,
+            transformacionZDuración: parseInt(document.getElementById('cfg_transformacionZDuración').value),
+            transformacionZSonido: document.getElementById('cfg_transformacionZSonido').checked,
+            transformacionZSonidoArchivo: document.getElementById('cfg_transformacionZSonidoArchivo').value,
+            transformacionZImagen: document.getElementById('cfg_transformacionZImagen').value,
+            transformacionZImagenW: parseInt(document.getElementById('cfg_transformacionZImagenW').value),
+            transformacionZImagenH: parseInt(document.getElementById('cfg_transformacionZImagenH').value),
+            transformacionZImagenX: parseInt(document.getElementById('cfg_transformacionZImagenX').value),
+            transformacionZImagenY: parseInt(document.getElementById('cfg_transformacionZImagenY').value),
+            transformacionZInvertir: document.getElementById('cfg_transformacionZInvertir').checked,
+            vidasIniciales: parseInt(document.getElementById('cfg_vidasIniciales').value),
+            vidasMaximo: parseInt(document.getElementById('cfg_vidasMaximo').value),
+            invulnerabilidadTiempo: parseInt(document.getElementById('cfg_invulnerabilidadTiempo').value),
+            invulnerabilidadParpadeo: document.getElementById('cfg_invulnerabilidadParpadeo').checked,
+            spriteEnemy: document.getElementById('cfg_spriteEnemy').value,
+            spriteEnemy2: document.getElementById('cfg_spriteEnemy2').value,
+            spriteJefe: document.getElementById('cfg_spriteJefe').value,
+            spriteExplosion: document.getElementById('cfg_spriteExplosion').value,
+            spriteProyectil: document.getElementById('cfg_spriteProyectil').value,
+            spriteProyectilEnemy: document.getElementById('cfg_spriteProyectilEnemy').value,
+            musicaFondo: document.getElementById('cfg_musicaFondo').value,
+            musicaIntro: document.getElementById('cfg_musicaIntro').value,
+            musicaAlarma: document.getElementById('cfg_musicaAlarma').value,
+            musicaJefe: document.getElementById('cfg_musicaJefe').value,
+            musicaVictoria: document.getElementById('cfg_musicaVictoria').value,
+            sonidoDisparo: document.getElementById('cfg_sonidoDisparo').value,
+            sonidoDisparo2: document.getElementById('cfg_sonidoDisparo2').value,
+            sonidoTransformacion: document.getElementById('cfg_sonidoTransformacion').value,
+            sonidoExplosion: document.getElementById('cfg_sonidoExplosion').value,
+            sonidoAlarma: document.getElementById('cfg_sonidoAlarma').value,
+            volMusica: parseInt(document.getElementById('cfg_volMusica').value),
+            volEfectos: parseInt(document.getElementById('cfg_volEfectos').value),
+            volIntro: parseInt(document.getElementById('cfg_volIntro').value), muteIntro: document.getElementById('cfg_muteIntro').checked,
+            volFondo: parseInt(document.getElementById('cfg_volFondo').value), muteFondo: document.getElementById('cfg_muteFondo').checked,
+            volAlarmaMusica: parseInt(document.getElementById('cfg_volAlarmaMusica').value), muteAlarmaMusica: document.getElementById('cfg_muteAlarmaMusica').checked,
+            volJefe: parseInt(document.getElementById('cfg_volJefe').value), muteJefe: document.getElementById('cfg_muteJefe').checked,
+            volVictoria: parseInt(document.getElementById('cfg_volVictoria').value), muteVictoria: document.getElementById('cfg_muteVictoria').checked,
+            volDisparo: parseInt(document.getElementById('cfg_volDisparo').value), muteDisparo: document.getElementById('cfg_muteDisparo').checked,
+            volDisparo2: parseInt(document.getElementById('cfg_volDisparo2').value), muteDisparo2: document.getElementById('cfg_muteDisparo2').checked,
+            volTransformacion: parseInt(document.getElementById('cfg_volTransformacion').value), muteTransformacion: document.getElementById('cfg_muteTransformacion').checked,
+            volExplosion: parseInt(document.getElementById('cfg_volExplosion').value), muteExplosion: document.getElementById('cfg_muteExplosion').checked,
+            volAlarmaEfecto: parseInt(document.getElementById('cfg_volAlarmaEfecto').value), muteAlarmaEfecto: document.getElementById('cfg_muteAlarmaEfecto').checked,
+            particulasActivas: document.getElementById('cfg_particulasActivas').checked,
+            particulaTipo: document.getElementById('cfg_particulaTipo').value,
+            particulasCantidad: parseInt(document.getElementById('cfg_particulasCantidad').value),
+            particulasTamañoMin: parseFloat(document.getElementById('cfg_particulasTamañoMin').value),
+            particulasTamañoMax: parseFloat(document.getElementById('cfg_particulasTamañoMax').value),
+            particulasVelocidad: parseFloat(document.getElementById('cfg_particulasVelocidad').value),
+            particulasDuracion: parseInt(document.getElementById('cfg_particulasDuracion').value),
+            particulasColor1: document.getElementById('cfg_particulasColor1').value,
+            particulasColor2: document.getElementById('cfg_particulasColor2').value,
+            estrellasActivas: document.getElementById('cfg_estrellasActivas').checked,
+            estrellasCantidad: parseInt(document.getElementById('cfg_estrellasCantidad').value),
+            estrellasBrillo: parseFloat(document.getElementById('cfg_estrellasBrillo').value),
+            estrellasVelocidad: parseFloat(document.getElementById('cfg_estrellasVelocidad').value),
+            nubesActivas: document.getElementById('cfg_nubesActivas').checked,
+            nubesCantidad: parseInt(document.getElementById('cfg_nubesCantidad').value),
+            nubesVelocidad: parseFloat(document.getElementById('cfg_nubesVelocidad').value),
+            asteroidesActivos: document.getElementById('cfg_asteroidesActivos').checked,
+            asteroidesCantidad: parseInt(document.getElementById('cfg_asteroidesCantidad').value),
+            asteroidesVelocidad: parseFloat(document.getElementById('cfg_asteroidesVelocidad').value),
+            bossScore: parseInt(document.getElementById('cfg_bossScore').value),
+            bossHealth: parseInt(document.getElementById('cfg_bossHealth').value),
+            bossSpeed: parseFloat(document.getElementById('cfg_bossSpeed').value),
+            bossShootDelay: parseInt(document.getElementById('cfg_bossShootDelay').value),
+            alarmaJefeActiva: document.getElementById('cfg_alarmaJefeActiva').checked,
+            alarmaDuracion: parseInt(document.getElementById('cfg_alarmaDuracion').value),
+            bgColor1: document.getElementById('cfg_bgColor1').value,
+            bgColor2: document.getElementById('cfg_bgColor2').value
+        };
+    }
+
+    function applyConfigToEditor(config) {
+        // Tamaños
+        if (config.nave1W !== undefined) document.getElementById('cfg_nave1W').value = config.nave1W;
+        if (config.nave1H !== undefined) document.getElementById('cfg_nave1H').value = config.nave1H;
+        if (config.nave1TransW !== undefined) document.getElementById('cfg_nave1TransW').value = config.nave1TransW;
+        if (config.nave1TransH !== undefined) document.getElementById('cfg_nave1TransH').value = config.nave1TransH;
+        if (config.nave2W !== undefined) document.getElementById('cfg_nave2W').value = config.nave2W;
+        if (config.nave2H !== undefined) document.getElementById('cfg_nave2H').value = config.nave2H;
+        if (config.nave2TransW !== undefined) document.getElementById('cfg_nave2TransW').value = config.nave2TransW;
+        if (config.nave2TransH !== undefined) document.getElementById('cfg_nave2TransH').value = config.nave2TransH;
+        if (config.nave3W !== undefined) document.getElementById('cfg_nave3W').value = config.nave3W;
+        if (config.nave3H !== undefined) document.getElementById('cfg_nave3H').value = config.nave3H;
+        if (config.nave31W !== undefined) document.getElementById('cfg_nave31W').value = config.nave31W;
+        if (config.nave31H !== undefined) document.getElementById('cfg_nave31H').value = config.nave31H;
+        if (config.enemyW !== undefined) document.getElementById('cfg_enemyW').value = config.enemyW;
+        if (config.enemyH !== undefined) document.getElementById('cfg_enemyH').value = config.enemyH;
+        if (config.enemy2W !== undefined) document.getElementById('cfg_enemy2W').value = config.enemy2W;
+        if (config.enemy2H !== undefined) document.getElementById('cfg_enemy2H').value = config.enemy2H;
+        if (config.jefeW !== undefined) document.getElementById('cfg_jefeW').value = config.jefeW;
+        if (config.jefeH !== undefined) document.getElementById('cfg_jefeH').value = config.jefeH;
+        if (config.collisionReduce !== undefined) document.getElementById('cfg_collisionReduce').value = config.collisionReduce;
+        if (config.collisionNave1 !== undefined) document.getElementById('cfg_collisionNave1').value = config.collisionNave1;
+        if (config.collisionNave2 !== undefined) document.getElementById('cfg_collisionNave2').value = config.collisionNave2;
+        if (config.collisionNave3 !== undefined) document.getElementById('cfg_collisionNave3').value = config.collisionNave3;
+        if (config.collisionEnemy !== undefined) document.getElementById('cfg_collisionEnemy').value = config.collisionEnemy;
+        if (config.collisionEnemy2 !== undefined) document.getElementById('cfg_collisionEnemy2').value = config.collisionEnemy2;
+        if (config.collisionJefe !== undefined) document.getElementById('cfg_collisionJefe').value = config.collisionJefe;
+        if (config.collisionProyectil !== undefined) document.getElementById('cfg_collisionProyectil').value = config.collisionProyectil;
+        if (config.shoot1X !== undefined) document.getElementById('cfg_shoot1X').value = config.shoot1X;
+        if (config.shoot1Y !== undefined) document.getElementById('cfg_shoot1Y').value = config.shoot1Y;
+        if (config.shoot1BX !== undefined) document.getElementById('cfg_shoot1BX').value = config.shoot1BX;
+        if (config.shoot1BY !== undefined) document.getElementById('cfg_shoot1BY').value = config.shoot1BY;
+        if (config.shoot2X !== undefined) document.getElementById('cfg_shoot2X').value = config.shoot2X;
+        if (config.shoot2Y !== undefined) document.getElementById('cfg_shoot2Y').value = config.shoot2Y;
+        if (config.shoot2BX !== undefined) document.getElementById('cfg_shoot2BX').value = config.shoot2BX;
+        if (config.shoot2BY !== undefined) document.getElementById('cfg_shoot2BY').value = config.shoot2BY;
+        if (config.shoot3X !== undefined) document.getElementById('cfg_shoot3X').value = config.shoot3X;
+        if (config.shoot3Y !== undefined) document.getElementById('cfg_shoot3Y').value = config.shoot3Y;
+        if (config.shoot3BX !== undefined) document.getElementById('cfg_shoot3BX').value = config.shoot3BX;
+        if (config.shoot3BY !== undefined) document.getElementById('cfg_shoot3BY').value = config.shoot3BY;
+        if (config.shoot31X !== undefined) document.getElementById('cfg_shoot31X').value = config.shoot31X;
+        if (config.shoot31Y !== undefined) document.getElementById('cfg_shoot31Y').value = config.shoot31Y;
+        if (config.shoot31BX !== undefined) document.getElementById('cfg_shoot31BX').value = config.shoot31BX;
+        if (config.shoot31BY !== undefined) document.getElementById('cfg_shoot31BY').value = config.shoot31BY;
+        if (config.playerSpeed !== undefined) document.getElementById('cfg_playerSpeed').value = config.playerSpeed;
+        if (config.speedNave1 !== undefined) document.getElementById('cfg_speedNave1').value = config.speedNave1;
+        if (config.speedNave1Trans !== undefined) document.getElementById('cfg_speedNave1Trans').value = config.speedNave1Trans;
+        if (config.speedNave2 !== undefined) document.getElementById('cfg_speedNave2').value = config.speedNave2;
+        if (config.speedNave2Trans !== undefined) document.getElementById('cfg_speedNave2Trans').value = config.speedNave2Trans;
+        if (config.speedNave3 !== undefined) document.getElementById('cfg_speedNave3').value = config.speedNave3;
+        if (config.speedNave3Trans !== undefined) document.getElementById('cfg_speedNave3Trans').value = config.speedNave3Trans;
+        if (config.speedNave3Inv !== undefined) document.getElementById('cfg_speedNave3Inv').value = config.speedNave3Inv;
+        if (config.speedNave3InvTrans !== undefined) document.getElementById('cfg_speedNave3InvTrans').value = config.speedNave3InvTrans;
+        if (config.proyectilSpeed !== undefined) document.getElementById('cfg_proyectilSpeed').value = config.proyectilSpeed;
+        if (config.homingSpeed !== undefined) document.getElementById('cfg_homingSpeed').value = config.homingSpeed;
+        if (config.traseroSpeed !== undefined) document.getElementById('cfg_traseroSpeed').value = config.traseroSpeed;
+        if (config.enemy1Speed !== undefined) document.getElementById('cfg_enemy1Speed').value = config.enemy1Speed;
+        if (config.enemy2Speed !== undefined) document.getElementById('cfg_enemy2Speed').value = config.enemy2Speed;
+        if (config.enemyProjSpeed !== undefined) document.getElementById('cfg_enemyProjSpeed').value = config.enemyProjSpeed;
+        if (config.jefeContingenciaSpeed !== undefined) document.getElementById('cfg_jefeContingenciaSpeed').value = config.jefeContingenciaSpeed;
+        if (config.sprayAmmo !== undefined) document.getElementById('cfg_sprayAmmo').value = config.sprayAmmo;
+        if (config.laserEnergy !== undefined) document.getElementById('cfg_laserEnergy').value = config.laserEnergy;
+        if (config.laserCost !== undefined) document.getElementById('cfg_laserCost').value = config.laserCost;
+        if (config.energyRegen !== undefined) document.getElementById('cfg_energyRegen').value = config.energyRegen;
+        if (config.shotCooldown !== undefined) document.getElementById('cfg_shotCooldown').value = config.shotCooldown;
+        if (config.misilCooldown !== undefined) document.getElementById('cfg_misilCooldown').value = config.misilCooldown;
+        if (config.misilTransformTime !== undefined) document.getElementById('cfg_misilTransformTime').value = config.misilTransformTime;
+        if (config.spriteNave1 !== undefined) document.getElementById('cfg_spriteNave1').value = config.spriteNave1;
+        if (config.spriteNave1Trans !== undefined) document.getElementById('cfg_spriteNave1Trans').value = config.spriteNave1Trans;
+        if (config.spriteNave2 !== undefined) document.getElementById('cfg_spriteNave2').value = config.spriteNave2;
+        if (config.spriteNave2Trans !== undefined) document.getElementById('cfg_spriteNave2Trans').value = config.spriteNave2Trans;
+        if (config.spriteNave3 !== undefined) document.getElementById('cfg_spriteNave3').value = config.spriteNave3;
+        if (config.spriteNave31 !== undefined) document.getElementById('cfg_spriteNave31').value = config.spriteNave31;
+        if (config.nave1Frame2 !== undefined) document.getElementById('cfg_nave1Frame2').value = config.nave1Frame2;
+        if (config.nave1AnimSpeed !== undefined) document.getElementById('cfg_nave1AnimSpeed').value = config.nave1AnimSpeed;
+        if (config.nave1AnimActive !== undefined) document.getElementById('cfg_nave1AnimActive').checked = config.nave1AnimActive;
+        if (config.nave1Frame2W !== undefined) document.getElementById('cfg_nave1Frame2W').value = config.nave1Frame2W;
+        if (config.nave1Frame2H !== undefined) document.getElementById('cfg_nave1Frame2H').value = config.nave1Frame2H;
+        if (config.nave1Frame2X !== undefined) document.getElementById('cfg_nave1Frame2X').value = config.nave1Frame2X;
+        if (config.nave1Frame2Y !== undefined) document.getElementById('cfg_nave1Frame2Y').value = config.nave1Frame2Y;
+        if (config.nave2Frame2 !== undefined) document.getElementById('cfg_nave2Frame2').value = config.nave2Frame2;
+        if (config.nave2AnimSpeed !== undefined) document.getElementById('cfg_nave2AnimSpeed').value = config.nave2AnimSpeed;
+        if (config.nave2AnimActive !== undefined) document.getElementById('cfg_nave2AnimActive').checked = config.nave2AnimActive;
+        if (config.nave2Frame2W !== undefined) document.getElementById('cfg_nave2Frame2W').value = config.nave2Frame2W;
+        if (config.nave2Frame2H !== undefined) document.getElementById('cfg_nave2Frame2H').value = config.nave2Frame2H;
+        if (config.nave2Frame2X !== undefined) document.getElementById('cfg_nave2Frame2X').value = config.nave2Frame2X;
+        if (config.nave2Frame2Y !== undefined) document.getElementById('cfg_nave2Frame2Y').value = config.nave2Frame2Y;
+        if (config.nave3Frame2 !== undefined) document.getElementById('cfg_nave3Frame2').value = config.nave3Frame2;
+        if (config.nave3AnimSpeed !== undefined) document.getElementById('cfg_nave3AnimSpeed').value = config.nave3AnimSpeed;
+        if (config.nave3AnimActive !== undefined) document.getElementById('cfg_nave3AnimActive').checked = config.nave3AnimActive;
+        if (config.nave3Frame2W !== undefined) document.getElementById('cfg_nave3Frame2W').value = config.nave3Frame2W;
+        if (config.nave3Frame2H !== undefined) document.getElementById('cfg_nave3Frame2H').value = config.nave3Frame2H;
+        if (config.nave3Frame2X !== undefined) document.getElementById('cfg_nave3Frame2X').value = config.nave3Frame2X;
+        if (config.nave3Frame2Y !== undefined) document.getElementById('cfg_nave3Frame2Y').value = config.nave3Frame2Y;
+        if (config.nave3InvFrame2 !== undefined) document.getElementById('cfg_nave3InvFrame2').value = config.nave3InvFrame2;
+        if (config.nave3InvAnimSpeed !== undefined) document.getElementById('cfg_nave3InvAnimSpeed').value = config.nave3InvAnimSpeed;
+        if (config.nave3InvAnimActive !== undefined) document.getElementById('cfg_nave3InvAnimActive').checked = config.nave3InvAnimActive;
+        if (config.nave3InvFrame2W !== undefined) document.getElementById('cfg_nave3InvFrame2W').value = config.nave3InvFrame2W;
+        if (config.nave3InvFrame2H !== undefined) document.getElementById('cfg_nave3InvFrame2H').value = config.nave3InvFrame2H;
+        if (config.nave3InvFrame2X !== undefined) document.getElementById('cfg_nave3InvFrame2X').value = config.nave3InvFrame2X;
+        if (config.nave3InvFrame2Y !== undefined) document.getElementById('cfg_nave3InvFrame2Y').value = config.nave3InvFrame2Y;
+        if (config.shootType1 !== undefined) document.getElementById('cfg_shootType1').value = config.shootType1;
+        if (config.shootType2 !== undefined) document.getElementById('cfg_shootType2').value = config.shootType2;
+        if (config.shootType3 !== undefined) document.getElementById('cfg_shootType3').value = config.shootType3;
+        if (config.shootType3Inv !== undefined) document.getElementById('cfg_shootType3Inv').value = config.shootType3Inv;
+        if (config.burstType1 !== undefined) document.getElementById('cfg_burstType1').value = config.burstType1;
+        if (config.burstType2 !== undefined) document.getElementById('cfg_burstType2').value = config.burstType2;
+        if (config.burstType3 !== undefined) document.getElementById('cfg_burstType3').value = config.burstType3;
+        if (config.burstType3Inv !== undefined) document.getElementById('cfg_burstType3Inv').value = config.burstType3Inv;
+        if (config.burstSpread1 !== undefined) document.getElementById('cfg_burstSpread1').value = config.burstSpread1;
+        if (config.burstSpread2 !== undefined) document.getElementById('cfg_burstSpread2').value = config.burstSpread2;
+        if (config.burstSpread3 !== undefined) document.getElementById('cfg_burstSpread3').value = config.burstSpread3;
+        if (config.burstSpread3Inv !== undefined) document.getElementById('cfg_burstSpread3Inv').value = config.burstSpread3Inv;
+        if (config.homingProjSpeed !== undefined) document.getElementById('cfg_homingProjSpeed').value = config.homingProjSpeed;
+        if (config.transformacionActiva !== undefined) document.getElementById('cfg_transformacionActiva').checked = config.transformacionActiva;
+        if (config.transformacionCambiaTamaño !== undefined) document.getElementById('cfg_transformacionCambiaTamaño').checked = config.transformacionCambiaTamaño;
+        if (config.restaurarAlSoltar !== undefined) document.getElementById('cfg_restaurarAlSoltar').checked = config.restaurarAlSoltar;
+        if (config.transformacionMisiles !== undefined) document.getElementById('cfg_transformacionMisiles').checked = config.transformacionMisiles;
+        if (config.transformacionZActiva !== undefined) document.getElementById('cfg_transformacionZActiva').checked = config.transformacionZActiva;
+        if (config.transformacionZDuración !== undefined) document.getElementById('cfg_transformacionZDuración').value = config.transformacionZDuración;
+        if (config.transformacionZSonido !== undefined) document.getElementById('cfg_transformacionZSonido').checked = config.transformacionZSonido;
+        if (config.transformacionZSonidoArchivo !== undefined) document.getElementById('cfg_transformacionZSonidoArchivo').value = config.transformacionZSonidoArchivo;
+        if (config.transformacionZImagen !== undefined) document.getElementById('cfg_transformacionZImagen').value = config.transformacionZImagen;
+        if (config.transformacionZImagenW !== undefined) document.getElementById('cfg_transformacionZImagenW').value = config.transformacionZImagenW;
+        if (config.transformacionZImagenH !== undefined) document.getElementById('cfg_transformacionZImagenH').value = config.transformacionZImagenH;
+        if (config.transformacionZImagenX !== undefined) document.getElementById('cfg_transformacionZImagenX').value = config.transformacionZImagenX;
+        if (config.transformacionZImagenY !== undefined) document.getElementById('cfg_transformacionZImagenY').value = config.transformacionZImagenY;
+        if (config.transformacionZInvertir !== undefined) document.getElementById('cfg_transformacionZInvertir').checked = config.transformacionZInvertir;
+        if (config.vidasIniciales !== undefined) document.getElementById('cfg_vidasIniciales').value = config.vidasIniciales;
+        if (config.vidasMaximo !== undefined) document.getElementById('cfg_vidasMaximo').value = config.vidasMaximo;
+        if (config.invulnerabilidadTiempo !== undefined) document.getElementById('cfg_invulnerabilidadTiempo').value = config.invulnerabilidadTiempo;
+        if (config.invulnerabilidadParpadeo !== undefined) document.getElementById('cfg_invulnerabilidadParpadeo').checked = config.invulnerabilidadParpadeo;
+        if (config.spriteEnemy !== undefined) document.getElementById('cfg_spriteEnemy').value = config.spriteEnemy;
+        if (config.spriteEnemy2 !== undefined) document.getElementById('cfg_spriteEnemy2').value = config.spriteEnemy2;
+        if (config.spriteJefe !== undefined) document.getElementById('cfg_spriteJefe').value = config.spriteJefe;
+        if (config.spriteExplosion !== undefined) document.getElementById('cfg_spriteExplosion').value = config.spriteExplosion;
+        if (config.spriteProyectil !== undefined) document.getElementById('cfg_spriteProyectil').value = config.spriteProyectil;
+        if (config.spriteProyectilEnemy !== undefined) document.getElementById('cfg_spriteProyectilEnemy').value = config.spriteProyectilEnemy;
+        if (config.musicaFondo !== undefined) document.getElementById('cfg_musicaFondo').value = config.musicaFondo;
+        if (config.musicaIntro !== undefined) document.getElementById('cfg_musicaIntro').value = config.musicaIntro;
+        if (config.musicaAlarma !== undefined) document.getElementById('cfg_musicaAlarma').value = config.musicaAlarma;
+        if (config.musicaJefe !== undefined) document.getElementById('cfg_musicaJefe').value = config.musicaJefe;
+        if (config.musicaVictoria !== undefined) document.getElementById('cfg_musicaVictoria').value = config.musicaVictoria;
+        if (config.sonidoDisparo !== undefined) document.getElementById('cfg_sonidoDisparo').value = config.sonidoDisparo;
+        if (config.sonidoDisparo2 !== undefined) document.getElementById('cfg_sonidoDisparo2').value = config.sonidoDisparo2;
+        if (config.sonidoTransformacion !== undefined) document.getElementById('cfg_sonidoTransformacion').value = config.sonidoTransformacion;
+        if (config.sonidoExplosion !== undefined) document.getElementById('cfg_sonidoExplosion').value = config.sonidoExplosion;
+        if (config.sonidoAlarma !== undefined) document.getElementById('cfg_sonidoAlarma').value = config.sonidoAlarma;
+        if (config.volMusica !== undefined) document.getElementById('cfg_volMusica').value = config.volMusica;
+        if (config.volEfectos !== undefined) document.getElementById('cfg_volEfectos').value = config.volEfectos;
+        if (config.volIntro !== undefined) document.getElementById('cfg_volIntro').value = config.volIntro;
+        if (config.muteIntro !== undefined) document.getElementById('cfg_muteIntro').checked = config.muteIntro;
+        if (config.volFondo !== undefined) document.getElementById('cfg_volFondo').value = config.volFondo;
+        if (config.muteFondo !== undefined) document.getElementById('cfg_muteFondo').checked = config.muteFondo;
+        if (config.volAlarmaMusica !== undefined) document.getElementById('cfg_volAlarmaMusica').value = config.volAlarmaMusica;
+        if (config.muteAlarmaMusica !== undefined) document.getElementById('cfg_muteAlarmaMusica').checked = config.muteAlarmaMusica;
+        if (config.volJefe !== undefined) document.getElementById('cfg_volJefe').value = config.volJefe;
+        if (config.muteJefe !== undefined) document.getElementById('cfg_muteJefe').checked = config.muteJefe;
+        if (config.volVictoria !== undefined) document.getElementById('cfg_volVictoria').value = config.volVictoria;
+        if (config.muteVictoria !== undefined) document.getElementById('cfg_muteVictoria').checked = config.muteVictoria;
+        if (config.volDisparo !== undefined) document.getElementById('cfg_volDisparo').value = config.volDisparo;
+        if (config.muteDisparo !== undefined) document.getElementById('cfg_muteDisparo').checked = config.muteDisparo;
+        if (config.volDisparo2 !== undefined) document.getElementById('cfg_volDisparo2').value = config.volDisparo2;
+        if (config.muteDisparo2 !== undefined) document.getElementById('cfg_muteDisparo2').checked = config.muteDisparo2;
+        if (config.volTransformacion !== undefined) document.getElementById('cfg_volTransformacion').value = config.volTransformacion;
+        if (config.muteTransformacion !== undefined) document.getElementById('cfg_muteTransformacion').checked = config.muteTransformacion;
+        if (config.volExplosion !== undefined) document.getElementById('cfg_volExplosion').value = config.volExplosion;
+        if (config.muteExplosion !== undefined) document.getElementById('cfg_muteExplosion').checked = config.muteExplosion;
+        if (config.volAlarmaEfecto !== undefined) document.getElementById('cfg_volAlarmaEfecto').value = config.volAlarmaEfecto;
+        if (config.muteAlarmaEfecto !== undefined) document.getElementById('cfg_muteAlarmaEfecto').checked = config.muteAlarmaEfecto;
+        if (config.particulasActivas !== undefined) document.getElementById('cfg_particulasActivas').checked = config.particulasActivas;
+        if (config.particulaTipo !== undefined) document.getElementById('cfg_particulaTipo').value = config.particulaTipo;
+        if (config.particulasCantidad !== undefined) document.getElementById('cfg_particulasCantidad').value = config.particulasCantidad;
+        if (config.particulasTamañoMin !== undefined) document.getElementById('cfg_particulasTamañoMin').value = config.particulasTamañoMin;
+        if (config.particulasTamañoMax !== undefined) document.getElementById('cfg_particulasTamañoMax').value = config.particulasTamañoMax;
+        if (config.particulasVelocidad !== undefined) document.getElementById('cfg_particulasVelocidad').value = config.particulasVelocidad;
+        if (config.particulasDuracion !== undefined) document.getElementById('cfg_particulasDuracion').value = config.particulasDuracion;
+        if (config.particulasColor1 !== undefined) document.getElementById('cfg_particulasColor1').value = config.particulasColor1;
+        if (config.particulasColor2 !== undefined) document.getElementById('cfg_particulasColor2').value = config.particulasColor2;
+        if (config.estrellasActivas !== undefined) document.getElementById('cfg_estrellasActivas').checked = config.estrellasActivas;
+        if (config.estrellasCantidad !== undefined) document.getElementById('cfg_estrellasCantidad').value = config.estrellasCantidad;
+        if (config.estrellasBrillo !== undefined) document.getElementById('cfg_estrellasBrillo').value = config.estrellasBrillo;
+        if (config.estrellasVelocidad !== undefined) document.getElementById('cfg_estrellasVelocidad').value = config.estrellasVelocidad;
+        if (config.nubesActivas !== undefined) document.getElementById('cfg_nubesActivas').checked = config.nubesActivas;
+        if (config.nubesCantidad !== undefined) document.getElementById('cfg_nubesCantidad').value = config.nubesCantidad;
+        if (config.nubesVelocidad !== undefined) document.getElementById('cfg_nubesVelocidad').value = config.nubesVelocidad;
+        if (config.asteroidesActivos !== undefined) document.getElementById('cfg_asteroidesActivos').checked = config.asteroidesActivos;
+        if (config.asteroidesCantidad !== undefined) document.getElementById('cfg_asteroidesCantidad').value = config.asteroidesCantidad;
+        if (config.asteroidesVelocidad !== undefined) document.getElementById('cfg_asteroidesVelocidad').value = config.asteroidesVelocidad;
+        if (config.bossScore !== undefined) document.getElementById('cfg_bossScore').value = config.bossScore;
+        if (config.bossHealth !== undefined) document.getElementById('cfg_bossHealth').value = config.bossHealth;
+        if (config.bossSpeed !== undefined) document.getElementById('cfg_bossSpeed').value = config.bossSpeed;
+        if (config.bossShootDelay !== undefined) document.getElementById('cfg_bossShootDelay').value = config.bossShootDelay;
+        if (config.alarmaJefeActiva !== undefined) document.getElementById('cfg_alarmaJefeActiva').checked = config.alarmaJefeActiva;
+        if (config.alarmaDuracion !== undefined) document.getElementById('cfg_alarmaDuracion').value = config.alarmaDuracion;
+        if (config.bgColor1 !== undefined) document.getElementById('cfg_bgColor1').value = config.bgColor1;
+        if (config.bgColor2 !== undefined) document.getElementById('cfg_bgColor2').value = config.bgColor2;
+        
+        updateDisplays();
+    }
+
+    function resetToDefault() {
+        applyConfigToEditor(DEFAULT_CONFIG);
+        showStatus("✅ Valores restaurados a los originales", "success");
+    }
+
+    function showStatus(msg, type) {
+        const statusDiv = document.getElementById('editorStatus');
+        statusDiv.textContent = msg;
+        statusDiv.className = 'status ' + type;
+        setTimeout(() => {
+            if (statusDiv.textContent === msg) statusDiv.className = 'status';
+        }, 3000);
+    }
+
+    function saveToLocalStorage() {
+        const config = getConfigFromEditor();
+        const gameConfig = { ...config };
+        gameConfig.collisionReduce = config.collisionReduce / 100;
+        gameConfig.collisionNave1 = config.collisionNave1 / 100;
+        gameConfig.collisionNave2 = config.collisionNave2 / 100;
+        gameConfig.collisionNave3 = config.collisionNave3 / 100;
+        gameConfig.collisionEnemy = config.collisionEnemy / 100;
+        gameConfig.collisionEnemy2 = config.collisionEnemy2 / 100;
+        gameConfig.collisionJefe = config.collisionJefe / 100;
+        gameConfig.collisionProyectil = config.collisionProyectil / 100;
+        gameConfig.volMusica = config.volMusica / 100;
+        gameConfig.volEfectos = config.volEfectos / 100;
+        gameConfig.volIntro = config.volIntro / 100;
+        gameConfig.volFondo = config.volFondo / 100;
+        gameConfig.volAlarmaMusica = config.volAlarmaMusica / 100;
+        gameConfig.volJefe = config.volJefe / 100;
+        gameConfig.volVictoria = config.volVictoria / 100;
+        gameConfig.volDisparo = config.volDisparo / 100;
+        gameConfig.volDisparo2 = config.volDisparo2 / 100;
+        gameConfig.volTransformacion = config.volTransformacion / 100;
+        gameConfig.volExplosion = config.volExplosion / 100;
+        gameConfig.volAlarmaEfecto = config.volAlarmaEfecto / 100;
+        localStorage.setItem('robotechGameConfig', JSON.stringify(gameConfig));
+        showStatus("✅ Configuración guardada en localStorage", "success");
+    }
+
+    // ==========================================
+    // FUNCIONES DE CARGA (extracción robusta)
+    // ==========================================
+    function extraerCFGDelTexto(contenido) {
+        let startIdx = contenido.indexOf("let CFG = {");
+        if (startIdx === -1) startIdx = contenido.indexOf("let CFG=");
+        if (startIdx === -1) startIdx = contenido.indexOf("CFG = {");
+        if (startIdx === -1) startIdx = contenido.indexOf("window.CFG_GLOBAL = {");
+        if (startIdx === -1) return null;
+        let braceStart = contenido.indexOf("{", startIdx);
+        if (braceStart === -1) return null;
+        let braceCount = 0;
+        let endIdx = -1;
+        let inString = false;
+        let inComment = false;
+        let inLineComment = false;
+        for (let i = braceStart; i < contenido.length; i++) {
+            let ch = contenido[i];
+            if (!inString && !inLineComment && ch === '/' && contenido[i+1] === '*') {
+                inComment = true; i++; continue;
+            }
+            if (inComment && ch === '*' && contenido[i+1] === '/') {
+                inComment = false; i++; continue;
+            }
+            if (!inString && !inComment && ch === '/' && contenido[i+1] === '/') {
+                inLineComment = true; i++; continue;
+            }
+            if (inLineComment && ch === '\n') { inLineComment = false; continue; }
+            if (inComment || inLineComment) continue;
+            if (ch === '"' && (i===0 || contenido[i-1] !== '\\')) inString = !inString;
+            if (ch === "'" && (i===0 || contenido[i-1] !== '\\')) inString = !inString;
+            if (!inString) {
+                if (ch === '{') braceCount++;
+                else if (ch === '}') {
+                    braceCount--;
+                    if (braceCount === 0) { endIdx = i+1; break; }
+                }
+            }
+        }
+        if (endIdx === -1) return null;
+        let cfgText = contenido.substring(braceStart, endIdx);
+        cfgText = cfgText.replace(/\/\*[\s\S]*?\*\//g, '');
+        cfgText = cfgText.replace(/\/\/[^\n]*/g, '');
+        try {
+            cfgText = cfgText.replace(/:\s*true\b/g, ':true');
+            cfgText = cfgText.replace(/:\s*false\b/g, ':false');
+            cfgText = cfgText.replace(/:\s*null\b/g, ':null');
+            const cfgObj = Function('"use strict"; return (' + cfgText + ')')();
+            return cfgObj;
+        } catch(e) {
+            console.error("Error evaluando CFG:", e);
+            return null;
+        }
+    }
+
+    async function cargarConfiguracionDesdeArchivo(ruta) {
+        try {
+            showStatus(`📂 Cargando configuración desde ${ruta}...`, "info");
+            const response = await fetch(ruta);
+            if (!response.ok) throw new Error(`No se pudo cargar el archivo: ${response.status}`);
+            const htmlContent = await response.text();
+            const cfgObj = extraerCFGDelTexto(htmlContent);
+            if (!cfgObj) throw new Error("No se encontró la configuración CFG en el archivo");
+            const newConfig = { ...DEFAULT_CONFIG, ...cfgObj };
+            for (let key in newConfig) {
+                if (typeof DEFAULT_CONFIG[key] === 'number' && typeof newConfig[key] === 'string') {
+                    newConfig[key] = parseFloat(newConfig[key]);
+                }
+                if (typeof DEFAULT_CONFIG[key] === 'boolean' && typeof newConfig[key] === 'string') {
+                    newConfig[key] = newConfig[key] === 'true';
+                }
+            }
+            applyConfigToEditor(newConfig);
+            showStatus(`✅ Configuración cargada exitosamente desde ${ruta}`, "success");
+        } catch (error) {
+            console.error(error);
+            showStatus(`❌ Error al cargar: ${error.message}`, "error");
+        }
+    }
+
+    function exportToJson() {
+        const config = getConfigFromEditor();
+        const jsonStr = JSON.stringify(config, null, 2);
+        const blob = new Blob([jsonStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "robotech_config.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showStatus("✅ Configuración exportada a robotech_config.json", "success");
+    }
+
+    function loadFromJsonFile(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const config = JSON.parse(e.target.result);
+                applyConfigToEditor(config);
+                showStatus(`✅ Configuración cargada desde ${file.name}`, "success");
+            } catch(err) {
+                showStatus("❌ Error: El archivo no es un JSON válido", "error");
+            }
+        };
+        reader.onerror = () => showStatus("❌ Error al leer el archivo", "error");
+        reader.readAsText(file);
+    }
+
+    // ==========================================
+    // EVENTOS
+    // ==========================================
+    document.getElementById('loadFromGameBtn').addEventListener('click', () => {
+        const ruta = document.getElementById('cfg_loadPath').value;
+        if (ruta) cargarConfiguracionDesdeArchivo(ruta);
+        else showStatus("❌ Ingrese una ruta válida", "error");
+    });
+
+    document.getElementById('exportJsonBtn').addEventListener('click', exportToJson);
+    document.getElementById('loadJsonBtn').addEventListener('click', () => {
+        document.getElementById('jsonUpload').click();
+    });
+    document.getElementById('jsonUpload').addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            loadFromJsonFile(e.target.files[0]);
+        }
+        e.target.value = '';
+    });
+
+    document.getElementById('resetEditorBtn').addEventListener('click', resetToDefault);
+    document.getElementById('saveToGameBtn').addEventListener('click', saveToLocalStorage);
+
+    const sliderIds = [
+        'collisionReduce', 'collisionNave1', 'collisionNave2', 'collisionNave3', 'collisionEnemy', 'collisionEnemy2', 'collisionJefe', 'collisionProyectil',
+        'playerSpeed', 'proyectilSpeed', 'homingSpeed', 'traseroSpeed', 'enemy1Speed', 'enemy2Speed', 'enemyProjSpeed', 'jefeContingenciaSpeed',
+        'volMusica', 'volEfectos', 'particulasCantidad', 'particulasTamañoMin', 'particulasTamañoMax', 'particulasVelocidad', 'particulasDuracion',
+        'estrellasCantidad', 'estrellasBrillo', 'estrellasVelocidad', 'bossSpeed', 'vidasIniciales', 'vidasMaximo',
+        'nave1AnimSpeed', 'nave2AnimSpeed', 'nave3AnimSpeed', 'nave3InvAnimSpeed', 'homingProjSpeed', 'transformacionZDuración',
+        'speedNave1', 'speedNave1Trans', 'speedNave2', 'speedNave2Trans', 'speedNave3', 'speedNave3Trans', 'speedNave3Inv', 'speedNave3InvTrans',
+        'volIntro', 'volFondo', 'volAlarmaMusica', 'volJefe', 'volVictoria', 'volDisparo', 'volDisparo2', 'volTransformacion', 'volExplosion', 'volAlarmaEfecto',
+        'nubesCantidad', 'nubesVelocidad', 'asteroidesCantidad', 'asteroidesVelocidad'
+    ];
+    sliderIds.forEach(id => {
+        const el = document.getElementById(`cfg_${id}`);
+        if (el) el.addEventListener('input', updateDisplays);
+    });
+
+    (async function autoLoad() {
+        const ruta = document.getElementById('cfg_loadPath').value || 'index.html';
+        try {
+            const response = await fetch(ruta);
+            if (response.ok) {
+                const html = await response.text();
+                const cfg = extraerCFGDelTexto(html);
+                if (cfg) {
+                    const newConfig = { ...DEFAULT_CONFIG, ...cfg };
+                    for (let k in newConfig) {
+                        if (typeof DEFAULT_CONFIG[k] === 'number' && typeof newConfig[k] === 'string')
+                            newConfig[k] = parseFloat(newConfig[k]);
+                        if (typeof DEFAULT_CONFIG[k] === 'boolean' && typeof newConfig[k] === 'string')
+                            newConfig[k] = newConfig[k] === 'true';
+                    }
+                    applyConfigToEditor(newConfig);
+                    showStatus("📁 Configuración cargada automáticamente desde " + ruta, "success");
+                    return;
+                }
+            }
+        } catch(e) {}
+        applyConfigToEditor(DEFAULT_CONFIG);
+        showStatus("📝 Editor listo. Usa 'CARGAR CONFIGURACIÓN' para leer tu index.html.", "info");
+    })();
+</script>
+</body>
+</html>
