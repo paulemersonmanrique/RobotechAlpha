@@ -47,7 +47,6 @@
         .pantalla-inicio small { color: #aaa; margin-top: 20px; font-size: 12px; }
         @media (max-width: 1100px) { .pantalla-inicio h1 { font-size: 36px; } }
         
-        /* JOYSTICK ANALÓGICO */
         .touch-controls {
             position: fixed;
             bottom: 0;
@@ -57,7 +56,7 @@
             display: none;
             touch-action: none;
             pointer-events: none;
-            height: 220px;
+            height: 240px;
             padding: 10px 15px 20px;
         }
         .touch-controls.active { display: block; }
@@ -67,8 +66,8 @@
             position: absolute;
             bottom: 20px;
             left: 20px;
-            width: 130px;
-            height: 130px;
+            width: 156px;
+            height: 156px;
             border-radius: 50%;
             background: rgba(255,255,255,0.10);
             border: 2px solid rgba(255,255,255,0.20);
@@ -81,8 +80,8 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 60px;
-            height: 60px;
+            width: 72px;
+            height: 72px;
             transform: translate(-50%, -50%);
             border-radius: 50%;
             background: rgba(255,255,255,0.15);
@@ -92,8 +91,8 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 44px;
-            height: 44px;
+            width: 53px;
+            height: 53px;
             transform: translate(-50%, -50%);
             border-radius: 50%;
             background: radial-gradient(circle, rgba(255,255,255,0.5), rgba(255,255,255,0.15));
@@ -124,19 +123,19 @@
             right: 25px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
             align-items: center;
         }
-        .right-row { display: flex; gap: 14px; }
+        .right-row { display: flex; gap: 17px; }
         .action-btn {
-            width: 62px;
-            height: 62px;
+            width: 74px;
+            height: 74px;
             border-radius: 50%;
             border: 3px solid rgba(255,255,255,0.5);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 29px;
             font-weight: bold;
             color: #fff;
             touch-action: none;
@@ -158,31 +157,31 @@
         .btn-x:active, .btn-x.pressed { background: rgba(255,50,50,0.6); border-color: #ff8800; }
         .btn-z { background: rgba(50,150,255,0.25); border-color: #4488ff; }
         .btn-z:active, .btn-z.pressed { background: rgba(50,150,255,0.6); border-color: #88ccff; }
-        .btn-reset { background: rgba(255,200,50,0.25); border-color: #ffaa44; font-size: 20px; width: 52px; height: 52px; }
+        .btn-reset { background: rgba(255,200,50,0.25); border-color: #ffaa44; font-size: 24px; width: 62px; height: 62px; }
         .btn-reset:active, .btn-reset.pressed { background: rgba(255,200,50,0.6); border-color: #ffcc44; }
         
-        .touch-label { font-size: 9px; margin-top: 2px; color: rgba(255,255,255,0.5); text-align: center; letter-spacing: 0.5px; }
+        .touch-label { font-size: 10px; margin-top: 2px; color: rgba(255,255,255,0.5); text-align: center; letter-spacing: 0.5px; }
         .touch-btn-wrapper { display: flex; flex-direction: column; align-items: center; gap: 1px; }
         
         @media (max-width: 600px) {
-            .joystick-container { width: 110px; height: 110px; left: 12px; bottom: 15px; }
-            .joystick-base { width: 50px; height: 50px; }
-            .joystick-thumb { width: 38px; height: 38px; }
-            .action-btn { width: 52px; height: 52px; font-size: 20px; }
-            .btn-reset { width: 44px; height: 44px; font-size: 16px; }
-            .right-buttons { right: 10px; bottom: 20px; gap: 8px; }
-            .right-row { gap: 10px; }
-            .touch-controls { height: 190px; }
+            .joystick-container { width: 132px; height: 132px; left: 12px; bottom: 15px; }
+            .joystick-base { width: 60px; height: 60px; }
+            .joystick-thumb { width: 46px; height: 46px; }
+            .action-btn { width: 62px; height: 62px; font-size: 24px; }
+            .btn-reset { width: 53px; height: 53px; font-size: 19px; }
+            .right-buttons { right: 10px; bottom: 20px; gap: 10px; }
+            .right-row { gap: 12px; }
+            .touch-controls { height: 210px; }
         }
         @media (max-width: 400px) {
-            .joystick-container { width: 90px; height: 90px; left: 8px; bottom: 10px; }
-            .joystick-base { width: 40px; height: 40px; }
-            .joystick-thumb { width: 32px; height: 32px; }
-            .action-btn { width: 44px; height: 44px; font-size: 16px; }
-            .btn-reset { width: 38px; height: 38px; font-size: 14px; }
-            .right-buttons { right: 5px; bottom: 15px; gap: 6px; }
-            .right-row { gap: 8px; }
-            .touch-controls { height: 170px; }
+            .joystick-container { width: 108px; height: 108px; left: 8px; bottom: 10px; }
+            .joystick-base { width: 48px; height: 48px; }
+            .joystick-thumb { width: 38px; height: 38px; }
+            .action-btn { width: 53px; height: 53px; font-size: 19px; }
+            .btn-reset { width: 46px; height: 46px; font-size: 17px; }
+            .right-buttons { right: 5px; bottom: 15px; gap: 7px; }
+            .right-row { gap: 10px; }
+            .touch-controls { height: 190px; }
         }
     </style>
 </head>
@@ -199,7 +198,7 @@
         <small style="color:#ffaa00;">📱 Joystick analógico + Botones C, X, Z</small>
     </div>
     <div class="game-container">
-        <canvas id="gameCanvas" width="1024" height="768"></canvas>
+        <canvas id="gameCanvas" width="1229" height="922"></canvas>
     </div>
 
     <div id="touchControls" class="touch-controls">
@@ -239,14 +238,18 @@
         // ROBOTECH - CON PARÁMETROS ACTUALIZADOS
         // ==========================================
         
-        // CONFIGURACIÓN ACTUALIZADA CON LOS NUEVOS PARÁMETROS
         window.CFG_GLOBAL = {
             nave1W: 165, nave1H: 102, nave1TransW: 180, nave1TransH: 145,
             nave2W: 128, nave2H: 113, nave2TransW: 180, nave2TransH: 145,
             nave3W: 121, nave3H: 162, nave31W: 145, nave31H: 200,
             enemyW: 190, enemyH: 140, enemy2W: 180, enemy2H: 135,
             jefeW: 346, jefeH: 180, collisionReduce: 0.5,
-            shoot1X: -70, shoot1Y: 25, shoot2X: -5, shoot2Y: 0, shoot3X: -8, shoot3Y: -5, shoot31X: -70, shoot31Y: -5,
+            collisionNave1: 50, collisionNave2: 50, collisionNave3: 50,
+            collisionEnemy: 50, collisionEnemy2: 50, collisionJefe: 50, collisionProyectil: 50,
+            shoot1X: -70, shoot1Y: 25, shoot1BX: 0, shoot1BY: 0,
+            shoot2X: -5, shoot2Y: 0, shoot2BX: 0, shoot2BY: 0,
+            shoot3X: -8, shoot3Y: -5, shoot3BX: 0, shoot3BY: 0,
+            shoot31X: -70, shoot31Y: -5, shoot31BX: 0, shoot31BY: 0,
             playerSpeed: 10, proyectilSpeed: 11, homingSpeed: 9.5, traseroSpeed: 6,
             speedNave1: 0.8, speedNave1Trans: 0.7,
             speedNave2: 0.7, speedNave2Trans: 0.6,
@@ -269,6 +272,8 @@
             nave3InvFrame2: "imagenes/nave3_inv_frame2.png", nave3InvAnimSpeed: 50, nave3InvAnimActive: true,
             nave3InvFrame2W: 138, nave3InvFrame2H: 170, nave3InvFrame2X: 0, nave3InvFrame2Y: 0,
             shootType1: "recto", shootType2: "recto", shootType3: "recto", shootType3Inv: "recto",
+            burstType1: "1", burstType2: "1", burstType3: "1", burstType3Inv: "1",
+            burstSpread1: 15, burstSpread2: 15, burstSpread3: 15, burstSpread3Inv: 15,
             homingProjSpeed: 15,
             musicaFondo: "musica/fondo.mp3", musicaIntro: "musica/intro.mp3", musicaAlarma: "musica/alarma1.mp3",
             musicaJefe: "musica/jefe_epico.mp3", musicaVictoria: "musica/victoria.mp3",
@@ -277,9 +282,9 @@
             sonidoAlarma: "sonidos/alarma1.wav",
             volMusica: 0.55, volEfectos: 0.20,
             volIntro: 0.40, muteIntro: false,
-            volFondo: 0.70, muteFondo: false,
+            volFondo: 0.69, muteFondo: false,
             volAlarmaMusica: 1.0, muteAlarmaMusica: false,
-            volJefe: 0.70, muteJefe: false,
+            volJefe: 0.69, muteJefe: false,
             volVictoria: 1.0, muteVictoria: false,
             volDisparo: 0.77, muteDisparo: false,
             volDisparo2: 0.78, muteDisparo2: false,
@@ -287,27 +292,29 @@
             volExplosion: 0.79, muteExplosion: false,
             volAlarmaEfecto: 1.0, muteAlarmaEfecto: true,
             bossScore: 50, bossHealth: 120, bgColor1: "#0a0a2a", bgColor2: "#1a0a3a",
-            particulasActivas: true, particulasCantidad: 20, particulasTamañoMin: 3, particulasTamañoMax: 13.5,
+            particulasActivas: true, particulaTipo: "cuadrado", particulasCantidad: 20, particulasTamañoMin: 3, particulasTamañoMax: 13.5,
             particulasVelocidad: 4, particulasDuracion: 300, particulasColor1: "#ff6600", particulasColor2: "#ffaa00",
             estrellasActivas: true, estrellasCantidad: 150, estrellasBrillo: 0.5, estrellasVelocidad: -6,
+            nubesActivas: false, nubesCantidad: 10, nubesVelocidad: -1,
+            asteroidesActivos: false, asteroidesCantidad: 8, asteroidesVelocidad: -2,
             bossSpeed: -3.5, bossShootDelay: 1500, alarmaJefeActiva: true, alarmaDuracion: 4000,
             transformacionActiva: true, transformacionCambiaTamaño: true, restaurarAlSoltar: true, transformacionMisiles: true,
             vidasIniciales: 8, vidasMaximo: 17, invulnerabilidadTiempo: 1500, invulnerabilidadParpadeo: true,
             transformacionZActiva: true, transformacionZDuración: 110, transformacionZSonido: true,
             transformacionZSonidoArchivo: "sonidos/transformacion.wav",
             transformacionZImagen: "imagenes/nave2.2.png", transformacionZImagenW: 135, transformacionZImagenH: 130,
-            transformacionZImagenX: 0, transformacionZImagenY: 0, transformacionZInvertir: true
+            transformacionZImagenX: 0, transformacionZImagenY: -30, transformacionZInvertir: true
         };
         
         let CFG = { ...window.CFG_GLOBAL };
         
         // ==========================================
-        // ESCALADO DEL CANVAS
+        // ESCALADO DEL CANVAS - 20% MÁS GRANDE
         // ==========================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const GAME_WIDTH = 1024;
-        const GAME_HEIGHT = 768;
+        const GAME_WIDTH = 1229;
+        const GAME_HEIGHT = 922;
         
         function resizeCanvas() {
             const container = canvas.parentElement;
@@ -453,8 +460,8 @@
         let VELOCIDAD_MISILES = CFG.traseroSpeed;
         let TIEMPO_TRANSFORMACION = CFG.misilTransformTime;
         
-        const WIDTH = 1024;
-        const HEIGHT = 768;
+        const WIDTH = 1229;
+        const HEIGHT = 922;
         
         let gameStarted = false, gameRunning = false, gameOver = false, victory = false;
         let score = 0, lives = CFG.vidasIniciales, forma = 1, sprayAmmo = CFG.sprayAmmo, laserEnergy = CFG.laserEnergy, maxEnergy = CFG.laserEnergy;
@@ -465,6 +472,10 @@
         let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false, KeyX: false, KeyZ: false };
         let naveTransformada = false, nave3Volteada = false;
         let puedeDisparar = false;
+        
+        // ASTRONAUTAS
+        let astronautas = [];
+        let mensajesFlotantes = [];
         
         let transformacionFlashActiva = false;
         let transformacionFlashDestino = 1;
@@ -603,6 +614,54 @@
             height: FORMAS[1].alto,
             speed: velocidadBase
         };
+        
+        // ==========================================
+        // FUNCIONES DE ASTRONAUTAS
+        // ==========================================
+        
+        function crearAstronauta(x, y) {
+            if (Math.random() > 0.15) return;
+            astronautas.push({
+                x: x,
+                y: y,
+                w: 30,
+                h: 35,
+                vx: -1.5 + (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.3,
+                vida: 300,
+                tiempo: 0
+            });
+        }
+        
+        function crearExplosionMultiple(x, y, cantidad) {
+            for (let i = 0; i < cantidad; i++) {
+                let offsetX = (Math.random() - 0.5) * 80;
+                let offsetY = (Math.random() - 0.5) * 80;
+                explosions.push({ 
+                    x: x + offsetX, 
+                    y: y + offsetY, 
+                    size: 100, 
+                    frame: 0, 
+                    maxFrames: 10 
+                });
+                crearEscombros(x + offsetX, y + offsetY);
+            }
+        }
+        
+        function crearMensajeFlotante(x, y, texto, color) {
+            mensajesFlotantes.push({
+                x: x,
+                y: y,
+                texto: texto,
+                color: color || '#44ff44',
+                vida: 60,
+                vy: -1.5
+            });
+        }
+        
+        // ==========================================
+        // FUNCIONES ORIGINALES
+        // ==========================================
         
         function getImagenNaveActual(forma, transformada = false) {
             if (transformada) {
@@ -1034,6 +1093,7 @@
             gameStarted = true; gameRunning = true; gameOver = false; victory = false;
             score = 0; lives = CFG.vidasIniciales; forma = 1; sprayAmmo = CFG.sprayAmmo; laserEnergy = CFG.laserEnergy; maxEnergy = CFG.laserEnergy;
             enemies = []; enemy2List = []; projectiles = []; enemyProjectiles = []; misilesTraseros = []; explosions = []; escombros = []; stars = [];
+            astronautas = []; mensajesFlotantes = [];
             boss = null; bossCreated = false; bossEstado = "ESPERANDO"; ultimoPorcentajeVidaJefe = 100;
             naveTransformada = false; nave3Volteada = false;
             frameActualNave = { 1: 0, 2: 0, 3: 0 };
@@ -1231,11 +1291,53 @@
             for (let ex of explosions) { if (explosionImg.complete && ex.frame<5) { ctx.drawImage(explosionImg, ex.x-ex.size/2, ex.y-ex.size/2, ex.size, ex.size); ex.frame++; } }
             for (let e of escombros) { ctx.fillStyle = e.color; ctx.fillRect(e.x - e.tamaño/2, e.y - e.tamaño/2, e.tamaño, e.tamaño); }
             
+            // DIBUJAR ASTRONAUTAS
+            for (let a of astronautas) {
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.ellipse(a.x + a.w/2, a.y + a.h/2, a.w/2, a.h/2.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#cccccc';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                ctx.fillStyle = '#88ccff';
+                ctx.beginPath();
+                ctx.arc(a.x + a.w/2, a.y + 10, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#66aadd';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                
+                ctx.strokeStyle = '#4488bb';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(a.x + a.w/2 - 7, a.y + 8);
+                ctx.lineTo(a.x + a.w/2 + 7, a.y + 8);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#dddddd';
+                ctx.fillRect(a.x + a.w/2 - 4, a.y + 18, 8, 4);
+                ctx.fillRect(a.x + a.w/2 - 8, a.y + 24, 16, 3);
+            }
+            
+            // DIBUJAR MENSAJES FLOTANTES
+            for (let m of mensajesFlotantes) {
+                ctx.fillStyle = m.color;
+                ctx.font = 'bold 18px monospace';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = 'rgba(0,0,0,0.8)';
+                ctx.shadowBlur = 8;
+                ctx.fillText(m.texto, m.x, m.y);
+                ctx.shadowBlur = 0;
+                ctx.textAlign = 'left';
+            }
+            
             if (transformacionFlashActiva && CFG.transformacionZActiva) {
                 let w = CFG.transformacionZImagenW || 135;
                 let h = CFG.transformacionZImagenH || 130;
                 let xOffset = CFG.transformacionZImagenX || 0;
-                let yOffset = CFG.transformacionZImagenY || 0;
+                let yOffset = CFG.transformacionZImagenY || -30;
                 
                 ctx.save();
                 ctx.translate(player.x + player.width/2 + xOffset, player.y + player.height/2 + yOffset);
@@ -1261,7 +1363,7 @@
                     debeDibujar = parpadeoVisible;
                 }
                 
-                if (debeDibujar && imgNave && imgNave.img) {
+                if (debeDibujar && imgNave && imgNave.img && !gameOver) {
                     let w = imgNave.w || player.width;
                     let h = imgNave.h || player.height;
                     let xOffset = imgNave.xOffset || 0;
@@ -1314,7 +1416,6 @@
             if (!gameRunning || gameOver || victory) return;
             let posXAnterior = player.x;
             
-            // MOVIMIENTO CON JOYSTICK ANALÓGICO + TECLADO
             const deadZone = 0.1;
             let moveX = 0, moveY = 0;
             
@@ -1326,7 +1427,6 @@
             if (keys.ArrowUp) moveY = -1;
             if (keys.ArrowDown) moveY = 1;
             
-            // Calcular velocidad según la forma y transformación
             let multiplicador = 1;
             if (naveTransformada) {
                 if (forma === 1) multiplicador = CFG.speedNave1Trans;
@@ -1354,7 +1454,6 @@
             if (forma === 3) { let centroActual = player.x + player.width/2; if (centroActual > WIDTH/2 && posXAnterior + player.width/2 <= WIDTH/2) nave3Volteada = true; else if (centroActual <= WIDTH/2 && posXAnterior + player.width/2 > WIDTH/2) nave3Volteada = false; }
             if (keys.KeyX && puedeDisparar && timestamp - lastShot > CFG.shotCooldown) { lastShot = timestamp; shoot(); }
             
-            // TRANSFORMACIÓN: Tecla ← O Joystick hacia la izquierda
             const leftPresionado = keys.ArrowLeft || (moveX < -0.5);
             
             if (leftPresionado && CFG.transformacionActiva && !naveTransformada) { 
@@ -1375,19 +1474,72 @@
             for (let e of enemies) { if (timestamp - (e.lastShoot||0) > 1600) { e.lastShoot = timestamp; enemigoDisparar(e); } }
             
             let playerCol = getCollisionRect(player.x, player.y, player.width, player.height, forma === 3);
+            
+            // COLISIÓN CON ASTRONAUTAS
+            for (let i = 0; i < astronautas.length; i++) {
+                let a = astronautas[i];
+                if (player.x < a.x + a.w && player.x + player.width > a.x &&
+                    player.y < a.y + a.h && player.y + player.height > a.y) {
+                    if (lives < CFG.vidasMaximo) {
+                        lives++;
+                        crearMensajeFlotante(a.x + a.w/2, a.y - 20, '+1 VIDA', '#44ff44');
+                    }
+                    astronautas.splice(i, 1);
+                    i--;
+                }
+            }
+            
             for (let i = 0; i < enemies.length; i++) {
                 let e = enemies[i]; e.x += e.vx; e.y += e.vy;
                 if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
-                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { projectiles.splice(j, 1); e.health--; if (e.health <= 0) { createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); crearEscombros(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); enemies.splice(i, 1); score++; i--; } break; } }
-                if (!invulnerable && checkCollision(playerCol, enemyCol)) { createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); enemies.splice(i, 1); lives--; i--; activarInvulnerabilidad(); if (lives <= 0) { gameOver = true; if(musicaFondo) musicaFondo.pause(); if(musicaJefe) musicaJefe.pause(); } }
+                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { projectiles.splice(j, 1); e.health--; if (e.health <= 0) { 
+                    createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
+                    crearEscombros(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
+                    crearAstronauta(e.x + ENEMIGO_ANCHO/2 - 15, e.y + ENEMIGO_ALTO/2 - 17);
+                    enemies.splice(i, 1); 
+                    score++; 
+                    i--; 
+                } break; } }
+                if (!invulnerable && checkCollision(playerCol, enemyCol)) { 
+                    createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
+                    enemies.splice(i, 1); 
+                    lives--; 
+                    i--; 
+                    activarInvulnerabilidad(); 
+                    if (lives <= 0) { 
+                        gameOver = true; 
+                        crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
+                        if(musicaFondo) musicaFondo.pause(); 
+                        if(musicaJefe) musicaJefe.pause(); 
+                    } 
+                }
             }
             for (let i = 0; i < enemy2List.length; i++) {
                 let e = enemy2List[i]; e.x += e.vx; e.y += e.vy;
                 if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
-                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { projectiles.splice(j, 1); e.health--; if (e.health <= 0) { createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); crearEscombros(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); enemy2List.splice(i, 1); score++; i--; } break; } }
-                if (!invulnerable && checkCollision(playerCol, enemyCol)) { createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); enemy2List.splice(i, 1); lives--; i--; activarInvulnerabilidad(); if (lives <= 0) { gameOver = true; if(musicaFondo) musicaFondo.pause(); if(musicaJefe) musicaJefe.pause(); } }
+                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { projectiles.splice(j, 1); e.health--; if (e.health <= 0) { 
+                    createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
+                    crearEscombros(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2);
+                    crearAstronauta(e.x + ENEMIGO2_ANCHO/2 - 15, e.y + ENEMIGO2_ALTO/2 - 17);
+                    enemy2List.splice(i, 1); 
+                    score++; 
+                    i--; 
+                } break; } }
+                if (!invulnerable && checkCollision(playerCol, enemyCol)) { 
+                    createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
+                    enemy2List.splice(i, 1); 
+                    lives--; 
+                    i--; 
+                    activarInvulnerabilidad(); 
+                    if (lives <= 0) { 
+                        gameOver = true; 
+                        crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
+                        if(musicaFondo) musicaFondo.pause(); 
+                        if(musicaJefe) musicaJefe.pause(); 
+                    } 
+                }
             }
             
             if (boss) {
@@ -1428,7 +1580,16 @@
                         break; 
                     } 
                 }
-                if (!invulnerable && checkCollision(playerCol, bossCol)) { lives--; activarInvulnerabilidad(); if (lives <= 0) { gameOver = true; if(musicaFondo) musicaFondo.pause(); if(musicaJefe) musicaJefe.pause(); } }
+                if (!invulnerable && checkCollision(playerCol, bossCol)) { 
+                    lives--; 
+                    activarInvulnerabilidad(); 
+                    if (lives <= 0) { 
+                        gameOver = true; 
+                        crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
+                        if(musicaFondo) musicaFondo.pause(); 
+                        if(musicaJefe) musicaJefe.pause(); 
+                    } 
+                }
             }
             
             for (let i = 0; i < enemyProjectiles.length; i++) { 
@@ -1446,6 +1607,7 @@
                     activarInvulnerabilidad();
                     if (lives <= 0) { 
                         gameOver = true; 
+                        crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
                         if(musicaFondo) musicaFondo.pause(); 
                         if(musicaJefe) musicaJefe.pause(); 
                     } 
@@ -1454,11 +1616,32 @@
             
             limpiarProyectilesViejos(timestamp);
             
+            for (let i = 0; i < astronautas.length; i++) {
+                let a = astronautas[i];
+                a.x += a.vx;
+                a.y += a.vy + Math.sin(a.tiempo * 0.02) * 0.2;
+                a.tiempo++;
+                a.vida--;
+                if (a.vida <= 0 || a.x < -50) {
+                    astronautas.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            for (let i = 0; i < mensajesFlotantes.length; i++) {
+                let m = mensajesFlotantes[i];
+                m.y += m.vy;
+                m.vida--;
+                if (m.vida <= 0) {
+                    mensajesFlotantes.splice(i, 1);
+                    i--;
+                }
+            }
+            
             for (let i = 0; i < explosions.length; i++) { explosions[i].frame++; if (explosions[i].frame >= 10) { explosions.splice(i, 1); i--; } }
             for (let i = 0; i < escombros.length; i++) { let e = escombros[i]; e.x += e.vx; e.y += e.vy; if (ahora - e.creacion >= CFG.particulasDuracion) { escombros.splice(i, 1); i--; } }
             if (CFG.estrellasActivas) { for (let i = 0; i < stars.length; i++) { stars[i].x += stars[i].vx; if (stars[i].x < 0) { stars.splice(i, 1); i--; } } }
             
-            // RESTAURAR TRANSFORMACIÓN AL SOLTAR IZQUIERDA
             const leftSuelto = !keys.ArrowLeft && !(moveX < -0.5);
             if (leftSuelto && naveTransformada) {
                 restaurarTransformacion();
@@ -1491,7 +1674,7 @@
         }
         
         // ==========================================
-        // CONTROLES TÁCTILES (botones)
+        // CONTROLES TÁCTILES
         // ==========================================
         function setupTouchControls() {
             const btnC = document.getElementById('btnC');
