@@ -131,14 +131,14 @@
             gap: 12px;
         }
         .action-btn {
-            width: 89px;
-            height: 89px;
+            width: 89px;  /* 74 * 1.2 */
+            height: 89px; /* 74 * 1.2 */
             border-radius: 50%;
             border: 3px solid rgba(255,255,255,0.5);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 35px;
+            font-size: 35px; /* 29 * 1.2 */
             font-weight: bold;
             color: #fff;
             touch-action: none;
@@ -160,7 +160,7 @@
         .btn-x:active, .btn-x.pressed { background: rgba(255,50,50,0.6); border-color: #ff8800; }
         .btn-z { background: rgba(50,150,255,0.25); border-color: #4488ff; }
         .btn-z:active, .btn-z.pressed { background: rgba(50,150,255,0.6); border-color: #88ccff; }
-        .btn-reset { background: rgba(255,200,50,0.25); border-color: #ffaa44; font-size: 29px; width: 74px; height: 74px; }
+        .btn-reset { background: rgba(255,200,50,0.25); border-color: #ffaa44; font-size: 29px; width: 74px; height: 74px; } /* 62 * 1.2 */
         .btn-reset:active, .btn-reset.pressed { background: rgba(255,200,50,0.6); border-color: #ffcc44; }
         
         .touch-label { font-size: 10px; margin-top: 2px; color: rgba(255,255,255,0.5); text-align: center; letter-spacing: 0.5px; }
@@ -276,29 +276,23 @@
             burstType1: "1", burstType2: "1", burstType3: "1", burstType3Inv: "1",
             burstSpread1: 15, burstSpread2: 15, burstSpread3: 15, burstSpread3Inv: 15,
             homingProjSpeed: 15,
-            musicaFondo: "musica/fondo.mp3", musicaFondo2: "musica/fondo2.mp3",
-            musicaIntro: "musica/intro.mp3", musicaAlarma: "musica/alarma1.mp3",
-            musicaJefe: "musica/jefe_epico.mp3", musicaJefe2: "musica/jefe2.mp3",
-            musicaVictoria: "musica/victoria.mp3", musicaVictoria2: "musica/victoria2.mp3",
+            musicaFondo: "musica/fondo.mp3", musicaIntro: "musica/intro.mp3", musicaAlarma: "musica/alarma1.mp3",
+            musicaJefe: "musica/jefe_epico.mp3", musicaVictoria: "musica/victoria.mp3",
             sonidoDisparo: "sonidos/disparo.wav", sonidoDisparo2: "sonidos/disparo2.wav",
             sonidoTransformacion: "sonidos/transformacion.wav", sonidoExplosion: "sonidos/explosion.wav",
             sonidoAlarma: "sonidos/alarma1.wav",
             volMusica: 0.55, volEfectos: 0.20,
             volIntro: 0.40, muteIntro: false,
             volFondo: 0.69, muteFondo: false,
-            volFondo2: 0.69, muteFondo2: false,
             volAlarmaMusica: 1.0, muteAlarmaMusica: false,
             volJefe: 0.69, muteJefe: false,
-            volJefe2: 0.69, muteJefe2: false,
             volVictoria: 1.0, muteVictoria: false,
-            volVictoria2: 1.0, muteVictoria2: false,
             volDisparo: 0.77, muteDisparo: false,
             volDisparo2: 0.78, muteDisparo2: false,
             volTransformacion: 0.67, muteTransformacion: false,
             volExplosion: 0.79, muteExplosion: false,
             volAlarmaEfecto: 1.0, muteAlarmaEfecto: true,
-            bossScore: 50, bossHealth: 120, boss2Health: 150,
-            bgColor1: "#0a0a2a", bgColor2: "#1a0a3a",
+            bossScore: 50, bossHealth: 120, bgColor1: "#0a0a2a", bgColor2: "#1a0a3a",
             particulasActivas: true, particulaTipo: "cuadrado", particulasCantidad: 20, particulasTamañoMin: 3, particulasTamañoMax: 13.5,
             particulasVelocidad: 4, particulasDuracion: 300, particulasColor1: "#ff6600", particulasColor2: "#ffaa00",
             estrellasActivas: true, estrellasCantidad: 150, estrellasBrillo: 0.5, estrellasVelocidad: -6,
@@ -476,26 +470,19 @@
         let score = 0, lives = CFG.vidasIniciales, forma = 1, sprayAmmo = CFG.sprayAmmo, laserEnergy = CFG.laserEnergy, maxEnergy = CFG.laserEnergy;
         let enemies = [], enemy2List = [], projectiles = [], enemyProjectiles = [], misilesTraseros = [], explosions = [], stars = [], escombros = [];
         let boss = null, bossCreated = false, bossEstado = "ESPERANDO";
-        let boss2 = null, boss2Created = false, boss2Estado = "ESPERANDO";
         let lastShot = 0, lastMisilTrasero = 0, lastEnergyRegen = 0, lastEnemySpawn = 0, lastEnemy2Spawn = 0, lastStarSpawn = 0, lastBossDirectionChange = 0;
         let ultimoPorcentajeVidaJefe = 100;
         let keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false, KeyX: false, KeyZ: false };
         let naveTransformada = false, nave3Volteada = false;
         let puedeDisparar = false;
         let misilesDesactivados = false;
-        let faseJuego = 0; // 0: normal, 1: victoria, 2: fondo2, 3: jefe2
-        
-        // ===== COLOR DE FONDO =====
-        let colorFondo = { r: 10, g: 10, b: 42 };
-        let colorObjetivo = { r: 255, g: 165, b: 0 };
-        let transicionFondo = 0;
         
         // ===== RAYO LÁSER DEL JEFE =====
         let rayoLaser = null;
         let ultimoLaserJefe = 0;
         const INTERVALO_LASER = 5000;
         const DURACION_LASER = 1000;
-        const VELOCIDAD_LASER = 8;
+        const VELOCIDAD_LASER = 8; // Velocidad aumentada a 8
         
         // ===== RAYO DE NAVE 3 =====
         let ultimoRayoNave3 = 0;
@@ -550,13 +537,10 @@
         
         let audioDisparo = null, audioDisparo2 = null, audioTransformacion = null, audioExplosion = null, audioAlarma = null;
         let audioTransformacionZ = null;
-        let musicaFondo = null, musicaFondo2 = null, musicaJefe = null, musicaJefe2 = null;
-        let musicaIntro = null, musicaVictoria = null, musicaVictoria2 = null, musicaAlarmaAudio = null;
-        let musicaActiva = true, musicaJefeActiva = false, musicaJefe2Activa = false;
+        let musicaFondo = null, musicaJefe = null, musicaIntro = null, musicaVictoria = null, musicaAlarmaAudio = null;
+        let musicaActiva = true, musicaJefeActiva = false;
         let volumenMusica = CFG.volMusica, volumenEfectos = CFG.volEfectos;
         let musicaFondoTerminada = false;
-        let musicaVictoriaTerminada = false;
-        let musicaFondo2Terminada = false;
         
         let naveImg1Trans = new Image();
         let naveImg2Trans = new Image();
@@ -715,6 +699,7 @@
         // FUNCIONES DE MISILES Y PARTÍCULAS
         // ==========================================
         
+        // Partículas de cola para misiles HOMING (celeste → blanco)
         function crearParticulaColaHoming(x, y) {
             particulasCola.push({
                 x: x,
@@ -729,6 +714,7 @@
             });
         }
         
+        // Partículas de cola para misiles ENEMIGOS (amarillo → rojo) - MÁS PEQUEÑAS
         function crearParticulaColaEnemigo(x, y) {
             particulasColaEnemigo.push({
                 x: x,
@@ -743,6 +729,7 @@
             });
         }
         
+        // ===== MISILES TRASEROS ORIGINALES (4 misiles) =====
         function lanzarMisilesTraseros() {
             if (!gameRunning || gameOver) return;
             if (misilesDesactivados) return;
@@ -762,6 +749,7 @@
             }
         }
         
+        // ===== MISILES INVERSOS ORIGINALES (4 misiles hacia abajo) =====
         function lanzarMisilesInversos() {
             if (!gameRunning || gameOver) return;
             if (misilesDesactivados) return;
@@ -790,6 +778,7 @@
             }
         }
         
+        // ===== TRANSFORMACIÓN A HOMING: Misiles traseros SOLO mitad superior =====
         function transformarMisilEnHoming(m) {
             let cx = m.x + 8, cy = m.y + 8;
             let target = encontrarEnemigoMitadSuperior(cx, cy);
@@ -813,6 +802,7 @@
             }
         }
         
+        // ===== TRANSFORMACIÓN A HOMING: Misiles inversos SOLO mitad inferior =====
         function transformarMisilInversoEnHoming(m) {
             let cx = m.x + 8, cy = m.y + 8;
             let target = encontrarEnemigoMitadInferior(cx, cy);
@@ -836,6 +826,7 @@
             }
         }
         
+        // Buscar enemigos en la MITAD SUPERIOR
         function encontrarEnemigoMitadSuperior(x, y) {
             let cercano = null, distMin = Infinity;
             for (let e of enemies) { 
@@ -850,16 +841,10 @@
                 let d = Math.hypot(e.x + ENEMIGO2_ANCHO/2 - x, ey - y); 
                 if (d < distMin) { distMin = d; cercano = e; } 
             }
-            if (boss2 && boss2Estado === "PATRULLANDO") {
-                let ey = boss2.y + JEFE_ALTO/2;
-                if (ey <= MITAD_PANTALLA) {
-                    let d = Math.hypot(boss2.x + JEFE_ANCHO/2 - x, ey - y);
-                    if (d < distMin) { distMin = d; cercano = boss2; }
-                }
-            }
             return cercano;
         }
         
+        // Buscar enemigos en la MITAD INFERIOR
         function encontrarEnemigoMitadInferior(x, y) {
             let cercano = null, distMin = Infinity;
             for (let e of enemies) { 
@@ -873,13 +858,6 @@
                 if (ey < MITAD_PANTALLA) continue;
                 let d = Math.hypot(e.x + ENEMIGO2_ANCHO/2 - x, ey - y); 
                 if (d < distMin) { distMin = d; cercano = e; } 
-            }
-            if (boss2 && boss2Estado === "PATRULLANDO") {
-                let ey = boss2.y + JEFE_ALTO/2;
-                if (ey >= MITAD_PANTALLA) {
-                    let d = Math.hypot(boss2.x + JEFE_ANCHO/2 - x, ey - y);
-                    if (d < distMin) { distMin = d; cercano = boss2; }
-                }
             }
             return cercano;
         }
@@ -956,6 +934,7 @@
             }
         }
         
+        // ===== DISPARO DE RAYO NAVE 3 (10 de largo x 40 de ancho) =====
         function dispararRayoNave3() {
             if (!gameRunning || gameOver) return;
             if (forma !== 3) return;
@@ -972,6 +951,7 @@
             let fy = sy + CFG.shoot3Y;
             let vx = nave3Volteada ? -CFG.proyectilSpeed : CFG.proyectilSpeed;
             
+            // Rayo: 40 de ancho x 10 de largo
             projectiles.push({ 
                 x: fx, 
                 y: fy - 5, 
@@ -1017,15 +997,6 @@
                     if (dist < minDist) {
                         minDist = dist;
                         target = boss;
-                    }
-                }
-                if (boss2 && boss2Estado !== "ENTRANDO") {
-                    let dx = (boss2.x + JEFE_ANCHO/2) - origenX;
-                    let dy = (boss2.y + JEFE_ALTO/2) - origenY;
-                    let dist = Math.hypot(dx, dy);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        target = boss2;
                     }
                 }
                 
@@ -1242,32 +1213,13 @@
                 musicaFondo.addEventListener('ended', function() {
                     musicaFondoTerminada = true;
                     console.log('🎵 Música de fondo terminada - Activando jefe');
-                    if (!boss && !bossCreated && gameRunning && !gameOver && !victory && faseJuego === 0) {
+                    if (!boss && !bossCreated && gameRunning && !gameOver && !victory) {
                         activarJefe();
                     }
                 });
-                
-                musicaFondo2 = new Audio(CFG.musicaFondo2); musicaFondo2.loop = false;
-                musicaFondo2.addEventListener('ended', function() {
-                    musicaFondo2Terminada = true;
-                    console.log('🎵 Música fondo2 terminada - Activando jefe2');
-                    if (!boss2 && !boss2Created && gameRunning && !gameOver && !victory && faseJuego === 2) {
-                        activarJefe2();
-                    }
-                });
-                
                 musicaJefe = new Audio(CFG.musicaJefe); musicaJefe.loop = true;
-                musicaJefe2 = new Audio(CFG.musicaJefe2); musicaJefe2.loop = true;
                 musicaIntro = new Audio(CFG.musicaIntro); musicaIntro.loop = false;
                 musicaVictoria = new Audio(CFG.musicaVictoria); musicaVictoria.loop = false;
-                musicaVictoria.addEventListener('ended', function() {
-                    musicaVictoriaTerminada = true;
-                    console.log('🎵 Victoria terminada - Iniciando fondo2');
-                    if (gameRunning && !gameOver && !victory) {
-                        iniciarFase2();
-                    }
-                });
-                musicaVictoria2 = new Audio(CFG.musicaVictoria2); musicaVictoria2.loop = false;
                 musicaAlarmaAudio = new Audio(CFG.musicaAlarma); musicaAlarmaAudio.loop = false;
                 audioDisparo = new Audio(CFG.sonidoDisparo); audioDisparo.loop = false;
                 audioDisparo2 = new Audio(CFG.sonidoDisparo2); audioDisparo2.loop = false;
@@ -1278,37 +1230,6 @@
                 audioTransformacionZ.loop = false;
                 audioDisparo.addEventListener('ended', () => { puedeDisparar = false; });
             } catch(e) { console.log('Error música:', e); }
-        }
-        
-        function iniciarFase2() {
-            faseJuego = 2;
-            musicaVictoriaTerminada = false;
-            if (musicaVictoria) { musicaVictoria.pause(); musicaVictoria.currentTime = 0; }
-            // Reproducir fondo2
-            if (musicaFondo2 && musicaActiva && !CFG.muteFondo2) {
-                musicaFondo2.currentTime = 0;
-                musicaFondo2.volume = CFG.volFondo2 * CFG.volMusica;
-                musicaFondo2.play().catch(e=>{});
-            }
-            // Cambiar color de fondo a naranja
-            colorObjetivo = { r: 255, g: 165, b: 0 };
-            transicionFondo = 0;
-            // Activar estrellas en diagonal
-            if (CFG.estrellasActivas) {
-                stars = [];
-                for (let i = 0; i < CFG.estrellasCantidad; i++) {
-                    stars.push({
-                        x: Math.random() * WIDTH,
-                        y: Math.random() * HEIGHT,
-                        vx: 2,
-                        vy: -2,
-                        brightness: Math.random() * 0.5 + CFG.estrellasBrillo
-                    });
-                }
-            }
-            // Cambiar spawn de enemigos: desde abajo-izquierda
-            lastEnemySpawn = 0;
-            lastEnemy2Spawn = 0;
         }
         
         function playSonidoTransformacion() { 
@@ -1364,7 +1285,7 @@
                 } 
                 musicaJefeActiva=false; 
             } 
-            if (musicaFondo && musicaActiva && gameStarted && !victory && !gameOver && !CFG.muteFondo && faseJuego === 0) { 
+            if (musicaFondo && musicaActiva && gameStarted && !victory && !gameOver && !CFG.muteFondo) { 
                 musicaFondo.volume = CFG.volFondo * CFG.volMusica; 
                 musicaFondo.play().catch(e=>{}); 
             } 
@@ -1381,20 +1302,6 @@
                 musicaJefe.currentTime=0; 
                 musicaJefe.volume = CFG.volJefe * CFG.volMusica; 
                 musicaJefe.play().catch(e=>{}); 
-            } 
-        }
-        
-        function activarMusicaJefe2() { 
-            if (!musicaActiva || musicaJefe2Activa) return; 
-            if (musicaFondo2 && !musicaFondo2.paused) { 
-                musicaFondo2.pause(); 
-                musicaFondo2.currentTime=0; 
-            } 
-            musicaJefe2Activa = true; 
-            if (musicaJefe2 && !CFG.muteJefe2) { 
-                musicaJefe2.currentTime=0; 
-                musicaJefe2.volume = CFG.volJefe2 * CFG.volMusica; 
-                musicaJefe2.play().catch(e=>{}); 
             } 
         }
         
@@ -1420,28 +1327,6 @@
             setTimeout(() => { activarMusicaJefe(); }, 2000);
         }
         
-        function mostrarAlarmaJefe2() { 
-            if (!CFG.alarmaJefeActiva) return; 
-            let div = document.createElement('div'); 
-            div.className = 'mensaje-jefe'; 
-            div.textContent = '⚠️ ¡ALARMA! JEFE FINAL 2 ⚠️'; 
-            document.body.appendChild(div); 
-            
-            iniciarAlarmaSonido();
-            
-            setTimeout(() => { 
-                if (div && div.remove) div.remove(); 
-                detenerAlarmaSonido();
-            }, CFG.alarmaDuracion); 
-            
-            if(musicaAlarmaAudio && CFG.volMusica > 0 && !CFG.muteAlarmaMusica) {
-                musicaAlarmaAudio.currentTime = 0;
-                musicaAlarmaAudio.volume = CFG.volAlarmaMusica * CFG.volMusica;
-                musicaAlarmaAudio.play().catch(e=>{});
-            }
-            setTimeout(() => { activarMusicaJefe2(); }, 2000);
-        }
-        
         function activarInvulnerabilidad() {
             invulnerable = true;
             tiempoInvulnerable = performance.now();
@@ -1452,16 +1337,12 @@
         
         function detenerTodasLasMusicas() {
             if (musicaFondo) { musicaFondo.pause(); musicaFondo.currentTime = 0; }
-            if (musicaFondo2) { musicaFondo2.pause(); musicaFondo2.currentTime = 0; }
             if (musicaJefe) { musicaJefe.pause(); musicaJefe.currentTime = 0; }
-            if (musicaJefe2) { musicaJefe2.pause(); musicaJefe2.currentTime = 0; }
             if (musicaVictoria) { musicaVictoria.pause(); musicaVictoria.currentTime = 0; }
-            if (musicaVictoria2) { musicaVictoria2.pause(); musicaVictoria2.currentTime = 0; }
             if (musicaIntro) { musicaIntro.pause(); musicaIntro.currentTime = 0; }
             if (musicaAlarmaAudio) { musicaAlarmaAudio.pause(); musicaAlarmaAudio.currentTime = 0; }
             if (audioAlarma) { audioAlarma.pause(); audioAlarma.currentTime = 0; }
             musicaJefeActiva = false;
-            musicaJefe2Activa = false;
             musicaActiva = false;
         }
         
@@ -1474,15 +1355,6 @@
             boss = { x: WIDTH + 100, y: HEIGHT/2 - JEFE_ALTO/2, vx: CFG.bossSpeed, vy: 0, health: CFG.bossHealth, maxHealth: CFG.bossHealth, lastShoot: 0 };
         }
         
-        function activarJefe2() {
-            if (boss2Created || boss2) return;
-            if (!musicaFondo2Terminada) return;
-            boss2Created = true; boss2Estado = "ENTRANDO";
-            misilesDesactivados = true;
-            mostrarAlarmaJefe2();
-            boss2 = { x: WIDTH + 100, y: HEIGHT/2 - JEFE_ALTO/2, vx: CFG.bossSpeed, vy: 0, health: CFG.boss2Health || 150, maxHealth: CFG.boss2Health || 150, lastShoot: 0 };
-        }
-        
         function iniciarJuego() {
             gameStarted = true; gameRunning = true; gameOver = false; victory = false;
             score = 0; lives = CFG.vidasIniciales; forma = 1; sprayAmmo = CFG.sprayAmmo; laserEnergy = CFG.laserEnergy; maxEnergy = CFG.laserEnergy;
@@ -1492,9 +1364,7 @@
             particulasImpacto = [];
             particulasCola = [];
             particulasColaEnemigo = [];
-            boss = null; bossCreated = false; bossEstado = "ESPERANDO";
-            boss2 = null; boss2Created = false; boss2Estado = "ESPERANDO";
-            faseJuego = 0;
+            boss = null; bossCreated = false; bossEstado = "ESPERANDO"; ultimoPorcentajeVidaJefe = 100;
             naveTransformada = false; nave3Volteada = false;
             frameActualNave = { 1: 0, 2: 0, 3: 0 };
             invulnerable = false;
@@ -1502,14 +1372,8 @@
             misilesDesactivados = false;
             rayosDisponibles = MAX_RAYOS;
             musicaFondoTerminada = false;
-            musicaVictoriaTerminada = false;
-            musicaFondo2Terminada = false;
             rayoLaser = null;
             ultimoLaserJefe = 0;
-            transicionFondo = 0;
-            colorFondo = { r: 10, g: 10, b: 42 };
-            colorObjetivo = { r: 255, g: 165, b: 0 };
-            
             player.width = FORMAS[1].ancho; player.height = FORMAS[1].alto; 
             player.x = WIDTH/2 - player.width/2; player.y = HEIGHT - player.height - 30; 
             player.speed = velocidadBase;
@@ -1520,19 +1384,6 @@
             document.getElementById('touchControls').classList.add('active');
             resizeCanvas();
             
-            // Inicializar estrellas en diagonal
-            if (CFG.estrellasActivas) {
-                for (let i = 0; i < CFG.estrellasCantidad; i++) {
-                    stars.push({
-                        x: Math.random() * WIDTH,
-                        y: Math.random() * HEIGHT,
-                        vx: 2,
-                        vy: -2,
-                        brightness: Math.random() * 0.5 + CFG.estrellasBrillo
-                    });
-                }
-            }
-            
             musicaActiva = true;
             musicaFondoTerminada = false;
             if (musicaFondo) {
@@ -1542,7 +1393,7 @@
                 musicaFondo.addEventListener('ended', function() {
                     musicaFondoTerminada = true;
                     console.log('🎵 Música de fondo terminada - Activando jefe');
-                    if (!boss && !bossCreated && gameRunning && !gameOver && !victory && faseJuego === 0) {
+                    if (!boss && !bossCreated && gameRunning && !gameOver && !victory) {
                         activarJefe();
                     }
                 });
@@ -1592,6 +1443,7 @@
             }
         }
         
+        // ===== NAVE 1 DISPARO: 2 ráfagas =====
         function shoot() {
             if (!gameRunning || gameOver) return;
             
@@ -1647,31 +1499,12 @@
         }
         
         function spawnEnemy() { 
-            if (!gameRunning || gameOver) return; 
-            if (boss && bossEstado !== "PATRULLANDO") return;
-            if (boss2 && boss2Estado !== "PATRULLANDO") return;
-            
-            let x, y, vx, vy;
-            
-            if (faseJuego === 2) {
-                // Enemigos desde abajo-izquierda hacia arriba-derecha
-                x = -ENEMIGO_ANCHO/2;
-                y = HEIGHT + ENEMIGO_ALTO/2;
-                vx = 3 + Math.random() * 2;
-                vy = -2 - Math.random() * 3;
-            } else {
-                // Enemigos originales desde la derecha
-                x = WIDTH + ENEMIGO_ANCHO/2;
-                y = Math.random() * (HEIGHT - ENEMIGO_ALTO - 60) + 40;
-                vx = ENEMY_SPEED;
-                vy = (Math.random() - 0.5) * 3;
-            }
-            
+            if (!gameRunning || gameOver || boss) return; 
             let e = { 
-                x: x, 
-                y: y, 
-                vx: vx, 
-                vy: vy, 
+                x: WIDTH + ENEMIGO_ANCHO/2, 
+                y: Math.random() * (HEIGHT - ENEMIGO_ALTO - 60) + 40, 
+                vx: ENEMY_SPEED, 
+                vy: (Math.random() - 0.5) * 3, 
                 health: 3, 
                 lastShoot: 0,
                 yaDisparoAlNacer: false
@@ -1681,29 +1514,12 @@
         }
         
         function spawnEnemy2() { 
-            if (!gameRunning || gameOver) return; 
-            if (boss && bossEstado !== "PATRULLANDO") return;
-            if (boss2 && boss2Estado !== "PATRULLANDO") return;
-            
-            let x, y, vx, vy;
-            
-            if (faseJuego === 2) {
-                x = -ENEMIGO2_ANCHO/2;
-                y = HEIGHT + ENEMIGO2_ALTO/2;
-                vx = 3 + Math.random() * 2;
-                vy = -2 - Math.random() * 3;
-            } else {
-                x = WIDTH + ENEMIGO2_ANCHO/2;
-                y = Math.random() * (HEIGHT - ENEMIGO2_ALTO - 60) + 40;
-                vx = ENEMY2_SPEED;
-                vy = (Math.random() - 0.5) * 2.8;
-            }
-            
+            if (!gameRunning || gameOver || boss) return; 
             let e = { 
-                x: x, 
-                y: y, 
-                vx: vx, 
-                vy: vy, 
+                x: WIDTH + ENEMIGO2_ANCHO/2, 
+                y: Math.random() * (HEIGHT - ENEMIGO2_ALTO - 60) + 40, 
+                vx: ENEMY2_SPEED, 
+                vy: (Math.random() - 0.5) * 2.8, 
                 health: 3, 
                 lastShoot: 0,
                 yaDisparoAlNacer: false
@@ -1732,19 +1548,16 @@
             }
         }
         
+        // ===== RAYO LÁSER DEL JEFE (velocidad 8) =====
         function activarLaserJefe() {
-            let bossObj = boss || boss2;
-            if (!bossObj || (bossObj !== boss && bossObj !== boss2)) return;
-            let estado = bossObj === boss ? bossEstado : boss2Estado;
-            if (estado !== "PATRULLANDO") return;
-            
+            if (!boss || bossEstado !== "PATRULLANDO") return;
             let ahora = performance.now();
             if (ahora - ultimoLaserJefe < INTERVALO_LASER) return;
             ultimoLaserJefe = ahora;
             
             rayoLaser = {
-                x: bossObj.x,
-                y: bossObj.y + JEFE_ALTO/2 - 10,
+                x: boss.x,
+                y: boss.y + JEFE_ALTO/2 - 10,
                 ancho: 20,
                 alto: JEFE_ALTO/2 + 10,
                 inicio: ahora,
@@ -1773,37 +1586,20 @@
         }
         
         function draw() {
-            // ===== TRANSICIÓN DE COLOR DE FONDO =====
-            if (transicionFondo < 1) {
-                transicionFondo += 0.001;
-                if (transicionFondo > 1) transicionFondo = 1;
-            }
-            
-            let r = Math.round(colorFondo.r + (colorObjetivo.r - colorFondo.r) * transicionFondo);
-            let g = Math.round(colorFondo.g + (colorObjetivo.g - colorFondo.g) * transicionFondo);
-            let b = Math.round(colorFondo.b + (colorObjetivo.b - colorFondo.b) * transicionFondo);
-            
             const grad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-            grad.addColorStop(0, `rgb(${r}, ${g}, ${b})`);
-            grad.addColorStop(1, `rgb(${Math.round(r*0.4)}, ${Math.round(g*0.4)}, ${Math.round(b*0.4)})`);
+            grad.addColorStop(0, CFG.bgColor1);
+            grad.addColorStop(1, CFG.bgColor2);
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, WIDTH, HEIGHT);
             
-            // ===== ESTRELLAS EN DIAGONAL =====
             if (CFG.estrellasActivas) {
-                for (let s of stars) {
-                    ctx.fillStyle = `rgba(255,255,255,${s.brightness || CFG.estrellasBrillo})`;
-                    ctx.fillRect(s.x, s.y, 2, 2);
-                }
+                for (let s of stars) { ctx.fillStyle = `rgba(255,255,255,${s.brightness || CFG.estrellasBrillo})`; ctx.fillRect(s.x, s.y, 2, 2); }
             }
-            
             for (let e of enemies) { if (enemigoImg.complete) ctx.drawImage(enemigoImg, e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); else { ctx.fillStyle='#ff4444'; ctx.fillRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); } }
             for (let e of enemy2List) { if (enemigo2Img.complete) ctx.drawImage(enemigo2Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); else { ctx.fillStyle='#ff8844'; ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); } }
-            
             if (boss && jefeImg.complete) ctx.drawImage(jefeImg, boss.x, boss.y, JEFE_ANCHO, JEFE_ALTO);
-            if (boss2 && jefeImg.complete) ctx.drawImage(jefeImg, boss2.x, boss2.y, JEFE_ANCHO, JEFE_ALTO);
             
-            // ===== RAYO LÁSER DEL JEFE =====
+            // ===== RAYO LÁSER DEL JEFE (velocidad 8) =====
             if (rayoLaser && rayoLaser.activo) {
                 let progreso = (performance.now() - rayoLaser.inicio) / rayoLaser.duracion;
                 if (progreso < 1) {
@@ -1845,8 +1641,6 @@
                             crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
                             if(musicaFondo) musicaFondo.pause(); 
                             if(musicaJefe) musicaJefe.pause();
-                            if(musicaFondo2) musicaFondo2.pause();
-                            if(musicaJefe2) musicaJefe2.pause();
                         }
                     }
                 } else {
@@ -1854,7 +1648,7 @@
                 }
             }
             
-            // ===== PARTÍCULAS =====
+            // ===== PARTÍCULAS DE COLA =====
             for (let p of particulasCola) {
                 let progreso = (performance.now() - p.creacion) / p.vida;
                 let alpha = 1 - progreso;
@@ -1862,11 +1656,11 @@
                 
                 let r1 = 68, g1 = 221, b1 = 255;
                 let r2 = 255, g2 = 255, b2 = 255;
-                let rp = Math.round(r1 + (r2 - r1) * progreso);
-                let gp = Math.round(g1 + (g2 - g1) * progreso);
-                let bp = Math.round(b1 + (b2 - b1) * progreso);
+                let r = Math.round(r1 + (r2 - r1) * progreso);
+                let g = Math.round(g1 + (g2 - g1) * progreso);
+                let b = Math.round(b1 + (b2 - b1) * progreso);
                 
-                ctx.fillStyle = `rgba(${rp}, ${gp}, ${bp}, ${alpha * 0.8})`;
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.8})`;
                 let size = p.tamaño * (1 - progreso * 0.5);
                 ctx.fillRect(p.x - size/2, p.y - size/2, size, size);
             }
@@ -1878,11 +1672,11 @@
                 
                 let r1 = 255, g1 = 221, b1 = 68;
                 let r2 = 255, g2 = 34, b2 = 0;
-                let rp = Math.round(r1 + (r2 - r1) * progreso);
-                let gp = Math.round(g1 + (g2 - g1) * progreso);
-                let bp = Math.round(b1 + (b2 - b1) * progreso);
+                let r = Math.round(r1 + (r2 - r1) * progreso);
+                let g = Math.round(g1 + (g2 - g1) * progreso);
+                let b = Math.round(b1 + (b2 - b1) * progreso);
                 
-                ctx.fillStyle = `rgba(${rp}, ${gp}, ${bp}, ${alpha * 0.8})`;
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.8})`;
                 let size = p.tamaño * (1 - progreso * 0.3);
                 ctx.fillRect(p.x - size/2, p.y - size/2, size, size);
             }
@@ -1890,6 +1684,7 @@
             // Proyectiles
             for (let p of projectiles) { 
                 if (p.esRayoNave3) {
+                    // Rayo de nave 3: 40x10
                     ctx.shadowColor = '#00ccff';
                     ctx.shadowBlur = 30;
                     let gradRayo = ctx.createLinearGradient(p.x, p.y, p.x + p.w, p.y);
@@ -2003,7 +1798,7 @@
                 }
             }
             
-            // ===== BARRA DE RAYO NAVE 3 =====
+            // ===== BARRA DE RAYO NAVE 3 (máximo 200) =====
             let barraX = WIDTH/2 - 120;
             let barraY = 12;
             let barraW = 240;
@@ -2043,12 +1838,7 @@
             if (boss && bossEstado !== "ENTRANDO") {
                 ctx.fillStyle = '#ff6666'; ctx.fillRect(15, HEIGHT - 25, WIDTH - 30, 10);
                 ctx.fillStyle = '#ff0000'; ctx.fillRect(15, HEIGHT - 25, (WIDTH - 30) * (boss.health / CFG.bossHealth), 10);
-                ctx.fillStyle = '#fff'; ctx.fillText(`JEFE 1: ${Math.round(boss.health/CFG.bossHealth*100)}%`, WIDTH/2 - 40, HEIGHT - 30);
-            }
-            if (boss2 && boss2Estado !== "ENTRANDO") {
-                ctx.fillStyle = '#ff6666'; ctx.fillRect(15, HEIGHT - 25, WIDTH - 30, 10);
-                ctx.fillStyle = '#ff0000'; ctx.fillRect(15, HEIGHT - 25, (WIDTH - 30) * (boss2.health / CFG.boss2Health), 10);
-                ctx.fillStyle = '#fff'; ctx.fillText(`JEFE 2: ${Math.round(boss2.health/CFG.boss2Health*100)}%`, WIDTH/2 - 40, HEIGHT - 30);
+                ctx.fillStyle = '#fff'; ctx.fillText(`JEFE: ${Math.round(boss.health/CFG.bossHealth*100)}%`, WIDTH/2 - 40, HEIGHT - 30);
             }
             if (gameOver) {
                 ctx.fillStyle = 'rgba(0,0,0,0.85)'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -2063,6 +1853,10 @@
                 ctx.fillStyle = '#44ff44'; ctx.font = 'bold 36px monospace'; ctx.textAlign = 'center';
                 ctx.fillText('¡VICTORIA!', WIDTH/2, HEIGHT/2 - 40);
                 ctx.textAlign = 'left';
+                if (musicaVictoria && musicaActiva && !gameOver && !CFG.muteVictoria) {
+                    musicaVictoria.volume = CFG.volVictoria * CFG.volMusica;
+                    musicaVictoria.play().catch(e=>{});
+                }
             }
         }
         
@@ -2131,43 +1925,13 @@
             if (keys.KeyZ && timestamp - lastMisilTrasero > 250) { lastMisilTrasero = timestamp; transformarConFlash(); keys.KeyZ = false; }
             if (timestamp - lastEnergyRegen > 500 && laserEnergy < maxEnergy) { lastEnergyRegen = timestamp; laserEnergy = Math.min(maxEnergy, laserEnergy + CFG.energyRegen); }
             
-            // ===== ACTUALIZAR ESTRELLAS EN DIAGONAL =====
-            if (CFG.estrellasActivas) {
-                for (let s of stars) {
-                    s.x += s.vx || 2;
-                    s.y += s.vy || -2;
-                    if (s.x > WIDTH) s.x = -2;
-                    if (s.y < -2) s.y = HEIGHT;
-                }
-            }
-            
-            // ===== SPAWN DE ENEMIGOS =====
-            let spawnInterval = 1500;
-            let spawnInterval2 = 1800;
-            
-            if (faseJuego === 2) {
-                spawnInterval = 800;
-                spawnInterval2 = 1000;
-            }
-            
-            if (timestamp - lastEnemySpawn > spawnInterval) { 
-                lastEnemySpawn = timestamp; 
-                spawnEnemy(); 
-            }
-            if (timestamp - lastEnemy2Spawn > spawnInterval2) { 
-                lastEnemy2Spawn = timestamp; 
-                spawnEnemy2(); 
-            }
-            
-            if (CFG.estrellasActivas && timestamp - lastStarSpawn > 100) { 
-                lastStarSpawn = timestamp; 
-                // Las estrellas ya se manejan en el bucle de actualización
-            }
-            
-            // ===== ACTIVAR RAYO LÁSER =====
-            if ((boss && bossEstado === "PATRULLANDO") || (boss2 && boss2Estado === "PATRULLANDO")) {
+            if (boss && bossEstado === "PATRULLANDO") {
                 activarLaserJefe();
             }
+            
+            if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemySpawn > 1500) { lastEnemySpawn = timestamp; spawnEnemy(); }
+            if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemy2Spawn > 1800) { lastEnemy2Spawn = timestamp; spawnEnemy2(); }
+            if (CFG.estrellasActivas && timestamp - lastStarSpawn > 100) { lastStarSpawn = timestamp; stars.push({ x: WIDTH, y: Math.random() * HEIGHT, vx: CFG.estrellasVelocidad, brightness: Math.random() * 0.5 + CFG.estrellasBrillo }); }
             
             let ahora = performance.now();
             
@@ -2184,7 +1948,6 @@
                 }
             }
             
-            // Transformar misiles
             for (let i = 0; i < misilesTraseros.length; i++) {
                 let m = misilesTraseros[i];
                 if (!m.transformado && ahora - m.tiempo >= TIEMPO_TRANSFORMACION) {
@@ -2205,7 +1968,6 @@
                 }
             }
             
-            // Actualizar misiles
             for (let i = 0; i < misilesTraseros.length; i++) {
                 let m = misilesTraseros[i];
                 m.x += m.vx;
@@ -2226,7 +1988,6 @@
                 }
             }
             
-            // Actualizar partículas
             for (let i = 0; i < particulasCola.length; i++) {
                 let p = particulasCola[i];
                 p.x += p.vx;
@@ -2247,7 +2008,6 @@
                 }
             }
             
-            // Actualizar proyectiles homing
             for (let i = 0; i < projectiles.length; i++) {
                 let p = projectiles[i];
                 
@@ -2261,12 +2021,6 @@
                         for (let e of enemy2List) {
                             if (e === target) { objetivoVivo = true; break; }
                         }
-                    }
-                    if (!objetivoVivo && boss === target && boss !== null) {
-                        objetivoVivo = true;
-                    }
-                    if (!objetivoVivo && boss2 === target && boss2 !== null) {
-                        objetivoVivo = true;
                     }
                     
                     if (objetivoVivo) {
@@ -2302,7 +2056,6 @@
                 }
             }
             
-            // Actualizar partículas de impacto
             for (let i = 0; i < particulasImpacto.length; i++) {
                 let p = particulasImpacto[i];
                 p.x += p.vx;
@@ -2324,7 +2077,6 @@
             
             let playerCol = getCollisionRect(player.x, player.y, player.width, player.height, forma === 3);
             
-            // COLISIÓN CON ASTRONAUTAS
             for (let i = 0; i < astronautas.length; i++) {
                 let a = astronautas[i];
                 if (player.x < a.x + a.w && player.x + player.width > a.x &&
@@ -2338,22 +2090,9 @@
                 }
             }
             
-            // COLISIÓN CON ENEMIGOS
             for (let i = 0; i < enemies.length; i++) {
                 let e = enemies[i]; e.x += e.vx; e.y += e.vy;
-                
-                // Límites para enemigos en fase 2 (diagonales)
-                if (faseJuego === 2) {
-                    if (e.x > WIDTH + 50 || e.y < -50) {
-                        enemies.splice(i, 1);
-                        i--;
-                        continue;
-                    }
-                } else {
-                    if (e.y < 20) e.y = 20; 
-                    if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
-                }
-                
+                if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
                 for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
                     crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
@@ -2377,24 +2116,14 @@
                     if (lives <= 0) { 
                         gameOver = true; 
                         crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
-                        detenerTodasLasMusicas();
+                        if(musicaFondo) musicaFondo.pause(); 
+                        if(musicaJefe) musicaJefe.pause(); 
                     } 
                 }
             }
             for (let i = 0; i < enemy2List.length; i++) {
                 let e = enemy2List[i]; e.x += e.vx; e.y += e.vy;
-                
-                if (faseJuego === 2) {
-                    if (e.x > WIDTH + 50 || e.y < -50) {
-                        enemy2List.splice(i, 1);
-                        i--;
-                        continue;
-                    }
-                } else {
-                    if (e.y < 20) e.y = 20; 
-                    if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
-                }
-                
+                if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
                 for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
                     crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
@@ -2418,12 +2147,12 @@
                     if (lives <= 0) { 
                         gameOver = true; 
                         crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
-                        detenerTodasLasMusicas();
+                        if(musicaFondo) musicaFondo.pause(); 
+                        if(musicaJefe) musicaJefe.pause(); 
                     } 
                 }
             }
             
-            // ===== JEFE 1 =====
             if (boss) {
                 boss.x += boss.vx; boss.y += boss.vy;
                 if (bossEstado === "ENTRANDO" && boss.x <= WIDTH - JEFE_ANCHO - 30) { 
@@ -2482,7 +2211,6 @@
                             victory = true; 
                             gameRunning = false;
                             misilesDesactivados = false;
-                            faseJuego = 1;
                             if(musicaJefe) musicaJefe.pause(); 
                             if (musicaVictoria && musicaActiva && !CFG.muteVictoria) {
                                 musicaVictoria.currentTime = 0;
@@ -2499,91 +2227,12 @@
                     if (lives <= 0) { 
                         gameOver = true; 
                         crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
-                        detenerTodasLasMusicas();
+                        if(musicaFondo) musicaFondo.pause(); 
+                        if(musicaJefe) musicaJefe.pause(); 
                     } 
                 }
             }
             
-            // ===== JEFE 2 =====
-            if (boss2) {
-                boss2.x += boss2.vx; boss2.y += boss2.vy;
-                if (boss2Estado === "ENTRANDO" && boss2.x <= WIDTH - JEFE_ANCHO - 30) { 
-                    boss2Estado = "PATRULLANDO"; 
-                    boss2.vx = (Math.random() - 0.5) * 7; 
-                    boss2.vy = (Math.random() - 0.5) * 6; 
-                }
-                if (boss2Estado === "PATRULLANDO") {
-                    if (timestamp - (boss2.lastShoot||0) > CFG.bossShootDelay) { 
-                        boss2.lastShoot = timestamp; 
-                        let dx = (player.x+player.width/2)-(boss2.x+JEFE_ANCHO/2), 
-                            dy = (player.y+player.height/2)-(boss2.y+JEFE_ALTO/2), 
-                            len = Math.hypot(dx,dy); 
-                        if(len>0) {
-                            let proj = { 
-                                x: boss2.x+JEFE_ANCHO/2-12, 
-                                y: boss2.y+JEFE_ALTO/2-5, 
-                                w:24, h:10, 
-                                vx: dx/len*5, 
-                                vy: dy/len*5, 
-                                timestamp: timestamp 
-                            };
-                            enemyProjectiles.push(proj);
-                        }
-                    }
-                    if (timestamp - lastBossDirectionChange > 1000) { 
-                        lastBossDirectionChange = timestamp; 
-                        boss2.vx = (Math.random() - 0.5) * 7; 
-                        boss2.vy = (Math.random() - 0.5) * 6; 
-                    }
-                    if (boss2.x < 30) { boss2.x = 30; boss2.vx = Math.abs(boss2.vx); }
-                    if (boss2.x > WIDTH - JEFE_ANCHO - 30) { boss2.x = WIDTH - JEFE_ANCHO - 30; boss2.vx = -Math.abs(boss2.vx); }
-                    if (boss2.y < 30) { boss2.y = 30; boss2.vy = Math.abs(boss2.vy); }
-                    if (boss2.y > HEIGHT - JEFE_ALTO - 30) { boss2.y = HEIGHT - JEFE_ALTO - 30; boss2.vy = -Math.abs(boss2.vy); }
-                }
-                let bossCol = getCollisionRect(boss2.x, boss2.y, JEFE_ANCHO, JEFE_ALTO);
-                for (let j = 0; j < projectiles.length; j++) { 
-                    let p = projectiles[j]; 
-                    if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, bossCol)) { 
-                        crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
-                        projectiles.splice(j, 1); 
-                        createExplosion(boss2.x + JEFE_ANCHO/2 + (Math.random() - 0.5) * 60, boss2.y + JEFE_ALTO/2 + (Math.random() - 0.5) * 50);
-                        crearEscombros(boss2.x + JEFE_ANCHO/2 + (Math.random() - 0.5) * 80, boss2.y + JEFE_ALTO/2 + (Math.random() - 0.5) * 70);
-                        
-                        boss2.health--; 
-                        if (boss2.health <= 0) { 
-                            createExplosion(boss2.x + JEFE_ANCHO/2, boss2.y + JEFE_ALTO/2); 
-                            crearEscombros(boss2.x + JEFE_ANCHO/2, boss2.y + JEFE_ALTO/2);
-                            boss2 = null; 
-                            victory = true; 
-                            gameRunning = false;
-                            misilesDesactivados = false;
-                            faseJuego = 3;
-                            if(musicaJefe2) musicaJefe2.pause(); 
-                            if (musicaVictoria2 && musicaActiva && !CFG.muteVictoria2) {
-                                musicaVictoria2.currentTime = 0;
-                                musicaVictoria2.volume = CFG.volVictoria2 * CFG.volMusica;
-                                musicaVictoria2.play().catch(e=>{});
-                            }
-                            // Detener todas las músicas al terminar victoria2
-                            setTimeout(() => {
-                                detenerTodasLasMusicas();
-                            }, 5000);
-                        } 
-                        break; 
-                    } 
-                }
-                if (!invulnerable && checkCollision(playerCol, bossCol)) { 
-                    lives--; 
-                    activarInvulnerabilidad(); 
-                    if (lives <= 0) { 
-                        gameOver = true; 
-                        crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
-                        detenerTodasLasMusicas();
-                    } 
-                }
-            }
-            
-            // PROYECTILES ENEMIGOS
             for (let i = 0; i < enemyProjectiles.length; i++) { 
                 let p = enemyProjectiles[i]; 
                 p.x += p.vx; 
@@ -2600,7 +2249,8 @@
                     if (lives <= 0) { 
                         gameOver = true; 
                         crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
-                        detenerTodasLasMusicas();
+                        if(musicaFondo) musicaFondo.pause(); 
+                        if(musicaJefe) musicaJefe.pause(); 
                     } 
                 } 
             }
@@ -2631,6 +2281,7 @@
             
             for (let i = 0; i < explosions.length; i++) { explosions[i].frame++; if (explosions[i].frame >= 10) { explosions.splice(i, 1); i--; } }
             for (let i = 0; i < escombros.length; i++) { let e = escombros[i]; e.x += e.vx; e.y += e.vy; if (ahora - e.creacion >= CFG.particulasDuracion) { escombros.splice(i, 1); i--; } }
+            if (CFG.estrellasActivas) { for (let i = 0; i < stars.length; i++) { stars[i].x += stars[i].vx; if (stars[i].x < 0) { stars.splice(i, 1); i--; } } }
             
             const leftSuelto = !keys.ArrowLeft && !(moveX < -0.5);
             if (leftSuelto && naveTransformada) {
@@ -2650,15 +2301,12 @@
                 if (musicaFondo) musicaFondo.pause(); 
                 if (musicaJefe) musicaJefe.pause(); 
                 if (musicaVictoria) musicaVictoria.pause();
-                if (musicaFondo2) musicaFondo2.pause();
-                if (musicaJefe2) musicaJefe2.pause();
-                if (musicaVictoria2) musicaVictoria2.pause();
                 musicaActiva = false; 
                 btn.innerHTML = '🔇 MUSICA OFF'; 
                 btn.style.color = '#ff4444'; 
             } else { 
                 musicaActiva = true; 
-                if (!musicaJefeActiva && musicaFondo && gameStarted && !CFG.muteFondo && faseJuego === 0) {
+                if (!musicaJefeActiva && musicaFondo && gameStarted && !CFG.muteFondo) {
                     musicaFondo.volume = CFG.volFondo * CFG.volMusica;
                     musicaFondo.play().catch(e=>{}); 
                 }
