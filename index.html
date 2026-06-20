@@ -250,12 +250,12 @@
             shoot2X: -5, shoot2Y: 0, shoot2BX: 0, shoot2BY: 0,
             shoot3X: -8, shoot3Y: -5, shoot3BX: 0, shoot3BY: 0,
             shoot31X: -70, shoot31Y: -5, shoot31BX: 0, shoot31BY: 0,
-            playerSpeed: 10, proyectilSpeed: 11, homingSpeed: 9.5, traseroSpeed: 6,
-            speedNave1: 0.8, speedNave1Trans: 0.7,
-            speedNave2: 0.7, speedNave2Trans: 0.6,
-            speedNave3: 0.6, speedNave3Trans: 0.5,
-            speedNave3Inv: 0.6, speedNave3InvTrans: 0.55,
-            enemy1Speed: -6, enemy2Speed: -4, enemyProjSpeed: 5, jefeContingenciaSpeed: 8,
+            playerSpeed: 13, proyectilSpeed: 11, homingSpeed: 9.5, traseroSpeed: 6,
+            speedNave1: 1.04, speedNave1Trans: 0.91,
+            speedNave2: 0.91, speedNave2Trans: 0.78,
+            speedNave3: 0.78, speedNave3Trans: 0.65,
+            speedNave3Inv: 0.78, speedNave3InvTrans: 0.715,
+            enemy1Speed: -7.2, enemy2Speed: -4.8, enemyProjSpeed: 5, jefeContingenciaSpeed: 8,
             sprayAmmo: 100, laserEnergy: 1000, laserCost: 20, energyRegen: 20, shotCooldown: 150, misilCooldown: 400, misilTransformTime: 300,
             spriteNave1: "imagenes/nave1.png", spriteNave1Trans: "imagenes/nave2.1.png",
             spriteNave2: "imagenes/nave2.png", spriteNave2Trans: "imagenes/nave2.1.png",
@@ -271,7 +271,7 @@
             nave3Frame2W: 136, nave3Frame2H: 168, nave3Frame2X: -17, nave3Frame2Y: 0,
             nave3InvFrame2: "imagenes/nave3_inv_frame2.png", nave3InvAnimSpeed: 50, nave3InvAnimActive: true,
             nave3InvFrame2W: 138, nave3InvFrame2H: 170, nave3InvFrame2X: 0, nave3InvFrame2Y: 0,
-            shootType1: "recto", shootType2: "recto", shootType3: "recto", shootType3Inv: "recto",
+            shootType1: "recto", shootType2: "recto", shootType3: "teledirigido", shootType3Inv: "teledirigido",
             burstType1: "1", burstType2: "1", burstType3: "1", burstType3Inv: "1",
             burstSpread1: 15, burstSpread2: 15, burstSpread3: 15, burstSpread3Inv: 15,
             homingProjSpeed: 15,
@@ -477,6 +477,20 @@
         let astronautas = [];
         let mensajesFlotantes = [];
         
+        // Misiles inversos
+        let misilesInversos = [];
+        const TIEMPO_MISIL_INVERSO = 200;
+        
+        // Partículas de impacto
+        let particulasImpacto = [];
+        
+        // Partículas de cola para misiles (SOLO HOMING)
+        let particulasCola = [];
+        let contadorFrameCola = 0;
+        
+        // Partículas de cola para misiles ENEMIGOS (amarillo → rojo)
+        let particulasColaEnemigo = [];
+        
         let transformacionFlashActiva = false;
         let transformacionFlashDestino = 1;
         
@@ -660,7 +674,122 @@
         }
         
         // ==========================================
-        // FUNCIONES ORIGINALES
+        // FUNCIONES DE MISILES Y PARTÍCULAS
+        // ==========================================
+        
+        // Partículas de cola para misiles HOMING (celeste → blanco)
+        function crearParticulaColaHoming(x, y) {
+            particulasCola.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                tamaño: 3 + Math.random() * 5,
+                vida: 300,
+                creacion: performance.now(),
+                colorInicio: '#44ddff',
+                colorFin: '#ffffff'
+            });
+        }
+        
+        // Partículas de cola para misiles ENEMIGOS (amarillo → rojo) - MÁS PEQUEÑAS
+        function crearParticulaColaEnemigo(x, y) {
+            particulasColaEnemigo.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                tamaño: 2 + Math.random() * 2, // Más pequeñas (2-4 píxeles)
+                vida: 200,
+                creacion: performance.now(),
+                colorInicio: '#ffdd44', // Amarillo
+                colorFin: '#ff2200'     // Rojo
+            });
+        }
+        
+        function lanzarMisilesInversos() {
+            if (!gameRunning || gameOver) return;
+            if (sprayAmmo <= 0) return;
+            sprayAmmo--;
+            
+            let cx = player.x + player.width/2;
+            let cy = player.y + player.height/2;
+            let tiempo = performance.now();
+            
+            let angulos = [-1.8, -1.3, 1.3, 1.8];
+            
+            for (let a of angulos) {
+                let vx = Math.sin(a) * 3;
+                let vy = Math.cos(a) * 6 + 2;
+                misilesInversos.push({
+                    x: cx - 8,
+                    y: cy - 8,
+                    w: 16,
+                    h: 16,
+                    vx: vx,
+                    vy: vy,
+                    tiempo: tiempo,
+                    transformado: false
+                });
+            }
+        }
+        
+        function transformarMisilInversoEnHoming(m) {
+            let cx = m.x + 8, cy = m.y + 8;
+            let target = encontrarEnemigoMasCercano(cx, cy);
+            if (target) {
+                let tx = target.x + (target.width || ENEMIGO_ANCHO)/2;
+                let ty = target.y + (target.height || ENEMIGO_ALTO)/2;
+                let dx = tx - cx, dy = ty - cy;
+                let len = Math.hypot(dx, dy);
+                if (len > 0) {
+                    let speed = CFG.homingSpeed;
+                    let vx = dx/len * speed;
+                    let vy = dy/len * speed;
+                    projectiles.push({ 
+                        x: cx-6, y: cy-6, w: 12, h: 12, 
+                        vx: vx, vy: vy,
+                        esHoming: true,
+                        objetivo: target,
+                        velocidad: speed
+                    });
+                }
+            }
+        }
+        
+        function transformarMisilEnHoming(m) {
+            let cx = m.x + 8, cy = m.y + 8;
+            let target = encontrarEnemigoMasCercano(cx, cy);
+            if (target) {
+                let tx = target.x + (target.width || ENEMIGO_ANCHO)/2;
+                let ty = target.y + (target.height || ENEMIGO_ALTO)/2;
+                let dx = tx - cx, dy = ty - cy;
+                let len = Math.hypot(dx, dy);
+                if (len > 0) {
+                    let speed = CFG.homingSpeed;
+                    let vx = dx/len * speed;
+                    let vy = dy/len * speed;
+                    projectiles.push({ 
+                        x: cx-6, y: cy-6, w: 12, h: 12, 
+                        vx: vx, vy: vy,
+                        esHoming: true,
+                        objetivo: target,
+                        velocidad: speed
+                    });
+                }
+            }
+        }
+        
+        function encontrarEnemigoMasCercano(x, y) {
+            let cercano = null, distMin = Infinity;
+            for (let e of enemies) { let d = Math.hypot(e.x + ENEMIGO_ANCHO/2 - x, e.y + ENEMIGO_ALTO/2 - y); if (d < distMin) { distMin = d; cercano = e; } }
+            for (let e of enemy2List) { let d = Math.hypot(e.x + ENEMIGO2_ANCHO/2 - x, e.y + ENEMIGO2_ALTO/2 - y); if (d < distMin) { distMin = d; cercano = e; } }
+            if (boss && bossEstado === "PATRULLANDO") { let d = Math.hypot(boss.x + JEFE_ANCHO/2 - x, boss.y + JEFE_ALTO/2 - y); if (d < distMin) cercano = boss; }
+            return cercano;
+        }
+        
+        // ==========================================
+        // FUNCIONES ORIGINALES DEL JUEGO
         // ==========================================
         
         function getImagenNaveActual(forma, transformada = false) {
@@ -782,7 +911,7 @@
                 if (esNave3Invertida) vx = -CFG.proyectilSpeed;
             }
             
-            projectiles.push({ x: origenX, y: origenY, w: 12, h: 12, vx: vx, vy: vy });
+            projectiles.push({ x: origenX, y: origenY, w: 12, h: 12, vx: vx, vy: vy, esHoming: false });
         }
         
         function loadGameConfig() {
@@ -856,7 +985,10 @@
                 player.y = Math.min(Math.max(player.y, 30), HEIGHT - player.height - 20);
             }
             
-            if (CFG.transformacionMisiles) lanzarMisilesTraseros();
+            if (CFG.transformacionMisiles) {
+                lanzarMisilesTraseros();
+                lanzarMisilesInversos();
+            }
             playSonidoTransformacion();
         }
         
@@ -936,7 +1068,10 @@
             for (let a of dirs) {
                 let vx = Math.sin(a) * VELOCIDAD_MISILES;
                 let vy = -Math.cos(a) * VELOCIDAD_MISILES;
-                misilesTraseros.push({ x: cx-8, y: cy-8, w: 16, h: 16, vx, vy, tiempo, transformado: false });
+                misilesTraseros.push({ 
+                    x: cx-8, y: cy-8, w: 16, h: 16, 
+                    vx, vy, tiempo, transformado: false
+                });
             }
         }
         
@@ -965,6 +1100,23 @@
                 let v = Math.random() * CFG.particulasVelocidad + 1;
                 let color = Math.random() > 0.5 ? CFG.particulasColor1 : CFG.particulasColor2;
                 escombros.push({ x, y, vx: Math.cos(a)*v, vy: Math.sin(a)*v, tamaño: t, color: color, vida: CFG.particulasDuracion, creacion: performance.now() });
+            }
+        }
+        
+        function crearParticulasImpacto(x, y) {
+            for (let i = 0; i < 6; i++) {
+                let ang = Math.random() * Math.PI * 2;
+                let vel = 2 + Math.random() * 4;
+                particulasImpacto.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(ang) * vel,
+                    vy: Math.sin(ang) * vel,
+                    tamaño: 3 + Math.random() * 5,
+                    vida: 100,
+                    creacion: performance.now(),
+                    color: ['#ffcc44', '#ff8800', '#ffaa33', '#ffff44', '#ff6600'][Math.floor(Math.random() * 5)]
+                });
             }
         }
         
@@ -1089,11 +1241,26 @@
             setTimeout(() => { invulnerable = false; }, CFG.invulnerabilidadTiempo);
         }
         
+        function detenerTodasLasMusicas() {
+            if (musicaFondo) { musicaFondo.pause(); musicaFondo.currentTime = 0; }
+            if (musicaJefe) { musicaJefe.pause(); musicaJefe.currentTime = 0; }
+            if (musicaVictoria) { musicaVictoria.pause(); musicaVictoria.currentTime = 0; }
+            if (musicaIntro) { musicaIntro.pause(); musicaIntro.currentTime = 0; }
+            if (musicaAlarmaAudio) { musicaAlarmaAudio.pause(); musicaAlarmaAudio.currentTime = 0; }
+            if (audioAlarma) { audioAlarma.pause(); audioAlarma.currentTime = 0; }
+            musicaJefeActiva = false;
+            musicaActiva = false;
+        }
+        
         function iniciarJuego() {
             gameStarted = true; gameRunning = true; gameOver = false; victory = false;
             score = 0; lives = CFG.vidasIniciales; forma = 1; sprayAmmo = CFG.sprayAmmo; laserEnergy = CFG.laserEnergy; maxEnergy = CFG.laserEnergy;
             enemies = []; enemy2List = []; projectiles = []; enemyProjectiles = []; misilesTraseros = []; explosions = []; escombros = []; stars = [];
             astronautas = []; mensajesFlotantes = [];
+            misilesInversos = [];
+            particulasImpacto = [];
+            particulasCola = [];
+            particulasColaEnemigo = [];
             boss = null; bossCreated = false; bossEstado = "ESPERANDO"; ultimoPorcentajeVidaJefe = 100;
             naveTransformada = false; nave3Volteada = false;
             frameActualNave = { 1: 0, 2: 0, 3: 0 };
@@ -1109,6 +1276,8 @@
             document.getElementById('btnMusica').style.display = 'block';
             document.getElementById('touchControls').classList.add('active');
             resizeCanvas();
+            
+            musicaActiva = true;
             if (musicaFondo && musicaActiva && !CFG.muteFondo) { 
                 musicaFondo.currentTime = 0; 
                 musicaFondo.volume = CFG.volFondo * CFG.volMusica;
@@ -1118,6 +1287,7 @@
         
         function reiniciarJuego() {
             if (gameOver || victory) {
+                detenerTodasLasMusicas();
                 gameOver = false;
                 victory = false;
                 iniciarJuego();
@@ -1151,25 +1321,6 @@
                 let centro = player.x + player.width/2; 
                 nave3Volteada = centro > WIDTH/2; 
             }
-        }
-        
-        function encontrarEnemigoMasCercano(x, y) {
-            let cercano = null, distMin = Infinity;
-            for (let e of enemies) { let d = Math.hypot(e.x + ENEMIGO_ANCHO/2 - x, e.y + ENEMIGO_ALTO/2 - y); if (d < distMin) { distMin = d; cercano = e; } }
-            for (let e of enemy2List) { let d = Math.hypot(e.x + ENEMIGO2_ANCHO/2 - x, e.y + ENEMIGO2_ALTO/2 - y); if (d < distMin) { distMin = d; cercano = e; } }
-            if (boss && bossEstado === "PATRULLANDO") { let d = Math.hypot(boss.x + JEFE_ANCHO/2 - x, boss.y + JEFE_ALTO/2 - y); if (d < distMin) cercano = boss; }
-            return cercano;
-        }
-        
-        function transformarMisilEnHoming(m) {
-            let cx = m.x + 8, cy = m.y + 8;
-            let target = encontrarEnemigoMasCercano(cx, cy);
-            if (target) {
-                let tx = target.x + (target.width || ENEMIGO_ANCHO)/2, ty = target.y + (target.height || ENEMIGO_ALTO)/2;
-                let dx = tx - cx, dy = ty - cy, len = Math.hypot(dx, dy);
-                if (len > 0) { let vx = dx/len * CFG.homingSpeed, vy = dy/len * CFG.homingSpeed; projectiles.push({ x: cx-6, y: cy-6, w: 12, h: 12, vx, vy }); }
-                else projectiles.push({ x: cx-6, y: cy-6, w: 12, h: 12, vx: 9, vy: 0 });
-            } else projectiles.push({ x: cx-6, y: cy-6, w: 12, h: 12, vx: 9, vy: 0 });
         }
         
         function shoot() {
@@ -1208,9 +1359,9 @@
                         let len = Math.hypot(dx, dy);
                         if (len > 0) { 
                             let vx = dx/len * 10, vy = dy/len * 10; 
-                            projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx, vy });
-                        } else projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx: nave3Volteada ? -11 : 11, vy: 0 });
-                    } else projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx: nave3Volteada ? -11 : 11, vy: 0 });
+                            projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx, vy, esHoming: false });
+                        } else projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx: nave3Volteada ? -11 : 11, vy: 0, esHoming: false });
+                    } else projectiles.push({ x: fx, y: fy, w: 12, h: 12, vx: nave3Volteada ? -11 : 11, vy: 0, esHoming: false });
                 }
             }
         }
@@ -1219,7 +1370,17 @@
             let dx = (player.x + player.width/2) - (e.x + ENEMIGO_ANCHO/2);
             let dy = (player.y + player.height/2) - (e.y + ENEMIGO_ALTO/2);
             let len = Math.hypot(dx, dy);
-            if (len > 0) { enemyProjectiles.push({ x: e.x + ENEMIGO_ANCHO/2 - 12, y: e.y + ENEMIGO_ALTO/2 - 5, w: 24, h: 10, vx: dx/len * CFG.enemyProjSpeed, vy: dy/len * CFG.enemyProjSpeed, timestamp: performance.now() }); }
+            if (len > 0) { 
+                let proj = {
+                    x: e.x + ENEMIGO_ANCHO/2 - 12, 
+                    y: e.y + ENEMIGO_ALTO/2 - 5, 
+                    w: 24, h: 10, 
+                    vx: dx/len * CFG.enemyProjSpeed, 
+                    vy: dy/len * CFG.enemyProjSpeed, 
+                    timestamp: performance.now()
+                };
+                enemyProjectiles.push(proj);
+            }
         }
         
         function spawnEnemy() { if (!gameRunning || gameOver || boss) return; enemies.push({ x: WIDTH + ENEMIGO_ANCHO/2, y: Math.random() * (HEIGHT - ENEMIGO_ALTO - 60) + 40, vx: ENEMY_SPEED, vy: (Math.random() - 0.5) * 3, health: 3, lastShoot: 0 }); }
@@ -1285,13 +1446,76 @@
             for (let e of enemies) { if (enemigoImg.complete) ctx.drawImage(enemigoImg, e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); else { ctx.fillStyle='#ff4444'; ctx.fillRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); } }
             for (let e of enemy2List) { if (enemigo2Img.complete) ctx.drawImage(enemigo2Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); else { ctx.fillStyle='#ff8844'; ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); } }
             if (boss && jefeImg.complete) ctx.drawImage(jefeImg, boss.x, boss.y, JEFE_ANCHO, JEFE_ALTO);
-            for (let p of projectiles) { if (proyectilImg.complete) ctx.drawImage(proyectilImg, p.x, p.y, p.w, p.h); else { ctx.fillStyle='#ffff44'; ctx.fillRect(p.x, p.y, p.w, p.h); } }
+            
+            // ===== PARTÍCULAS DE COLA PARA MISILES HOMING (celeste → blanco) =====
+            for (let p of particulasCola) {
+                let progreso = (performance.now() - p.creacion) / p.vida;
+                let alpha = 1 - progreso;
+                if (alpha < 0) continue;
+                
+                let r1 = 68, g1 = 221, b1 = 255;
+                let r2 = 255, g2 = 255, b2 = 255;
+                let r = Math.round(r1 + (r2 - r1) * progreso);
+                let g = Math.round(g1 + (g2 - g1) * progreso);
+                let b = Math.round(b1 + (b2 - b1) * progreso);
+                
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.8})`;
+                let size = p.tamaño * (1 - progreso * 0.5);
+                ctx.fillRect(p.x - size/2, p.y - size/2, size, size);
+            }
+            
+            // ===== PARTÍCULAS DE COLA PARA MISILES ENEMIGOS (amarillo → rojo) =====
+            for (let p of particulasColaEnemigo) {
+                let progreso = (performance.now() - p.creacion) / p.vida;
+                let alpha = 1 - progreso;
+                if (alpha < 0) continue;
+                
+                let r1 = 255, g1 = 221, b1 = 68;
+                let r2 = 255, g2 = 34, b2 = 0;
+                let r = Math.round(r1 + (r2 - r1) * progreso);
+                let g = Math.round(g1 + (g2 - g1) * progreso);
+                let b = Math.round(b1 + (b2 - b1) * progreso);
+                
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.8})`;
+                let size = p.tamaño * (1 - progreso * 0.3);
+                ctx.fillRect(p.x - size/2, p.y - size/2, size, size);
+            }
+            
+            // Proyectiles (incluyendo homing)
+            for (let p of projectiles) { 
+                if (proyectilImg.complete) {
+                    ctx.drawImage(proyectilImg, p.x, p.y, p.w, p.h);
+                } else {
+                    ctx.fillStyle = '#ffff44';
+                    ctx.fillRect(p.x, p.y, p.w, p.h);
+                }
+            }
+            
             for (let m of misilesTraseros) { if (proyectilImg.complete) ctx.drawImage(proyectilImg, m.x, m.y, m.w, m.h); else { ctx.fillStyle='#ffaa44'; ctx.fillRect(m.x, m.y, m.w, m.h); } }
+            
+            // Misiles inversos
+            for (let m of misilesInversos) {
+                if (proyectilImg.complete) {
+                    ctx.drawImage(proyectilImg, m.x, m.y, m.w, m.h);
+                } else {
+                    ctx.fillStyle = '#ffaa44';
+                    ctx.fillRect(m.x, m.y, m.w, m.h);
+                }
+            }
+            
+            // Partículas de impacto
+            for (let p of particulasImpacto) {
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = 1 - (performance.now() - p.creacion) / p.vida;
+                ctx.fillRect(p.x - p.tamaño/2, p.y - p.tamaño/2, p.tamaño, p.tamaño);
+            }
+            ctx.globalAlpha = 1;
+            
             for (let p of enemyProjectiles) { let ang = Math.atan2(p.vy, p.vx); dibujarProyectilConRotacion(p.x, p.y, p.w, p.h, ang, enemigoProyectilImg); }
             for (let ex of explosions) { if (explosionImg.complete && ex.frame<5) { ctx.drawImage(explosionImg, ex.x-ex.size/2, ex.y-ex.size/2, ex.size, ex.size); ex.frame++; } }
             for (let e of escombros) { ctx.fillStyle = e.color; ctx.fillRect(e.x - e.tamaño/2, e.y - e.tamaño/2, e.tamaño, e.tamaño); }
             
-            // DIBUJAR ASTRONAUTAS
+            // ASTRONAUTAS
             for (let a of astronautas) {
                 ctx.fillStyle = '#ffffff';
                 ctx.beginPath();
@@ -1321,7 +1545,7 @@
                 ctx.fillRect(a.x + a.w/2 - 8, a.y + 24, 16, 3);
             }
             
-            // DIBUJAR MENSAJES FLOTANTES
+            // MENSAJES FLOTANTES
             for (let m of mensajesFlotantes) {
                 ctx.fillStyle = m.color;
                 ctx.font = 'bold 18px monospace';
@@ -1382,6 +1606,9 @@
             ctx.fillText(`VIDA: ${lives}/${CFG.vidasMaximo}`, 15, 45);
             ctx.fillStyle = '#ffff44'; ctx.fillText(`PUNTOS: ${score}`, 15, 70);
             ctx.fillStyle = '#88ff88'; ctx.fillText(`FORMA: ${forma}`, 15, 95);
+            ctx.fillStyle = '#44ddff';
+            ctx.fillText(`MISILES: ${sprayAmmo}`, 15, 120);
+            
             if (forma === 2) {
                 ctx.fillStyle = '#888888'; ctx.fillRect(WIDTH - 180, 15, 165, 15);
                 ctx.fillStyle = '#44aaff'; ctx.fillRect(WIDTH - 180, 15, 165 * (laserEnergy / maxEnergy), 15);
@@ -1468,9 +1695,147 @@
             if (CFG.estrellasActivas && timestamp - lastStarSpawn > 100) { lastStarSpawn = timestamp; stars.push({ x: WIDTH, y: Math.random() * HEIGHT, vx: CFG.estrellasVelocidad, brightness: Math.random() * 0.5 + CFG.estrellasBrillo }); }
             
             let ahora = performance.now();
-            for (let i = 0; i < misilesTraseros.length; i++) { let m = misilesTraseros[i]; if (!m.transformado && ahora - m.tiempo >= TIEMPO_TRANSFORMACION) { transformarMisilEnHoming(m); misilesTraseros.splice(i, 1); i--; } }
-            for (let i = 0; i < misilesTraseros.length; i++) { let m = misilesTraseros[i]; m.x += m.vx; m.y += m.vy; if (m.x + m.w < 0 || m.x > WIDTH || m.y + m.h < 0 || m.y > HEIGHT) { misilesTraseros.splice(i, 1); i--; } }
-            for (let i = 0; i < projectiles.length; i++) { let p = projectiles[i]; p.x += p.vx; p.y += p.vy; if (p.x + p.w < 0 || p.x > WIDTH || p.y + p.h < 0 || p.y > HEIGHT) { projectiles.splice(i, 1); i--; } }
+            
+            // ===== GENERAR PARTÍCULAS DE COLA PARA MISILES HOMING =====
+            contadorFrameCola++;
+            for (let p of projectiles) {
+                if (p.esHoming && contadorFrameCola % 2 === 0) {
+                    crearParticulaColaHoming(p.x + p.w/2, p.y + p.h/2);
+                }
+            }
+            
+            // ===== GENERAR PARTÍCULAS DE COLA PARA MISILES ENEMIGOS =====
+            for (let p of enemyProjectiles) {
+                if (contadorFrameCola % 2 === 0) {
+                    crearParticulaColaEnemigo(p.x + p.w/2, p.y + p.h/2);
+                }
+            }
+            
+            // Transformar misiles traseros (homing persistente)
+            for (let i = 0; i < misilesTraseros.length; i++) {
+                let m = misilesTraseros[i];
+                if (!m.transformado && ahora - m.tiempo >= TIEMPO_TRANSFORMACION) {
+                    m.transformado = true;
+                    transformarMisilEnHoming(m);
+                    misilesTraseros.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // Transformar misiles inversos (homing persistente)
+            for (let i = 0; i < misilesInversos.length; i++) {
+                let m = misilesInversos[i];
+                if (!m.transformado && ahora - m.tiempo >= TIEMPO_MISIL_INVERSO) {
+                    m.transformado = true;
+                    transformarMisilInversoEnHoming(m);
+                    misilesInversos.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // Actualizar misiles traseros (movimiento)
+            for (let i = 0; i < misilesTraseros.length; i++) {
+                let m = misilesTraseros[i];
+                m.x += m.vx;
+                m.y += m.vy;
+                if (m.x + m.w < 0 || m.x > WIDTH || m.y + m.h < 0 || m.y > HEIGHT) {
+                    misilesTraseros.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // Actualizar misiles inversos (movimiento)
+            for (let i = 0; i < misilesInversos.length; i++) {
+                let m = misilesInversos[i];
+                m.x += m.vx;
+                m.y += m.vy;
+                if (m.x + m.w < 0 || m.x > WIDTH || m.y + m.h < 0 || m.y > HEIGHT) {
+                    misilesInversos.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // ===== ACTUALIZAR PARTÍCULAS DE COLA =====
+            for (let i = 0; i < particulasCola.length; i++) {
+                let p = particulasCola[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                if (ahora - p.creacion >= p.vida) {
+                    particulasCola.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            for (let i = 0; i < particulasColaEnemigo.length; i++) {
+                let p = particulasColaEnemigo[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                if (ahora - p.creacion >= p.vida) {
+                    particulasColaEnemigo.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // ACTUALIZAR PROYECTILES CON HOMING PERSISTENTE
+            for (let i = 0; i < projectiles.length; i++) {
+                let p = projectiles[i];
+                
+                if (p.esHoming && p.objetivo) {
+                    let target = p.objetivo;
+                    let objetivoVivo = false;
+                    for (let e of enemies) {
+                        if (e === target) { objetivoVivo = true; break; }
+                    }
+                    if (!objetivoVivo) {
+                        for (let e of enemy2List) {
+                            if (e === target) { objetivoVivo = true; break; }
+                        }
+                    }
+                    if (!objetivoVivo && boss === target && boss !== null) {
+                        objetivoVivo = true;
+                    }
+                    
+                    if (objetivoVivo) {
+                        let tx = target.x + (target.width || ENEMIGO_ANCHO)/2;
+                        let ty = target.y + (target.height || ENEMIGO_ALTO)/2;
+                        let dx = tx - p.x - 6;
+                        let dy = ty - p.y - 6;
+                        let len = Math.hypot(dx, dy);
+                        if (len > 0) {
+                            p.vx = (dx/len) * p.velocidad;
+                            p.vy = (dy/len) * p.velocidad;
+                        }
+                    } else {
+                        let nuevoTarget = encontrarEnemigoMasCercano(p.x + 6, p.y + 6);
+                        if (nuevoTarget) {
+                            p.objetivo = nuevoTarget;
+                        } else {
+                            p.esHoming = false;
+                        }
+                    }
+                }
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x + p.w < 0 || p.x > WIDTH || p.y + p.h < 0 || p.y > HEIGHT) {
+                    projectiles.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // Actualizar partículas de impacto
+            for (let i = 0; i < particulasImpacto.length; i++) {
+                let p = particulasImpacto[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.95;
+                p.vy *= 0.95;
+                if (ahora - p.creacion >= p.vida) {
+                    particulasImpacto.splice(i, 1);
+                    i--;
+                }
+            }
+            
             for (let e of enemies) { if (timestamp - (e.lastShoot||0) > 1600) { e.lastShoot = timestamp; enemigoDisparar(e); } }
             
             let playerCol = getCollisionRect(player.x, player.y, player.width, player.height, forma === 3);
@@ -1493,14 +1858,19 @@
                 let e = enemies[i]; e.x += e.vx; e.y += e.vy;
                 if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
-                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { projectiles.splice(j, 1); e.health--; if (e.health <= 0) { 
-                    createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
-                    crearEscombros(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
-                    crearAstronauta(e.x + ENEMIGO_ANCHO/2 - 15, e.y + ENEMIGO_ALTO/2 - 17);
-                    enemies.splice(i, 1); 
-                    score++; 
-                    i--; 
-                } break; } }
+                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
+                    crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
+                    projectiles.splice(j, 1); 
+                    e.health--; 
+                    if (e.health <= 0) { 
+                        createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
+                        crearEscombros(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
+                        crearAstronauta(e.x + ENEMIGO_ANCHO/2 - 15, e.y + ENEMIGO_ALTO/2 - 17);
+                        enemies.splice(i, 1); 
+                        score++; 
+                        i--; 
+                    } 
+                break; } }
                 if (!invulnerable && checkCollision(playerCol, enemyCol)) { 
                     createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
                     enemies.splice(i, 1); 
@@ -1519,14 +1889,19 @@
                 let e = enemy2List[i]; e.x += e.vx; e.y += e.vy;
                 if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
-                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { projectiles.splice(j, 1); e.health--; if (e.health <= 0) { 
-                    createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
-                    crearEscombros(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2);
-                    crearAstronauta(e.x + ENEMIGO2_ANCHO/2 - 15, e.y + ENEMIGO2_ALTO/2 - 17);
-                    enemy2List.splice(i, 1); 
-                    score++; 
-                    i--; 
-                } break; } }
+                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
+                    crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
+                    projectiles.splice(j, 1); 
+                    e.health--; 
+                    if (e.health <= 0) { 
+                        createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
+                        crearEscombros(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2);
+                        crearAstronauta(e.x + ENEMIGO2_ANCHO/2 - 15, e.y + ENEMIGO2_ALTO/2 - 17);
+                        enemy2List.splice(i, 1); 
+                        score++; 
+                        i--; 
+                    } 
+                break; } }
                 if (!invulnerable && checkCollision(playerCol, enemyCol)) { 
                     createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
                     enemy2List.splice(i, 1); 
@@ -1557,6 +1932,7 @@
                 for (let j = 0; j < projectiles.length; j++) { 
                     let p = projectiles[j]; 
                     if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, bossCol)) { 
+                        crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
                         projectiles.splice(j, 1); 
                         createExplosion(boss.x + JEFE_ANCHO/2 + (Math.random() - 0.5) * 60, boss.y + JEFE_ALTO/2 + (Math.random() - 0.5) * 50);
                         crearEscombros(boss.x + JEFE_ANCHO/2 + (Math.random() - 0.5) * 80, boss.y + JEFE_ALTO/2 + (Math.random() - 0.5) * 70);
@@ -1575,7 +1951,11 @@
                             victory = true; 
                             gameRunning = false; 
                             if(musicaJefe) musicaJefe.pause(); 
-                            if(musicaFondo && musicaActiva && !CFG.muteFondo) musicaFondo.play().catch(e=>{}); 
+                            if (musicaVictoria && musicaActiva && !CFG.muteVictoria) {
+                                musicaVictoria.currentTime = 0;
+                                musicaVictoria.volume = CFG.volVictoria * CFG.volMusica;
+                                musicaVictoria.play().catch(e=>{});
+                            }
                         } 
                         break; 
                     } 
@@ -1659,6 +2039,7 @@
             if (musicaActiva) { 
                 if (musicaFondo) musicaFondo.pause(); 
                 if (musicaJefe) musicaJefe.pause(); 
+                if (musicaVictoria) musicaVictoria.pause();
                 musicaActiva = false; 
                 btn.innerHTML = '🔇 MUSICA OFF'; 
                 btn.style.color = '#ff4444'; 
