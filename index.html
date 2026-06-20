@@ -263,6 +263,7 @@
             spriteEnemy: "imagenes/enemigo.png", spriteEnemy2: "imagenes/enemigo2.png",
             spriteJefe: "imagenes/jefe.png", spriteExplosion: "imagenes/explosion.png",
             spriteProyectil: "imagenes/proyectil.png", spriteProyectilEnemy: "imagenes/proyectil_enemigo.png",
+            spriteAstronauta: "imagenes/astronauta.png",
             nave1Frame2: "imagenes/nave1_frame2.png", nave1AnimSpeed: 50, nave1AnimActive: true,
             nave1Frame2W: 160, nave1Frame2H: 100, nave1Frame2X: 6, nave1Frame2Y: 0,
             nave2Frame2: "imagenes/nave2_frame2.png", nave2AnimSpeed: 50, nave2AnimActive: true,
@@ -511,9 +512,10 @@
         let naveImg3Frame2 = new Image();
         let naveImg3InvFrame2 = new Image();
         let transformacionZImg = new Image();
+        let astronautaImg = new Image();
         
         let homingProjSpeed = CFG.homingProjSpeed;
-        let MAX_ENEMY_PROJECTILES = 50;
+        let MAX_ENEMY_PROJECTILES = 80;
         let ultimoDisparoContingencia = 0;
         let COOLDOWN_CONTINGENCIA = 500;
         
@@ -535,7 +537,7 @@
         let enemigoProyectilImg = new Image();
         
         let imagenesCargadas = 0;
-        let totalImagenes = 17;
+        let totalImagenes = 18;
         
         function cargarImagenes() {
             naveImg1Frame1.src = CFG.spriteNave1;
@@ -555,6 +557,7 @@
             proyectilImg.src = CFG.spriteProyectil;
             enemigoProyectilImg.src = CFG.spriteProyectilEnemy;
             transformacionZImg.src = CFG.transformacionZImagen;
+            astronautaImg.src = CFG.spriteAstronauta;
             
             imgActual = naveImg1Frame1;
         }
@@ -585,6 +588,7 @@
         proyectilImg.onload = verificarCargaImagen;
         enemigoProyectilImg.onload = verificarCargaImagen;
         transformacionZImg.onload = verificarCargaImagen;
+        astronautaImg.onload = verificarCargaImagen;
         
         naveImg1Frame1.onerror = function() { console.log('Error:', CFG.spriteNave1); imagenesCargadas++; };
         naveImg1Frame2.onerror = function() { naveImg1Frame2 = naveImg1Frame1; imagenesCargadas++; };
@@ -603,6 +607,7 @@
         proyectilImg.onerror = function() { imagenesCargadas++; };
         enemigoProyectilImg.onerror = function() { imagenesCargadas++; };
         transformacionZImg.onerror = function() { transformacionZImg = naveImg2Trans; imagenesCargadas++; };
+        astronautaImg.onerror = function() { console.log('Error: imagen astronauta.png no encontrada'); imagenesCargadas++; };
         
         const FORMAS = {
             1: { ancho: CFG.nave1W, alto: CFG.nave1H },
@@ -699,11 +704,11 @@
                 y: y,
                 vx: (Math.random() - 0.5) * 0.3,
                 vy: (Math.random() - 0.5) * 0.3,
-                tamaño: 2 + Math.random() * 2, // Más pequeñas (2-4 píxeles)
+                tamaño: 2 + Math.random() * 2,
                 vida: 200,
                 creacion: performance.now(),
-                colorInicio: '#ffdd44', // Amarillo
-                colorFin: '#ff2200'     // Rojo
+                colorInicio: '#ffdd44',
+                colorFin: '#ff2200'
             });
         }
         
@@ -780,11 +785,13 @@
             }
         }
         
+        // ===== FUNCIÓN MODIFICADA: No busca al jefe =====
         function encontrarEnemigoMasCercano(x, y) {
             let cercano = null, distMin = Infinity;
             for (let e of enemies) { let d = Math.hypot(e.x + ENEMIGO_ANCHO/2 - x, e.y + ENEMIGO_ALTO/2 - y); if (d < distMin) { distMin = d; cercano = e; } }
             for (let e of enemy2List) { let d = Math.hypot(e.x + ENEMIGO2_ANCHO/2 - x, e.y + ENEMIGO2_ALTO/2 - y); if (d < distMin) { distMin = d; cercano = e; } }
-            if (boss && bossEstado === "PATRULLANDO") { let d = Math.hypot(boss.x + JEFE_ANCHO/2 - x, boss.y + JEFE_ALTO/2 - y); if (d < distMin) cercano = boss; }
+            // ELIMINADO: ya no busca al jefe
+            // if (boss && bossEstado === "PATRULLANDO") { let d = Math.hypot(boss.x + JEFE_ANCHO/2 - x, boss.y + JEFE_ALTO/2 - y); if (d < distMin) cercano = boss; }
             return cercano;
         }
         
@@ -965,6 +972,7 @@
                         if (CFG.transformacionZSonidoArchivo && audioTransformacionZ) {
                             audioTransformacionZ.src = CFG.transformacionZSonidoArchivo;
                         }
+                        if (CFG.spriteAstronauta) astronautaImg.src = CFG.spriteAstronauta;
                     }
                 } catch(e) { console.error("Error cargando configuración:", e); }
             }
@@ -1366,12 +1374,14 @@
             }
         }
         
+        // ===== FUNCIÓN MODIFICADA: Enemigos disparan 2 misiles =====
         function enemigoDisparar(e) {
             let dx = (player.x + player.width/2) - (e.x + ENEMIGO_ANCHO/2);
             let dy = (player.y + player.height/2) - (e.y + ENEMIGO_ALTO/2);
             let len = Math.hypot(dx, dy);
             if (len > 0) { 
-                let proj = {
+                // Misil principal (recto al jugador)
+                let proj1 = {
                     x: e.x + ENEMIGO_ANCHO/2 - 12, 
                     y: e.y + ENEMIGO_ALTO/2 - 5, 
                     w: 24, h: 10, 
@@ -1379,7 +1389,21 @@
                     vy: dy/len * CFG.enemyProjSpeed, 
                     timestamp: performance.now()
                 };
-                enemyProjectiles.push(proj);
+                enemyProjectiles.push(proj1);
+                
+                // Misil adicional (con desviación de ±10 grados)
+                let angulo = Math.atan2(dy, dx);
+                let desviacion = (Math.random() - 0.5) * 0.35; // ±10 grados aproximadamente
+                let angulo2 = angulo + desviacion;
+                let proj2 = {
+                    x: e.x + ENEMIGO_ANCHO/2 - 12, 
+                    y: e.y + ENEMIGO_ALTO/2 - 5, 
+                    w: 24, h: 10, 
+                    vx: Math.cos(angulo2) * CFG.enemyProjSpeed, 
+                    vy: Math.sin(angulo2) * CFG.enemyProjSpeed, 
+                    timestamp: performance.now()
+                };
+                enemyProjectiles.push(proj2);
             }
         }
         
@@ -1415,7 +1439,7 @@
         }
         
         function limpiarProyectilesViejos(ahora) {
-            if (enemyProjectiles.length > 80) {
+            if (enemyProjectiles.length > 100) {
                 enemyProjectiles.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
                 enemyProjectiles = enemyProjectiles.slice(0, MAX_ENEMY_PROJECTILES);
             }
@@ -1515,34 +1539,22 @@
             for (let ex of explosions) { if (explosionImg.complete && ex.frame<5) { ctx.drawImage(explosionImg, ex.x-ex.size/2, ex.y-ex.size/2, ex.size, ex.size); ex.frame++; } }
             for (let e of escombros) { ctx.fillStyle = e.color; ctx.fillRect(e.x - e.tamaño/2, e.y - e.tamaño/2, e.tamaño, e.tamaño); }
             
-            // ASTRONAUTAS
+            // ASTRONAUTA CON SPRITE
             for (let a of astronautas) {
-                ctx.fillStyle = '#ffffff';
-                ctx.beginPath();
-                ctx.ellipse(a.x + a.w/2, a.y + a.h/2, a.w/2, a.h/2.5, 0, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#cccccc';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-                
-                ctx.fillStyle = '#88ccff';
-                ctx.beginPath();
-                ctx.arc(a.x + a.w/2, a.y + 10, 12, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#66aadd';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
-                
-                ctx.strokeStyle = '#4488bb';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(a.x + a.w/2 - 7, a.y + 8);
-                ctx.lineTo(a.x + a.w/2 + 7, a.y + 8);
-                ctx.stroke();
-                
-                ctx.fillStyle = '#dddddd';
-                ctx.fillRect(a.x + a.w/2 - 4, a.y + 18, 8, 4);
-                ctx.fillRect(a.x + a.w/2 - 8, a.y + 24, 16, 3);
+                if (astronautaImg.complete && astronautaImg.src) {
+                    ctx.drawImage(astronautaImg, a.x, a.y, a.w, a.h);
+                } else {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(a.x, a.y, a.w, a.h);
+                    ctx.strokeStyle = '#888888';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(a.x, a.y, a.w, a.h);
+                    ctx.fillStyle = '#888888';
+                    ctx.font = '12px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('A', a.x + a.w/2, a.y + a.h/2 + 4);
+                    ctx.textAlign = 'left';
+                }
             }
             
             // MENSAJES FLOTANTES
@@ -1791,9 +1803,10 @@
                             if (e === target) { objetivoVivo = true; break; }
                         }
                     }
-                    if (!objetivoVivo && boss === target && boss !== null) {
-                        objetivoVivo = true;
-                    }
+                    // ELIMINADO: ya no verifica al jefe
+                    // if (!objetivoVivo && boss === target && boss !== null) {
+                    //     objetivoVivo = true;
+                    // }
                     
                     if (objetivoVivo) {
                         let tx = target.x + (target.width || ENEMIGO_ANCHO)/2;
