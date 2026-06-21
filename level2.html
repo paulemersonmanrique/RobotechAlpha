@@ -35,15 +35,15 @@
             touch-action: none;
         }
         .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ffcc00; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; z-index: 200; text-align: center; font-size: 14px; }
-        .mensaje-jefe { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); color: #ff0000; background: rgba(0,0,0,0.9); padding: 20px 40px; border-radius: 10px; font-family: monospace; font-size: 28px; font-weight: bold; z-index: 300; text-align: center; white-space: nowrap; pointer-events: none; border: 3px solid #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); animation: alarmaParpadeo 0.3s ease-in-out infinite; }
+        .mensaje-jefe1 { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); color: #ff0000; background: rgba(0,0,0,0.9); padding: 20px 40px; border-radius: 10px; font-family: monospace; font-size: 28px; font-weight: bold; z-index: 300; text-align: center; white-space: nowrap; pointer-events: none; border: 3px solid #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); animation: alarmaParpadeo 0.3s ease-in-out infinite; }
         @keyframes alarmaParpadeo { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); background: rgba(0,0,0,0.9); border-color: #ff0000; } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); background: rgba(255,0,0,0.8); border-color: #ffffff; color: #ffff00; } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); background: rgba(0,0,0,0.9); border-color: #ff0000; } }
         .boton-musica { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #0f0; border: 1px solid #0f0; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer; z-index: 100; display: none; }
         .pantalla-inicio { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #000428, #004e92); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; font-family: 'Courier New', monospace; transition: opacity 0.5s ease; }
         .pantalla-inicio h1 { font-size: 64px; color: #ffcc00; text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300; animation: tituloBrillo 1.5s ease-in-out infinite; letter-spacing: 8px; margin-bottom: 30px; }
         @keyframes tituloBrillo { 0%,100% { text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300; } 50% { text-shadow: 0 0 40px #ffaa00, 0 0 80px #ff6600; } }
-        .pantalla-inicio .tecla { display: inline-block; background: #222; border: 2px solid #ffcc00; border-radius: 10px; padding: 10px 30px; font-size: 28px; font-weight: bold; color: #ffcc00; margin: 10px; box-shadow: 0 0 15px rgba(255,204,0,0.5); cursor: pointer; touch-action: manipulation; }
+        .pantalla-inicio .tecla { display: inline-block; background: #222; border: 2px solid #ffcc00; border-radius: 10px; padding: 10px 30px; font-size: 24px; font-weight: bold; color: #ffcc00; margin: 10px; box-shadow: 0 0 15px rgba(255,204,0,0.5); cursor: pointer; touch-action: manipulation; }
         .pantalla-inicio .tecla:active { transform: scale(0.92); background: #444; }
-        @media (max-width: 1100px) { .pantalla-inicio h1 { font-size: 36px; } }
+        @media (max-width: 1100px) { .pantalla-inicio h1 { font-size: 36px; } .pantalla-inicio .tecla { font-size: 18px; padding: 8px 20px; } }
         
         .touch-controls {
             position: fixed;
@@ -115,9 +115,6 @@
             white-space: nowrap;
         }
         
-        /* Botón Reiniciar - Izquierda encima del joystick */
-        
-        
         .right-buttons {
             position: absolute;
             bottom: 30px;
@@ -172,8 +169,6 @@
             .joystick-base { width: 60px; height: 60px; }
             .joystick-thumb { width: 46px; height: 46px; }
             .action-btn { width: 74px; height: 74px; font-size: 29px; }
-            
-            
             .right-buttons { right: 8px; bottom: 20px; gap: 10px; }
             .right-row { gap: 10px; }
         }
@@ -183,8 +178,6 @@
             .joystick-base { width: 48px; height: 48px; }
             .joystick-thumb { width: 38px; height: 38px; }
             .action-btn { width: 64px; height: 64px; font-size: 23px; }
-            
-            
             .right-buttons { right: 5px; bottom: 15px; gap: 8px; }
             .right-row { gap: 8px; }
         }
@@ -232,7 +225,7 @@
     <div id="loading" class="loading">Cargando recursos... 🚀</div>
     <div id="pantallaInicio" class="pantalla-inicio">
         <h1>⚡ ROBOTECH ALPHA ⚡</h1>
-        <p>Presiona <span class="tecla" id="teclaC">INICIA</span></p>
+        <span class="tecla" id="teclaC">CONTINUAR CON LA MISIÓN</span>
     </div>
     <div class="game-container">
         <canvas id="gameCanvas" width="1598" height="922"></canvas>
@@ -253,8 +246,6 @@
             <span class="joystick-label">MOVIMIENTO</span>
         </div>
 
-        
-        
         <!-- Botones derecho -->
         <div class="right-buttons">
             <div class="right-row">
@@ -283,8 +274,8 @@
             nave1W: 165, nave1H: 102, nave1TransW: 180, nave1TransH: 145,
             nave2W: 128, nave2H: 113, nave2TransW: 180, nave2TransH: 145,
             nave3W: 121, nave3H: 162, nave31W: 145, nave31H: 200,
-            enemyW: 190, enemyH: 140, enemy2W: 180, enemy2H: 135,
-            jefeW: 346, jefeH: 180, collisionReduce: 0.6,
+            enemyW: 190, enemyH: 140, enemy2W: 135, enemy2H: 180,
+            jefe1W: 136, jefe1H: 180, collisionReduce: 0.6,
             collisionNave1: 50, collisionNave2: 50, collisionNave3: 50,
             collisionEnemy: 50, collisionEnemy2: 50, collisionJefe: 50, collisionProyectil: 50,
             shoot1X: -70, shoot1Y: 25, shoot1BX: 0, shoot1BY: 0,
@@ -301,8 +292,8 @@
             spriteNave1: "imagenes/nave1.png", spriteNave1Trans: "imagenes/nave2.1.png",
             spriteNave2: "imagenes/nave2.png", spriteNave2Trans: "imagenes/nave2.1.png",
             spriteNave3: "imagenes/nave3.png", spriteNave31: "imagenes/nave3.1.png",
-            spriteEnemy: "imagenes/enemigo.png", spriteEnemy2: "imagenes/enemigo2.png",
-            spriteJefe: "imagenes/jefe.png", spriteExplosion: "imagenes/explosion.png",
+            spriteEnemy: "imagenes/enemigo.png", spriteEnemy2: "imagenes/enemigo1.png",
+            spriteJefe: "imagenes/jefe1.png", spriteExplosion: "imagenes/explosion.png",
             spriteProyectil: "imagenes/proyectil.png", spriteProyectilEnemy: "imagenes/proyectil_enemigo.png",
             spriteAstronauta: "imagenes/astronauta.png",
             nave1Frame2: "imagenes/nave1_frame2.png", nave1AnimSpeed: 50, nave1AnimActive: true,
@@ -317,7 +308,7 @@
             burstType1: "1", burstType2: "1", burstType3: "1", burstType3Inv: "1",
             burstSpread1: 15, burstSpread2: 15, burstSpread3: 15, burstSpread3Inv: 15,
             homingProjSpeed: 15,
-            musicaFondo: "musica/fondo.mp3", musicaIntro: "musica/intro.mp3", musicaAlarma: "musica/alarma1.mp3",
+            musicaFondo: "musica/fondo2.mp3", musicaIntro: "musica/intro.mp3", musicaAlarma: "musica/alarma1.mp3",
             musicaJefe: "musica/jefe_epico.mp3", musicaVictoria: "musica/victoria.mp3",
             sonidoDisparo: "sonidos/disparo.wav", sonidoDisparo2: "sonidos/disparo2.wav",
             sonidoTransformacion: "sonidos/transformacion.wav", sonidoExplosion: "sonidos/explosion.wav",
@@ -356,8 +347,28 @@
         // ==========================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const GAME_WIDTH = 1598;  // 30% más ancho (1229 * 1.3)
+        const GAME_WIDTH = 1598;
         const GAME_HEIGHT = 922;
+        
+        // Variables para los cambios de fondo según progreso de música
+        let fondoActual = 0; // 0=normal, 1=rojo, 2=celeste oscuro, 3=celeste claro
+        let fondoTransicionActiva = false;
+        let fondoTransicionInicio = 0;
+        let fondoColorOrigen = { r: 10, g: 10, b: 42 };
+        let fondoColorDestino = { r: 10, g: 10, b: 42 };
+        const TRANSICION_FONDO_DURACION = 2000;
+        
+        // Nubes
+        let nubes = [];
+        let nubesActivas = false;
+        let estrellasActivas = true;
+        let estrellasSecundarias = [];
+        let estrellasSecundariasActivas = true;
+        
+        // Variables para control de progreso de música
+        let fondo30Activado = false;
+        let fondo60Activado = false;
+        let fondo90Activado = false;
         
         function resizeCanvas() {
             const container = canvas.parentElement;
@@ -588,8 +599,8 @@
         let naveImg3Trans = new Image();
         let imgActual = null;
         let enemigoImg = new Image();
-        let enemigo2Img = new Image();
-        let jefeImg = new Image();
+        let enemigo1Img = new Image();
+        let jefe1Img = new Image();
         let explosionImg = new Image();
         let proyectilImg = new Image();
         let enemigoProyectilImg = new Image();
@@ -598,9 +609,9 @@
         let totalImagenes = 18;
         
         // ==========================================
-        // FUNCIÓN PARA IR AL NIVEL 2
+        // FUNCIÓN PARA IR AL NIVEL 3
         // ==========================================
-        function irAlNivel2() {
+        function irAlNivel3() {
             localStorage.setItem('puntajeNivel1', score.toString());
             
             const cargando = document.getElementById('cargandoNivel');
@@ -610,10 +621,10 @@
             
             setTimeout(() => {
                 try {
-                    window.location.href = 'level2.html';
+                    window.location.href = 'level3.html';
                 } catch(e) {
-                    console.error('Error al cargar nivel 2:', e);
-                    window.location.href = './level2.html';
+                    console.error('Error al cargar nivel 3:', e);
+                    window.location.href = './level3.html';
                 }
             }, 1500);
         }
@@ -630,8 +641,8 @@
             naveImg3InvFrame2.src = CFG.nave3InvFrame2;
             naveImg3Trans.src = CFG.spriteNave31;
             enemigoImg.src = CFG.spriteEnemy;
-            enemigo2Img.src = CFG.spriteEnemy2;
-            jefeImg.src = CFG.spriteJefe;
+            enemigo1Img.src = CFG.spriteEnemy2;
+            jefe1Img.src = CFG.spriteJefe;
             explosionImg.src = CFG.spriteExplosion;
             proyectilImg.src = CFG.spriteProyectil;
             enemigoProyectilImg.src = CFG.spriteProyectilEnemy;
@@ -661,8 +672,8 @@
         naveImg3InvFrame2.onload = verificarCargaImagen;
         naveImg3Trans.onload = verificarCargaImagen;
         enemigoImg.onload = verificarCargaImagen;
-        enemigo2Img.onload = verificarCargaImagen;
-        jefeImg.onload = verificarCargaImagen;
+        enemigo1Img.onload = verificarCargaImagen;
+        jefe1Img.onload = verificarCargaImagen;
         explosionImg.onload = verificarCargaImagen;
         proyectilImg.onload = verificarCargaImagen;
         enemigoProyectilImg.onload = verificarCargaImagen;
@@ -680,8 +691,8 @@
         naveImg3InvFrame2.onerror = function() { naveImg3InvFrame2 = naveImg3Frame2; imagenesCargadas++; };
         naveImg3Trans.onerror = function() { naveImg3Trans = naveImg3Frame1; imagenesCargadas++; };
         enemigoImg.onerror = function() { imagenesCargadas++; };
-        enemigo2Img.onerror = function() { imagenesCargadas++; };
-        jefeImg.onerror = function() { imagenesCargadas++; };
+        enemigo1Img.onerror = function() { imagenesCargadas++; };
+        jefe1Img.onerror = function() { imagenesCargadas++; };
         explosionImg.onerror = function() { imagenesCargadas++; };
         proyectilImg.onerror = function() { imagenesCargadas++; };
         enemigoProyectilImg.onerror = function() { imagenesCargadas++; };
@@ -702,7 +713,7 @@
         let velocidadBase = CFG.playerSpeed;
         let ENEMIGO_ANCHO = CFG.enemyW, ENEMIGO_ALTO = CFG.enemyH;
         let ENEMIGO2_ANCHO = CFG.enemy2W, ENEMIGO2_ALTO = CFG.enemy2H;
-        let JEFE_ANCHO = CFG.jefeW, JEFE_ALTO = CFG.jefeH;
+        let JEFE_ANCHO = CFG.jefe1W, JEFE_ALTO = CFG.jefe1H;
         let ENEMY_SPEED = CFG.enemy1Speed, ENEMY2_SPEED = CFG.enemy2Speed;
         
         let player = {
@@ -1102,7 +1113,7 @@
                         
                         ENEMIGO_ANCHO = CFG.enemyW; ENEMIGO_ALTO = CFG.enemyH;
                         ENEMIGO2_ANCHO = CFG.enemy2W; ENEMIGO2_ALTO = CFG.enemy2H;
-                        JEFE_ANCHO = CFG.jefeW; JEFE_ALTO = CFG.jefeH;
+                        JEFE_ANCHO = CFG.jefe1W; JEFE_ALTO = CFG.jefe1H;
                         player.speed = velocidadBase;
                         player.width = FORMAS[1].ancho;
                         player.height = FORMAS[1].alto;
@@ -1264,11 +1275,42 @@
                 musicaFondo = new Audio(CFG.musicaFondo); musicaFondo.loop = false;
                 musicaFondo.addEventListener('ended', function() {
                     musicaFondoTerminada = true;
-                    console.log('🎵 Música de fondo terminada - Activando jefe');
+                    console.log('🎵 Música de fondo2 terminada - Activando jefe');
                     if (!boss && !bossCreated && gameRunning && !gameOver && !victory) {
                         activarJefe();
                     }
                 });
+                
+                // Detectar progreso de la música para cambiar fondos
+                musicaFondo.addEventListener('timeupdate', function() {
+                    if (!musicaFondo.duration) return;
+                    const progreso = musicaFondo.currentTime / musicaFondo.duration;
+                    
+                    // 30% - Rojo oscuro
+                    if (progreso >= 0.30 && !fondo30Activado) {
+                        fondo30Activado = true;
+                        iniciarTransicionFondo({ r: 26, g: 10, b: 10 }); // #1a0a0a
+                        console.log('🎵 30% - Fondo rojo oscuro');
+                    }
+                    
+                    // 60% - Celeste oscuro, desactivar estrellas
+                    if (progreso >= 0.60 && !fondo60Activado) {
+                        fondo60Activado = true;
+                        estrellasActivas = false;
+                        estrellasSecundariasActivas = false;
+                        iniciarTransicionFondo({ r: 10, g: 26, b: 42 }); // #0a1a2a
+                        console.log('🎵 60% - Fondo celeste oscuro, estrellas desactivadas');
+                    }
+                    
+                    // 90% - Celeste claro, activar nubes
+                    if (progreso >= 0.90 && !fondo90Activado) {
+                        fondo90Activado = true;
+                        nubesActivas = true;
+                        iniciarTransicionFondo({ r: 74, g: 138, b: 186 }); // #4a8aba
+                        console.log('🎵 90% - Fondo celeste claro, nubes activadas');
+                    }
+                });
+                
                 musicaJefe = new Audio(CFG.musicaJefe); musicaJefe.loop = true;
                 musicaIntro = new Audio(CFG.musicaIntro); musicaIntro.loop = false;
                 musicaVictoria = new Audio(CFG.musicaVictoria); musicaVictoria.loop = false;
@@ -1282,6 +1324,24 @@
                 audioTransformacionZ.loop = false;
                 audioDisparo.addEventListener('ended', () => { puedeDisparar = false; });
             } catch(e) { console.log('Error música:', e); }
+        }
+        
+        function iniciarTransicionFondo(destino) {
+            fondoTransicionActiva = true;
+            fondoTransicionInicio = performance.now();
+            fondoColorOrigen = obtenerColorActual();
+            fondoColorDestino = destino;
+        }
+        
+        function obtenerColorActual() {
+            if (fondoTransicionActiva) {
+                const progreso = Math.min((performance.now() - fondoTransicionInicio) / TRANSICION_FONDO_DURACION, 1);
+                const r = Math.round(fondoColorOrigen.r + (fondoColorDestino.r - fondoColorOrigen.r) * progreso);
+                const g = Math.round(fondoColorOrigen.g + (fondoColorDestino.g - fondoColorOrigen.g) * progreso);
+                const b = Math.round(fondoColorOrigen.b + (fondoColorDestino.b - fondoColorOrigen.b) * progreso);
+                return { r, g, b };
+            }
+            return fondoColorDestino;
         }
         
         function playSonidoTransformacion() { 
@@ -1360,7 +1420,7 @@
         function mostrarAlarmaJefe() { 
             if (!CFG.alarmaJefeActiva) return; 
             let div = document.createElement('div'); 
-            div.className = 'mensaje-jefe'; 
+            div.className = 'mensaje-jefe1'; 
             div.textContent = '⚠️ ¡ALARMA! JEFE FINAL ⚠️'; 
             document.body.appendChild(div); 
             
@@ -1413,9 +1473,17 @@
                 document.documentElement.requestFullscreen().catch(e => {});
             }
             
+            // Iniciar música con interacción del usuario
+            if (musicaFondo && musicaActiva && !CFG.muteFondo) {
+                musicaFondo.play().catch(e => {
+                    console.log('⏳ Esperando interacción para reproducir música');
+                });
+            }
+            
             gameStarted = true; gameRunning = true; gameOver = false; victory = false;
             score = 0; lives = CFG.vidasIniciales; forma = 1; sprayAmmo = CFG.sprayAmmo; laserEnergy = CFG.laserEnergy; maxEnergy = CFG.laserEnergy;
             enemies = []; enemy2List = []; projectiles = []; enemyProjectiles = []; misilesTraseros = []; explosions = []; escombros = []; stars = [];
+            estrellasSecundarias = [];
             astronautas = []; mensajesFlotantes = [];
             misilesInversos = [];
             particulasImpacto = [];
@@ -1429,6 +1497,13 @@
             misilesDesactivados = false;
             rayosDisponibles = MAX_RAYOS;
             musicaFondoTerminada = false;
+            nubes = [];
+            nubesActivas = false;
+            estrellasActivas = true;
+            estrellasSecundariasActivas = true;
+            fondo30Activado = false;
+            fondo60Activado = false;
+            fondo90Activado = false;
             rayoLaser = null;
             ultimoLaserJefe = 0;
             player.width = FORMAS[1].ancho; player.height = FORMAS[1].alto; 
@@ -1449,7 +1524,7 @@
                 musicaFondo.removeEventListener('ended', function() {});
                 musicaFondo.addEventListener('ended', function() {
                     musicaFondoTerminada = true;
-                    console.log('🎵 Música de fondo terminada - Activando jefe');
+                    console.log('🎵 Música de fondo2 terminada - Activando jefe1');
                     if (!boss && !bossCreated && gameRunning && !gameOver && !victory) {
                         activarJefe();
                     }
@@ -1584,7 +1659,7 @@
             enemigoDisparar(e);
         }
         
-        function jefeDisparoContingencia() {
+        function jefe1DisparoContingencia() {
             if (!boss) return;
             let ahora = performance.now();
             if (ahora - ultimoDisparoContingencia < COOLDOWN_CONTINGENCIA) return;
@@ -1641,18 +1716,81 @@
         }
         
         function draw() {
+            // Calcular color de fondo con transición
+            let color1, color2;
+            
+            if (fondoTransicionActiva) {
+                const ahora = performance.now();
+                const progreso = Math.min((ahora - fondoTransicionInicio) / TRANSICION_FONDO_DURACION, 1);
+                
+                const r = Math.round(fondoColorOrigen.r + (fondoColorDestino.r - fondoColorOrigen.r) * progreso);
+                const g = Math.round(fondoColorOrigen.g + (fondoColorDestino.g - fondoColorOrigen.g) * progreso);
+                const b = Math.round(fondoColorOrigen.b + (fondoColorDestino.b - fondoColorOrigen.b) * progreso);
+                
+                color1 = `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+                
+                const r2 = Math.max(0, r - 20);
+                const g2 = Math.max(0, g - 20);
+                const b2 = Math.max(0, b - 20);
+                color2 = `#${r2.toString(16).padStart(2,'0')}${g2.toString(16).padStart(2,'0')}${b2.toString(16).padStart(2,'0')}`;
+                
+                if (progreso >= 1) {
+                    fondoTransicionActiva = false;
+                    fondoColorOrigen = { ...fondoColorDestino };
+                }
+            } else {
+                const c = fondoColorDestino;
+                color1 = `#${c.r.toString(16).padStart(2,'0')}${c.g.toString(16).padStart(2,'0')}${c.b.toString(16).padStart(2,'0')}`;
+                const r2 = Math.max(0, c.r - 20);
+                const g2 = Math.max(0, c.g - 20);
+                const b2 = Math.max(0, c.b - 20);
+                color2 = `#${r2.toString(16).padStart(2,'0')}${g2.toString(16).padStart(2,'0')}${b2.toString(16).padStart(2,'0')}`;
+            }
+            
             const grad = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-            grad.addColorStop(0, CFG.bgColor1);
-            grad.addColorStop(1, CFG.bgColor2);
+            grad.addColorStop(0, color1);
+            grad.addColorStop(1, color2);
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, WIDTH, HEIGHT);
             
-            if (CFG.estrellasActivas) {
-                for (let s of stars) { ctx.fillStyle = `rgba(255,255,255,${s.brightness || CFG.estrellasBrillo})`; ctx.fillRect(s.x, s.y, 2, 2); }
+            // Estrellas principales (solo si están activas)
+            if (estrellasActivas) {
+                for (let s of stars) { 
+                    ctx.fillStyle = `rgba(255,255,255,${s.brightness || CFG.estrellasBrillo})`; 
+                    ctx.fillRect(s.x, s.y, 2, 2); 
+                }
             }
+            
+            // Estrellas secundarias (para rellenar espacio)
+            if (estrellasSecundariasActivas) {
+                for (let s of estrellasSecundarias) { 
+                    ctx.fillStyle = `rgba(200,200,255,${(s.brightness || CFG.estrellasBrillo) * 0.6})`; 
+                    ctx.fillRect(s.x, s.y, 1.5, 1.5); 
+                }
+            }
+            
+            // Nubes (cuando están activas)
+            if (nubesActivas) {
+                for (let n of nubes) {
+                    ctx.fillStyle = `rgba(255,255,255,${n.opacidad || 0.3})`;
+                    ctx.beginPath();
+                    ctx.ellipse(n.x, n.y, n.w, n.h, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.ellipse(n.x - n.w * 0.4, n.y + n.h * 0.1, n.w * 0.6, n.h * 0.7, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.ellipse(n.x + n.w * 0.4, n.y + n.h * 0.1, n.w * 0.6, n.h * 0.7, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.ellipse(n.x, n.y - n.h * 0.3, n.w * 0.5, n.h * 0.6, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
             for (let e of enemies) { if (enemigoImg.complete) ctx.drawImage(enemigoImg, e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); else { ctx.fillStyle='#ff4444'; ctx.fillRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); } }
-            for (let e of enemy2List) { if (enemigo2Img.complete) ctx.drawImage(enemigo2Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); else { ctx.fillStyle='#ff8844'; ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); } }
-            if (boss && jefeImg.complete) ctx.drawImage(jefeImg, boss.x, boss.y, JEFE_ANCHO, JEFE_ALTO);
+            for (let e of enemy2List) { if (enemigo1Img.complete) ctx.drawImage(enemigo1Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); else { ctx.fillStyle='#ff8844'; ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); } }
+            if (boss && jefe1Img.complete) ctx.drawImage(jefe1Img, boss.x, boss.y, JEFE_ANCHO, JEFE_ALTO);
             
             if (rayoLaser && rayoLaser.activo) {
                 let progreso = (performance.now() - rayoLaser.inicio) / rayoLaser.duracion;
@@ -1907,15 +2045,15 @@
                     musicaVictoria.play().catch(e=>{});
                     
                     musicaVictoria.onended = function() {
-                        irAlNivel2();
+                        irAlNivel3();
                     };
                     setTimeout(function() {
                         if (!document.getElementById('cargandoNivel').style.display === 'flex') {
-                            irAlNivel2();
+                            irAlNivel3();
                         }
                     }, 5000);
                 } else {
-                    setTimeout(irAlNivel2, 2000);
+                    setTimeout(irAlNivel3, 2000);
                 }
             }
         }
@@ -1991,7 +2129,78 @@
             
             if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemySpawn > 1500) { lastEnemySpawn = timestamp; spawnEnemy(); }
             if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemy2Spawn > 1800) { lastEnemy2Spawn = timestamp; spawnEnemy2(); }
-            if (CFG.estrellasActivas && timestamp - lastStarSpawn > 100) { lastStarSpawn = timestamp; stars.push({ x: WIDTH, y: Math.random() * HEIGHT, vx: CFG.estrellasVelocidad, brightness: Math.random() * 0.5 + CFG.estrellasBrillo }); }
+            
+            // ESTRELLAS PRINCIPALES EN DIAGONAL: derecha-abajo → izquierda-arriba
+            // ESTRELLAS EN DIAGONAL: desde la parte inferior y lado derecho
+if (estrellasActivas && timestamp - lastStarSpawn > 100) { 
+    lastStarSpawn = timestamp; 
+    
+    // Decidir si la estrella nace desde la derecha o desde abajo
+    let desdeDerecha = Math.random() > 0.5;
+    
+    let x, y;
+    if (desdeDerecha) {
+        // Nace desde el lado derecho (en toda la altura)
+        x = WIDTH;
+        y = Math.random() * HEIGHT;
+    } else {
+        // Nace desde la parte inferior (en todo el ancho)
+        x = Math.random() * WIDTH;
+        y = HEIGHT;
+    }
+    
+    stars.push({ 
+        x: x, 
+        y: y, 
+        vx: -5,
+        vy: -2,
+        brightness: Math.random() * 0.5 + CFG.estrellasBrillo 
+    }); 
+}
+            
+            // ESTRELLAS SECUNDARIAS (para rellenar espacio) - más pequeñas y con offset
+            if (estrellasSecundariasActivas && timestamp - lastStarSpawn > 50) { 
+                if (Math.random() > 0.3) {
+                    estrellasSecundarias.push({ 
+                        x: WIDTH + Math.random() * 50, 
+                        y: Math.random() * HEIGHT, 
+                        vx: -4 + Math.random() * -2,
+                        vy: -1.5 + Math.random() * -1,
+                        brightness: Math.random() * 0.3 + 0.2
+                    }); 
+                }
+            }
+            
+            // NUBES EN DIAGONAL (cuando están activas)
+            // NUBES EN DIAGONAL: desde la parte inferior y lado derecho
+if (nubesActivas && timestamp - lastStarSpawn > 200) { 
+    lastStarSpawn = timestamp; 
+    const size = 40 + Math.random() * 60;
+    
+    // Decidir si la nube nace desde la derecha o desde abajo
+    let desdeDerecha = Math.random() > 0.5;
+    
+    let x, y;
+    if (desdeDerecha) {
+        // Nace desde el lado derecho (en toda la altura)
+        x = WIDTH + size;
+        y = Math.random() * HEIGHT;
+    } else {
+        // Nace desde la parte inferior (en todo el ancho)
+        x = Math.random() * WIDTH;
+        y = HEIGHT + size;
+    }
+    
+    nubes.push({ 
+        x: x, 
+        y: y, 
+        w: size,
+        h: size * 0.5,
+        vx: -2 + Math.random() * -1,
+        vy: -1 + Math.random() * -0.5,
+        opacidad: 0.15 + Math.random() * 0.25
+    }); 
+}
             
             let ahora = performance.now();
             
@@ -2260,7 +2469,7 @@
                         let porcentajeActual = (boss.health / CFG.bossHealth) * 100; 
                         let perdido = ultimoPorcentajeVidaJefe - porcentajeActual; 
                         if (perdido >= 10 && boss.health > 0) { 
-                            jefeDisparoContingencia(); 
+                            jefe1DisparoContingencia(); 
                             ultimoPorcentajeVidaJefe = Math.floor(porcentajeActual); 
                         } 
                         boss.health--; 
@@ -2278,15 +2487,15 @@
                                 musicaVictoria.play().catch(e=>{});
                                 
                                 musicaVictoria.onended = function() {
-                                    irAlNivel2();
+                                    irAlNivel3();
                                 };
                                 setTimeout(function() {
                                     if (!document.getElementById('cargandoNivel').style.display === 'flex') {
-                                        irAlNivel2();
+                                        irAlNivel3();
                                     }
                                 }, 5000);
                             } else {
-                                setTimeout(irAlNivel2, 2000);
+                                setTimeout(irAlNivel3, 2000);
                             }
                         } 
                         break; 
@@ -2352,7 +2561,42 @@
             
             for (let i = 0; i < explosions.length; i++) { explosions[i].frame++; if (explosions[i].frame >= 10) { explosions.splice(i, 1); i--; } }
             for (let i = 0; i < escombros.length; i++) { let e = escombros[i]; e.x += e.vx; e.y += e.vy; if (ahora - e.creacion >= CFG.particulasDuracion) { escombros.splice(i, 1); i--; } }
-            if (CFG.estrellasActivas) { for (let i = 0; i < stars.length; i++) { stars[i].x += stars[i].vx; if (stars[i].x < 0) { stars.splice(i, 1); i--; } } }
+            
+            // MOVIMIENTO DE ESTRELLAS PRINCIPALES EN DIAGONAL
+            if (estrellasActivas) { 
+                for (let i = 0; i < stars.length; i++) { 
+                    stars[i].x += stars[i].vx || -5; 
+                    stars[i].y += stars[i].vy || -2;
+                    if (stars[i].x < 0 || stars[i].y < 0) { 
+                        stars.splice(i, 1); 
+                        i--; 
+                    } 
+                } 
+            }
+            
+            // MOVIMIENTO DE ESTRELLAS SECUNDARIAS
+            if (estrellasSecundariasActivas) {
+                for (let i = 0; i < estrellasSecundarias.length; i++) {
+                    estrellasSecundarias[i].x += estrellasSecundarias[i].vx || -4;
+                    estrellasSecundarias[i].y += estrellasSecundarias[i].vy || -1.5;
+                    if (estrellasSecundarias[i].x < 0 || estrellasSecundarias[i].y < 0) {
+                        estrellasSecundarias.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
+            
+            // MOVIMIENTO DE NUBES EN DIAGONAL
+            if (nubesActivas) {
+                for (let i = 0; i < nubes.length; i++) {
+                    nubes[i].x += nubes[i].vx || -2;
+                    nubes[i].y += nubes[i].vy || -1;
+                    if (nubes[i].x + nubes[i].w < 0 || nubes[i].y + nubes[i].h < 0) {
+                        nubes.splice(i, 1);
+                        i--;
+                    }
+                }
+            }
             
             const leftSuelto = !keys.ArrowLeft && !(moveX < -0.5);
             if (leftSuelto && naveTransformada) {
@@ -2394,6 +2638,10 @@
             
             function iniciarJuegoDesdeTouch() {
                 if (!gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') {
+                    // Iniciar música con interacción
+                    if (musicaFondo && musicaActiva && !CFG.muteFondo) {
+                        musicaFondo.play().catch(e => {});
+                    }
                     iniciarJuego();
                 }
             }
@@ -2425,6 +2673,10 @@
                 e.preventDefault();
                 teclaC.style.transform = 'scale(0.92)';
                 teclaC.style.background = '#444';
+                // Iniciar música con interacción
+                if (musicaFondo && musicaActiva && !CFG.muteFondo) {
+                    musicaFondo.play().catch(e => {});
+                }
                 iniciarJuegoDesdeTouch();
             });
             teclaC.addEventListener('touchend', (e) => {
@@ -2439,6 +2691,10 @@
             teclaC.addEventListener('mousedown', () => {
                 teclaC.style.transform = 'scale(0.92)';
                 teclaC.style.background = '#444';
+                // Iniciar música con interacción
+                if (musicaFondo && musicaActiva && !CFG.muteFondo) {
+                    musicaFondo.play().catch(e => {});
+                }
                 iniciarJuegoDesdeTouch();
             });
             teclaC.addEventListener('mouseup', () => {
@@ -2514,8 +2770,6 @@
             btnZ.addEventListener('mouseleave', () => {
                 btnZ.classList.remove('pressed');
             });
-            
-            
         }
         
         let timestamp = 0;
@@ -2526,7 +2780,13 @@
         
         document.getElementById('btnMusica').addEventListener('click', toggleMusica);
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'KeyC' && !gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') { iniciarJuego(); }
+            if (e.code === 'KeyC' && !gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') {
+                // Iniciar música con interacción
+                if (musicaFondo && musicaActiva && !CFG.muteFondo) {
+                    musicaFondo.play().catch(e => {});
+                }
+                iniciarJuego();
+            }
             if (gameStarted) {
                 if (e.code === 'ArrowLeft') { keys.ArrowLeft = true; e.preventDefault(); }
                 if (e.code === 'ArrowRight') keys.ArrowRight = true;
