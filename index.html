@@ -115,9 +115,6 @@
             white-space: nowrap;
         }
         
-        /* Botón Reiniciar - Izquierda encima del joystick */
-        
-        
         .right-buttons {
             position: absolute;
             bottom: 30px;
@@ -172,8 +169,6 @@
             .joystick-base { width: 60px; height: 60px; }
             .joystick-thumb { width: 46px; height: 46px; }
             .action-btn { width: 74px; height: 74px; font-size: 29px; }
-            
-            
             .right-buttons { right: 8px; bottom: 20px; gap: 10px; }
             .right-row { gap: 10px; }
         }
@@ -183,8 +178,6 @@
             .joystick-base { width: 48px; height: 48px; }
             .joystick-thumb { width: 38px; height: 38px; }
             .action-btn { width: 64px; height: 64px; font-size: 23px; }
-            
-            
             .right-buttons { right: 5px; bottom: 15px; gap: 8px; }
             .right-row { gap: 8px; }
         }
@@ -245,7 +238,6 @@
     </div>
 
     <div id="touchControls" class="touch-controls">
-        <!-- Joystick izquierdo -->
         <div class="joystick-container" id="joystickContainer">
             <div class="joystick-base" id="joystickBase">
                 <div class="joystick-thumb" id="joystickThumb"></div>
@@ -253,9 +245,6 @@
             <span class="joystick-label">MOVIMIENTO</span>
         </div>
 
-        
-        
-        <!-- Botones derecho -->
         <div class="right-buttons">
             <div class="right-row">
                 <div class="touch-btn-wrapper">
@@ -305,6 +294,7 @@
             spriteJefe: "imagenes/jefe.png", spriteExplosion: "imagenes/explosion.png",
             spriteProyectil: "imagenes/proyectil.png", spriteProyectilEnemy: "imagenes/proyectil_enemigo.png",
             spriteAstronauta: "imagenes/astronauta.png",
+            spriteDecoracion: "imagenes/decoracion.png",
             nave1Frame2: "imagenes/nave1_frame2.png", nave1AnimSpeed: 50, nave1AnimActive: true,
             nave1Frame2W: 160, nave1Frame2H: 100, nave1Frame2X: 6, nave1Frame2Y: 0,
             nave2Frame2: "imagenes/nave2_frame2.png", nave2AnimSpeed: 50, nave2AnimActive: true,
@@ -356,8 +346,122 @@
         // ==========================================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const GAME_WIDTH = 1598;  // 30% más ancho (1229 * 1.3)
+        const GAME_WIDTH = 1598;
         const GAME_HEIGHT = 922;
+        
+        // ==========================================
+        // DECORACIÓN
+        // ==========================================
+        let decoracionImg = new Image();
+        let decoraciones = [];
+        let decoracionCreada = false;
+        const DECORACION_W = 400;
+        const DECORACION_H = 81;
+        const DECORACION_VELOCIDAD = 0.1;
+        
+        // ==========================================
+        // PARTÍCULAS DE LUCIÉRNAGAS (AMARILLAS)
+        // ==========================================
+        let particulasLuciernagas = [];
+        
+        function crearLuciernaga(x, y) {
+            let angulo = Math.random() * Math.PI * 2;
+            let radio = 15 + Math.random() * 50;
+            particulasLuciernagas.push({
+                x: x + Math.cos(angulo) * radio,
+                y: y + Math.sin(angulo) * radio,
+                angulo: angulo,
+                radio: radio,
+                velocidad: 0.3 + Math.random() * 1.2,
+                tamaño: 1.5 + Math.random() * 10,
+                brillo: 0,
+                fase: Math.random() * Math.PI * 2,
+                velocidadParpadeo: 0.01 + Math.random() * 0.02,
+                color: '#ffcc00',
+                centroX: x,
+                centroY: y,
+                vida: 400 + Math.random() * 1500,
+                creacion: performance.now(),
+                activo: true,
+                tiempoVisible: 0,
+                tiempoInvisible: 0,
+                estado: 'apareciendo'
+            });
+        }
+        
+        function crearDecoracion() {
+            if (decoracionCreada) return;
+            decoracionCreada = true;
+            let d = {
+                x: -DECORACION_W,
+                y: Math.random() * (HEIGHT - DECORACION_H),
+                w: DECORACION_W,
+                h: DECORACION_H,
+                vx: DECORACION_VELOCIDAD
+            };
+            decoraciones.push(d);
+            
+            // Generar luciérnagas alrededor de la decoración
+            setTimeout(() => {
+                let cantidad = 4 + Math.floor(Math.random() * 6);
+                for (let i = 0; i < cantidad; i++) {
+                    let offsetX = (Math.random() - 0.5) * d.w * 0.7;
+                    let offsetY = (Math.random() - 0.5) * d.h * 0.7;
+                    crearLuciernaga(d.x + d.w/2 + offsetX, d.y + d.h/2 + offsetY);
+                }
+            }, 100);
+        }
+        
+        // ==========================================
+        // PARTÍCULAS DE PROPULSORES PARA ENEMIGOS
+        // ==========================================
+        let particulasPropulsoresEnemigos = [];
+        
+        function crearParticulaPropulsorEnemigo(x, y, color = '#ff6600') {
+            particulasPropulsoresEnemigos.push({
+                x: x + (Math.random() - 0.5) * 4,
+                y: y + (Math.random() - 0.5) * 4,
+                vx: -1 + (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                tamaño: 2 + Math.random() * 4,
+                vida: 20 + Math.random() * 200,
+                creacion: performance.now(),
+                color: color,
+                alpha: 0.8
+            });
+        }
+
+        function crearParticulaPropulsorEnemigo2(x, y) {
+            const colores = ['#ffcc00', '#ffdd33', '#ffee44', '#ffbb00'];
+            let color = colores[Math.floor(Math.random() * colores.length)];
+            particulasPropulsoresEnemigos.push({
+                x: x + (Math.random() - 0.5) * 4,
+                y: y + (Math.random() - 0.5) * 4,
+                vx: -2 + (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                tamaño: 3 + Math.random() * 5,
+                vida: 25 + Math.random() * 400,
+                creacion: performance.now(),
+                color: color,
+                alpha: 0.9
+            });
+        }
+
+        function crearParticulaPropulsorJefe(x, y) {
+            const colores = ['#ff2200', '#ff4400', '#ff6600', '#ff8800', '#ffaa00'];
+            let color = colores[Math.floor(Math.random() * colores.length)];
+            particulasPropulsoresEnemigos.push({
+                x: x + (Math.random() - 0.5) * 8,
+                y: y + (Math.random() - 0.5) * 8,
+                vx: -3 + (Math.random() - 0.5) * 1,
+                vy: (Math.random() - 0.5) * 1,
+                tamaño: 5 + Math.random() * 8,
+                vida: 30 + Math.random() * 200,
+                creacion: performance.now(),
+                color: color,
+                alpha: 1.0
+            });
+        }
         
         function resizeCanvas() {
             const container = canvas.parentElement;
@@ -542,11 +646,9 @@
         // Partículas de impacto
         let particulasImpacto = [];
         
-        // Partículas de cola para misiles (SOLO HOMING)
+        // Partículas de cola para misiles
         let particulasCola = [];
         let contadorFrameCola = 0;
-        
-        // Partículas de cola para misiles ENEMIGOS (amarillo → rojo)
         let particulasColaEnemigo = [];
         
         let transformacionFlashActiva = false;
@@ -595,7 +697,7 @@
         let enemigoProyectilImg = new Image();
         
         let imagenesCargadas = 0;
-        let totalImagenes = 18;
+        let totalImagenes = 19;
         
         // ==========================================
         // FUNCIÓN PARA IR AL NIVEL 2
@@ -637,6 +739,7 @@
             enemigoProyectilImg.src = CFG.spriteProyectilEnemy;
             transformacionZImg.src = CFG.transformacionZImagen;
             astronautaImg.src = CFG.spriteAstronauta;
+            decoracionImg.src = CFG.spriteDecoracion;
             
             imgActual = naveImg1Frame1;
         }
@@ -668,6 +771,7 @@
         enemigoProyectilImg.onload = verificarCargaImagen;
         transformacionZImg.onload = verificarCargaImagen;
         astronautaImg.onload = verificarCargaImagen;
+        decoracionImg.onload = verificarCargaImagen;
         
         naveImg1Frame1.onerror = function() { console.log('Error:', CFG.spriteNave1); imagenesCargadas++; };
         naveImg1Frame2.onerror = function() { naveImg1Frame2 = naveImg1Frame1; imagenesCargadas++; };
@@ -687,6 +791,7 @@
         enemigoProyectilImg.onerror = function() { imagenesCargadas++; };
         transformacionZImg.onerror = function() { transformacionZImg = naveImg2Trans; imagenesCargadas++; };
         astronautaImg.onerror = function() { console.log('Error: imagen astronauta.png no encontrada'); imagenesCargadas++; };
+        decoracionImg.onerror = function() { console.log('Error: imagen decoracion.png no encontrada'); imagenesCargadas++; };
         
         const FORMAS = {
             1: { ancho: CFG.nave1W, alto: CFG.nave1H },
@@ -1408,7 +1513,6 @@
         }
         
         function iniciarJuego() {
-            // Solicitar pantalla completa
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(e => {});
             }
@@ -1421,6 +1525,8 @@
             particulasImpacto = [];
             particulasCola = [];
             particulasColaEnemigo = [];
+            particulasPropulsoresEnemigos = [];
+            particulasLuciernagas = [];
             boss = null; bossCreated = false; bossEstado = "ESPERANDO"; ultimoPorcentajeVidaJefe = 100;
             naveTransformada = false; nave3Volteada = false;
             frameActualNave = { 1: 0, 2: 0, 3: 0 };
@@ -1435,6 +1541,10 @@
             player.x = WIDTH/2 - player.width/2; player.y = HEIGHT - player.height - 30; 
             player.speed = velocidadBase;
             imgActual = naveImg1Frame1;
+            
+            // CREAR DECORACIÓN - UNA SOLA VEZ
+            crearDecoracion();
+            
             document.getElementById('pantallaInicio').style.display = 'none';
             document.querySelector('.game-container').style.display = 'block';
             document.getElementById('btnMusica').style.display = 'block';
@@ -1467,6 +1577,8 @@
                 detenerTodasLasMusicas();
                 gameOver = false;
                 victory = false;
+                decoracionCreada = false;
+                decoraciones = [];
                 iniciarJuego();
             }
         }
@@ -1554,6 +1666,9 @@
             }
         }
         
+        // ==========================================
+        // SPAWN ENEMY CON FLIP
+        // ==========================================
         function spawnEnemy() { 
             if (!gameRunning || gameOver || boss) return; 
             let e = { 
@@ -1563,12 +1678,16 @@
                 vy: (Math.random() - 0.5) * 3, 
                 health: 3, 
                 lastShoot: 0,
-                yaDisparoAlNacer: false
+                yaDisparoAlNacer: false,
+                flipHorizontal: false
             };
             enemies.push(e);
             enemigoDisparar(e);
         }
         
+        // ==========================================
+        // SPAWN ENEMY2 CON FLIP
+        // ==========================================
         function spawnEnemy2() { 
             if (!gameRunning || gameOver || boss) return; 
             let e = { 
@@ -1578,7 +1697,8 @@
                 vy: (Math.random() - 0.5) * 2.8, 
                 health: 3, 
                 lastShoot: 0,
-                yaDisparoAlNacer: false
+                yaDisparoAlNacer: false,
+                flipHorizontal: false
             };
             enemy2List.push(e);
             enemigoDisparar(e);
@@ -1650,8 +1770,96 @@
             if (CFG.estrellasActivas) {
                 for (let s of stars) { ctx.fillStyle = `rgba(255,255,255,${s.brightness || CFG.estrellasBrillo})`; ctx.fillRect(s.x, s.y, 2, 2); }
             }
-            for (let e of enemies) { if (enemigoImg.complete) ctx.drawImage(enemigoImg, e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); else { ctx.fillStyle='#ff4444'; ctx.fillRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); } }
-            for (let e of enemy2List) { if (enemigo2Img.complete) ctx.drawImage(enemigo2Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); else { ctx.fillStyle='#ff8844'; ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); } }
+            
+            // ==========================================
+            // DIBUJAR DECORACIÓN
+            // ==========================================
+            for (let d of decoraciones) {
+                if (decoracionImg.complete && decoracionImg.src) {
+                    ctx.drawImage(decoracionImg, d.x, d.y, d.w, d.h);
+                } else {
+                    ctx.fillStyle = 'rgba(255, 200, 100, 0.5)';
+                    ctx.fillRect(d.x, d.y, d.w, d.h);
+                    ctx.strokeStyle = 'rgba(255, 200, 100, 0.8)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(d.x, d.y, d.w, d.h);
+                }
+            }
+            
+            // ==========================================
+            // DIBUJAR LUCIÉRNAGAS (AMARILLAS)
+            // ==========================================
+            for (let l of particulasLuciernagas) {
+                if (l.brillo <= 0) continue;
+                
+                let alpha = l.brillo * 0.9;
+                let size = l.tamaño * (0.5 + 0.5 * l.brillo);
+                
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = l.color;
+                ctx.fillRect(l.x - size/2, l.y - size/2, size, size);
+                
+                if (l.brillo > 0.5) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.globalAlpha = alpha * 0.3;
+                    let innerSize = size * 0.3;
+                    ctx.fillRect(l.x - innerSize/2, l.y - innerSize/2, innerSize, innerSize);
+                }
+                
+                ctx.globalAlpha = 1;
+            }
+            
+            // ==========================================
+            // DIBUJAR PARTÍCULAS DE PROPULSORES DE ENEMIGOS
+            // ==========================================
+            for (let p of particulasPropulsoresEnemigos) {
+                if (p.alpha <= 0) continue;
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 15;
+                ctx.fillRect(p.x - p.tamaño/2, p.y - p.tamaño/2, p.tamaño, p.tamaño);
+                ctx.shadowBlur = 0;
+            }
+            ctx.globalAlpha = 1;
+            
+            // ==========================================
+            // ENEMIGOS CON FLIP HORIZONTAL
+            // ==========================================
+            for (let e of enemies) {
+                if (enemigoImg.complete) {
+                    if (e.flipHorizontal) {
+                        ctx.save();
+                        ctx.translate(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(enemigoImg, -ENEMIGO_ANCHO/2, -ENEMIGO_ALTO/2, ENEMIGO_ANCHO, ENEMIGO_ALTO);
+                        ctx.restore();
+                    } else {
+                        ctx.drawImage(enemigoImg, e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
+                    }
+                } else {
+                    ctx.fillStyle = '#ff4444';
+                    ctx.fillRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
+                }
+            }
+            
+            for (let e of enemy2List) {
+                if (enemigo2Img.complete) {
+                    if (e.flipHorizontal) {
+                        ctx.save();
+                        ctx.translate(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(enemigo2Img, -ENEMIGO2_ANCHO/2, -ENEMIGO2_ALTO/2, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
+                        ctx.restore();
+                    } else {
+                        ctx.drawImage(enemigo2Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
+                    }
+                } else {
+                    ctx.fillStyle = '#ff8844';
+                    ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
+                }
+            }
+            
             if (boss && jefeImg.complete) ctx.drawImage(jefeImg, boss.x, boss.y, JEFE_ANCHO, JEFE_ALTO);
             
             if (rayoLaser && rayoLaser.activo) {
@@ -1993,7 +2201,103 @@
             if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemy2Spawn > 1800) { lastEnemy2Spawn = timestamp; spawnEnemy2(); }
             if (CFG.estrellasActivas && timestamp - lastStarSpawn > 100) { lastStarSpawn = timestamp; stars.push({ x: WIDTH, y: Math.random() * HEIGHT, vx: CFG.estrellasVelocidad, brightness: Math.random() * 0.5 + CFG.estrellasBrillo }); }
             
+            // ==========================================
+            // MOVIMIENTO DE LA DECORACIÓN
+            // ==========================================
+            for (let i = 0; i < decoraciones.length; i++) {
+                decoraciones[i].x += decoraciones[i].vx || DECORACION_VELOCIDAD;
+                if (decoraciones[i].x > WIDTH + 50) {
+                    decoraciones.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // ==========================================
+            // ACTUALIZACIÓN DE LUCIÉRNAGAS
+            // ==========================================
+            for (let i = 0; i < particulasLuciernagas.length; i++) {
+                let l = particulasLuciernagas[i];
+                
+                l.angulo += l.velocidad * 0.015;
+                l.x = l.centroX + Math.cos(l.angulo) * l.radio;
+                l.y = l.centroY + Math.sin(l.angulo) * l.radio;
+                
+                l.radio += Math.sin(l.fase) * 0.05;
+                l.fase += l.velocidadParpadeo;
+                
+                if (l.estado === 'apareciendo') {
+                    l.brillo += 0.02;
+                    if (l.brillo >= 1) {
+                        l.brillo = 1;
+                        l.estado = 'visible';
+                        l.tiempoVisible = 0;
+                    }
+                } else if (l.estado === 'visible') {
+                    l.tiempoVisible++;
+                    l.brillo = 0.7 + 0.3 * Math.sin(l.fase * 3);
+                    if (l.tiempoVisible > 60 + Math.random() * 120) {
+                        l.estado = 'desapareciendo';
+                    }
+                } else if (l.estado === 'desapareciendo') {
+                    l.brillo -= 0.02;
+                    if (l.brillo <= 0) {
+                        l.brillo = 0;
+                        l.estado = 'invisible';
+                        l.tiempoInvisible = 0;
+                    }
+                } else if (l.estado === 'invisible') {
+                    l.tiempoInvisible++;
+                    if (l.tiempoInvisible > 30 + Math.random() * 90) {
+                        l.estado = 'apareciendo';
+                        let anguloNuevo = Math.random() * Math.PI * 2;
+                        let radioNuevo = 15 + Math.random() * 50;
+                        l.angulo = anguloNuevo;
+                        l.radio = radioNuevo;
+                    }
+                }
+                
+                let decoracionExiste = false;
+                for (let d of decoraciones) {
+                    if (l.centroX >= d.x && l.centroX <= d.x + d.w &&
+                        l.centroY >= d.y && l.centroY <= d.y + d.h) {
+                        decoracionExiste = true;
+                        break;
+                    }
+                }
+                
+                if (!decoracionExiste || performance.now() - l.creacion > l.vida) {
+                    particulasLuciernagas.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // Generar nuevas luciérnagas si hay decoraciones y hay pocas
+            if (decoraciones.length > 0 && particulasLuciernagas.length < decoraciones.length * 4) {
+                if (Math.random() > 0.97) {
+                    let d = decoraciones[Math.floor(Math.random() * decoraciones.length)];
+                    let offsetX = (Math.random() - 0.5) * d.w * 0.6;
+                    let offsetY = (Math.random() - 0.5) * d.h * 0.6;
+                    crearLuciernaga(d.x + d.w/2 + offsetX, d.y + d.h/2 + offsetY);
+                }
+            }
+            
             let ahora = performance.now();
+            
+            // ==========================================
+            // ACTUALIZACIÓN DE PARTÍCULAS DE PROPULSORES DE ENEMIGOS
+            // ==========================================
+            for (let i = 0; i < particulasPropulsoresEnemigos.length; i++) {
+                let p = particulasPropulsoresEnemigos[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.98;
+                p.vy *= 0.98;
+                p.alpha = 1 - (performance.now() - p.creacion) / p.vida;
+                if (performance.now() - p.creacion >= p.vida) {
+                    particulasPropulsoresEnemigos.splice(i, 1);
+                    i--;
+                }
+            }
             
             contadorFrameCola++;
             for (let p of projectiles) {
@@ -2150,9 +2454,40 @@
                 }
             }
             
+            // ==========================================
+            // ENEMIES CON FLIP Y PROPULSORES
+            // ==========================================
             for (let i = 0; i < enemies.length; i++) {
-                let e = enemies[i]; e.x += e.vx; e.y += e.vy;
-                if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
+                let e = enemies[i];
+                
+                // GENERAR PARTÍCULAS DE PROPULSORES
+                if (Math.random() > 0.3) {
+                    let propX = e.x - -97;
+                    let propY = e.y + ENEMIGO_ALTO / 3 + (Math.random() - 0.5) * 20;
+                    crearParticulaPropulsorEnemigo(propX, propY, '#ffffff');
+                    if (Math.random() > 0.5) {
+                        let propY2 = e.y + ENEMIGO_ALTO / 2 + (Math.random() - 0.5) * 20;
+                        crearParticulaPropulsorEnemigo(propX, propY2, '#ff8800');
+                    }
+                }
+                
+                e.x += e.vx;
+                e.y += e.vy;
+                
+                // FLIP AL CHOCAR CON BORDE IZQUIERDO
+                if (e.x <= 0) {
+                    e.flipHorizontal = true;
+                    e.vx = Math.abs(e.vx);
+                }
+                // VOLVER A LA NORMAL AL CHOCAR CON BORDE DERECHO
+                if (e.x + ENEMIGO_ANCHO >= WIDTH) {
+                    e.flipHorizontal = false;
+                    e.vx = -Math.abs(e.vx);
+                }
+                
+                if (e.y < 20) e.y = 20;
+                if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
+                
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
                 for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
                     crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
@@ -2181,15 +2516,75 @@
                     } 
                 }
             }
+            
+            // ==========================================
+            // ENEMY2 CON FLIP Y PROPULSORES AMARILLOS
+            // ==========================================
             for (let i = 0; i < enemy2List.length; i++) {
-                let e = enemy2List[i]; e.x += e.vx; e.y += e.vy;
-                if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
+                let e = enemy2List[i];
+                
+                // GENERAR PARTÍCULAS DE PROPULSORES
+                if (Math.random() > 0.3) {
+                    let propX = e.x - -105;
+                    let propY = e.y + ENEMIGO2_ALTO / 2 + (Math.random() - 0.5) * 20;
+                    crearParticulaPropulsorEnemigo2(propX, propY);
+                    if (Math.random() > 0.4) {
+                        let propY2 = e.y + ENEMIGO2_ALTO / 2 + (Math.random() - 0.5) * 20;
+                        crearParticulaPropulsorEnemigo2(propX, propY2);
+                    }
+                }
+                
+                e.x += e.vx;
+                e.y += e.vy;
+                
+                // FLIP AL CHOCAR CON BORDE IZQUIERDO
+                if (e.x <= 0) {
+                    e.flipHorizontal = true;
+                    e.vx = Math.abs(e.vx);
+                }
+                // VOLVER A LA NORMAL AL CHOCAR CON BORDE DERECHO
+                if (e.x + ENEMIGO2_ANCHO >= WIDTH) {
+                    e.flipHorizontal = false;
+                    e.vx = -Math.abs(e.vx);
+                }
+                
+                if (e.y < 20) e.y = 20;
+                if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
+                
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
                 for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
-                    crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
+                    // PARTÍCULAS AMARILLAS PARA ENEMY2
+                    for (let k = 0; k < 8; k++) {
+                        let ang = Math.random() * Math.PI * 2;
+                        let vel = 2 + Math.random() * 5;
+                        particulasImpacto.push({
+                            x: p.x + p.w/2,
+                            y: p.y + p.h/2,
+                            vx: Math.cos(ang) * vel,
+                            vy: Math.sin(ang) * vel,
+                            tamaño: 4 + Math.random() * 6,
+                            vida: 120,
+                            creacion: performance.now(),
+                            color: '#ffcc00'
+                        });
+                    }
                     projectiles.splice(j, 1); 
                     e.health--; 
                     if (e.health <= 0) { 
+                        for (let k = 0; k < 15; k++) {
+                            let ang = Math.random() * Math.PI * 2;
+                            let vel = 3 + Math.random() * 6;
+                            particulasImpacto.push({
+                                x: e.x + ENEMIGO2_ANCHO/2,
+                                y: e.y + ENEMIGO2_ALTO/2,
+                                vx: Math.cos(ang) * vel,
+                                vy: Math.sin(ang) * vel,
+                                tamaño: 4 + Math.random() * 6,
+                                vida: 120,
+                                creacion: performance.now(),
+                                color: '#ffcc00'
+                            });
+                        }
                         createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
                         crearEscombros(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2);
                         crearAstronauta(e.x + ENEMIGO2_ANCHO/2 - 15, e.y + ENEMIGO2_ALTO/2 - 17);
@@ -2199,6 +2594,20 @@
                     } 
                 break; } }
                 if (!invulnerable && checkCollision(playerCol, enemyCol)) { 
+                    for (let k = 0; k < 20; k++) {
+                        let ang = Math.random() * Math.PI * 2;
+                        let vel = 3 + Math.random() * 6;
+                        particulasImpacto.push({
+                            x: e.x + ENEMIGO2_ANCHO/2,
+                            y: e.y + ENEMIGO2_ALTO/2,
+                            vx: Math.cos(ang) * vel,
+                            vy: Math.sin(ang) * vel,
+                            tamaño: 4 + Math.random() * 6,
+                            vida: 120,
+                            creacion: performance.now(),
+                            color: '#ffcc00'
+                        });
+                    }
                     createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
                     enemy2List.splice(i, 1); 
                     lives--; 
@@ -2213,7 +2622,25 @@
                 }
             }
             
+            // ==========================================
+            // BOSS CON PROPULSORES (SIN FLIP)
+            // ==========================================
             if (boss) {
+                // GENERAR PARTÍCULAS DE PROPULSORES DEL JEFE
+                if (Math.random() > 0.2) {
+                    let propX = boss.x - -300;
+                    let propY = boss.y + JEFE_ALTO / 3 + (Math.random() - 0.5) * 40;
+                    crearParticulaPropulsorJefe(propX, propY);
+                    if (Math.random() > 0.5) {
+                        let propY2 = boss.y + JEFE_ALTO / 2 + (Math.random() - 0.5) * 40;
+                        crearParticulaPropulsorJefe(propX, propY2);
+                    }
+                    if (Math.random() > 0.7) {
+                        let propY3 = boss.y + JEFE_ALTO / 2 + (Math.random() - 0.5) * 40;
+                        crearParticulaPropulsorJefe(propX - 5, propY3);
+                    }
+                }
+                
                 boss.x += boss.vx; boss.y += boss.vy;
                 if (bossEstado === "ENTRANDO" && boss.x <= WIDTH - JEFE_ANCHO - 30) { 
                     bossEstado = "PATRULLANDO"; 

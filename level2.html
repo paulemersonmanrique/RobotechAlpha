@@ -238,7 +238,6 @@
     </div>
 
     <div id="touchControls" class="touch-controls">
-        <!-- Joystick izquierdo -->
         <div class="joystick-container" id="joystickContainer">
             <div class="joystick-base" id="joystickBase">
                 <div class="joystick-thumb" id="joystickThumb"></div>
@@ -246,7 +245,6 @@
             <span class="joystick-label">MOVIMIENTO</span>
         </div>
 
-        <!-- Botones derecho -->
         <div class="right-buttons">
             <div class="right-row">
                 <div class="touch-btn-wrapper">
@@ -267,7 +265,7 @@
 
     <script>
         // ==========================================
-        // ROBOTECH - CON PARÁMETROS ACTUALIZADOS
+        // ROBOTECH - CON FLIP DE ENEMIGOS, NUBES CON IMAGEN, PROPULSORES Y LUCIÉRNAGAS AMARILLAS
         // ==========================================
         
         window.CFG_GLOBAL = {
@@ -287,7 +285,7 @@
             speedNave2: 0.91, speedNave2Trans: 0.78,
             speedNave3: 0.78, speedNave3Trans: 0.65,
             speedNave3Inv: 0.78, speedNave3InvTrans: 0.715,
-            enemy1Speed: -7.2, enemy2Speed: -4.8, enemyProjSpeed: 5, jefeContingenciaSpeed: 8,
+            enemy1Speed: -9.2, enemy2Speed: -11, enemyProjSpeed: 5, jefeContingenciaSpeed: 8,
             sprayAmmo: 100, laserEnergy: 1000, laserCost: 20, energyRegen: 20, shotCooldown: 150, misilCooldown: 400, misilTransformTime: 300,
             spriteNave1: "imagenes/nave1.png", spriteNave1Trans: "imagenes/nave2.1.png",
             spriteNave2: "imagenes/nave2.png", spriteNave2Trans: "imagenes/nave2.1.png",
@@ -296,6 +294,7 @@
             spriteJefe: "imagenes/jefe1.png", spriteExplosion: "imagenes/explosion.png",
             spriteProyectil: "imagenes/proyectil.png", spriteProyectilEnemy: "imagenes/proyectil_enemigo.png",
             spriteAstronauta: "imagenes/astronauta.png",
+            spriteDecoracion: "imagenes/decoracion.png",
             nave1Frame2: "imagenes/nave1_frame2.png", nave1AnimSpeed: 50, nave1AnimActive: true,
             nave1Frame2W: 160, nave1Frame2H: 100, nave1Frame2X: 6, nave1Frame2Y: 0,
             nave2Frame2: "imagenes/nave2_frame2.png", nave2AnimSpeed: 50, nave2AnimActive: true,
@@ -350,22 +349,51 @@
         const GAME_WIDTH = 1598;
         const GAME_HEIGHT = 922;
         
-        // Variables para los cambios de fondo según progreso de música
-        let fondoActual = 0; // 0=normal, 1=rojo, 2=celeste oscuro, 3=celeste claro
+        let fondoActual = 0;
         let fondoTransicionActiva = false;
         let fondoTransicionInicio = 0;
         let fondoColorOrigen = { r: 10, g: 10, b: 42 };
         let fondoColorDestino = { r: 10, g: 10, b: 42 };
         const TRANSICION_FONDO_DURACION = 2000;
         
-        // Nubes
+        let decoracionImg = new Image();
+        let decoraciones = [];
+        let decoracionCreada = false;
+        const DECORACION_W = 400;
+        const DECORACION_H = 81;
+        const DECORACION_VELOCIDAD = 0.5;
+        const DECORACION_VELOCIDAD_Y = 0.2;
+
+        function crearDecoracion() {
+            if (decoracionCreada) return;
+            decoracionCreada = true;
+            let d = {
+                x: -DECORACION_W,
+                y: Math.random() * (HEIGHT * 0.1 - DECORACION_H),
+                w: DECORACION_W,
+                h: DECORACION_H,
+                vx: DECORACION_VELOCIDAD,
+                vy: DECORACION_VELOCIDAD_Y
+            };
+            decoraciones.push(d);
+            
+            // Generar luciérnagas alrededor de la decoración
+            setTimeout(() => {
+                let cantidad = 4 + Math.floor(Math.random() * 6);
+                for (let i = 0; i < cantidad; i++) {
+                    let offsetX = (Math.random() - 0.5) * d.w * 0.7;
+                    let offsetY = (Math.random() - 0.5) * d.h * 0.7;
+                    crearLuciernaga(d.x + d.w/2 + offsetX, d.y + d.h/2 + offsetY);
+                }
+            }, 100);
+        }
+        
         let nubes = [];
         let nubesActivas = false;
         let estrellasActivas = true;
         let estrellasSecundarias = [];
         let estrellasSecundariasActivas = true;
         
-        // Variables para control de progreso de música
         let fondo30Activado = false;
         let fondo60Activado = false;
         let fondo90Activado = false;
@@ -529,36 +557,39 @@
         let puedeDisparar = false;
         let misilesDesactivados = false;
         
-        // ===== RAYO LÁSER DEL JEFE =====
         let rayoLaser = null;
         let ultimoLaserJefe = 0;
         const INTERVALO_LASER = 5000;
         const DURACION_LASER = 1000;
         const VELOCIDAD_LASER = 8;
         
-        // ===== RAYO DE NAVE 3 =====
         let ultimoRayoNave3 = 0;
         const COOLDOWN_RAYO_N3 = 50;
         let rayosDisponibles = CFG.maxRayosNave3;
         const MAX_RAYOS = CFG.maxRayosNave3;
         
-        // ASTRONAUTAS
         let astronautas = [];
         let mensajesFlotantes = [];
         
-        // Misiles inversos
         let misilesInversos = [];
         const TIEMPO_MISIL_INVERSO = 200;
         
-        // Partículas de impacto
         let particulasImpacto = [];
         
-        // Partículas de cola para misiles (SOLO HOMING)
         let particulasCola = [];
         let contadorFrameCola = 0;
         
-        // Partículas de cola para misiles ENEMIGOS (amarillo → rojo)
         let particulasColaEnemigo = [];
+        
+        // ==========================================
+        // PARTÍCULAS DE PROPULSORES PARA ENEMIGOS
+        // ==========================================
+        let particulasPropulsoresEnemigos = [];
+        
+        // ==========================================
+        // PARTÍCULAS DE LUCIÉRNAGAS PARA DECORACIÓN (AMARILLAS)
+        // ==========================================
+        let particulasLuciernagas = [];
         
         let transformacionFlashActiva = false;
         let transformacionFlashDestino = 1;
@@ -604,9 +635,10 @@
         let explosionImg = new Image();
         let proyectilImg = new Image();
         let enemigoProyectilImg = new Image();
+        let nubeImg = new Image();
         
         let imagenesCargadas = 0;
-        let totalImagenes = 18;
+        let totalImagenes = 20;
         
         // ==========================================
         // FUNCIÓN PARA IR AL NIVEL 3
@@ -648,6 +680,8 @@
             enemigoProyectilImg.src = CFG.spriteProyectilEnemy;
             transformacionZImg.src = CFG.transformacionZImagen;
             astronautaImg.src = CFG.spriteAstronauta;
+            decoracionImg.src = CFG.spriteDecoracion;
+            nubeImg.src = "imagenes/nube.png";
             
             imgActual = naveImg1Frame1;
         }
@@ -679,6 +713,8 @@
         enemigoProyectilImg.onload = verificarCargaImagen;
         transformacionZImg.onload = verificarCargaImagen;
         astronautaImg.onload = verificarCargaImagen;
+        decoracionImg.onload = verificarCargaImagen;
+        nubeImg.onload = verificarCargaImagen;
         
         naveImg1Frame1.onerror = function() { console.log('Error:', CFG.spriteNave1); imagenesCargadas++; };
         naveImg1Frame2.onerror = function() { naveImg1Frame2 = naveImg1Frame1; imagenesCargadas++; };
@@ -698,6 +734,8 @@
         enemigoProyectilImg.onerror = function() { imagenesCargadas++; };
         transformacionZImg.onerror = function() { transformacionZImg = naveImg2Trans; imagenesCargadas++; };
         astronautaImg.onerror = function() { console.log('Error: imagen astronauta.png no encontrada'); imagenesCargadas++; };
+        decoracionImg.onerror = function() { console.log('Error: imagen decoracion.png no encontrada'); imagenesCargadas++; };
+        nubeImg.onerror = function() { console.log('Error: imagen nube.png no encontrada'); imagenesCargadas++; };
         
         const FORMAS = {
             1: { ancho: CFG.nave1W, alto: CFG.nave1H },
@@ -797,6 +835,83 @@
                 creacion: performance.now(),
                 colorInicio: '#ffdd44',
                 colorFin: '#ff2200'
+            });
+        }
+        
+        // ==========================================
+        // PARTÍCULAS DE PROPULSORES PARA ENEMIGOS
+        // ==========================================
+        function crearParticulaPropulsorEnemigo(x, y, color = '#ff6600') {
+            particulasPropulsoresEnemigos.push({
+                x: x + (Math.random() - 0.5) * 4,
+                y: y + (Math.random() - 0.5) * 4,
+                vx: -1 + (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                tamaño: 2 + Math.random() * 4,
+                vida: 20 + Math.random() * 200,
+                creacion: performance.now(),
+                color: color,
+                alpha: 0.8
+            });
+        }
+
+        function crearParticulaPropulsorEnemigo2(x, y) {
+            const colores = ['#ffcc00', '#ffdd33', '#ffee44', '#ffbb00'];
+            let color = colores[Math.floor(Math.random() * colores.length)];
+            particulasPropulsoresEnemigos.push({
+                x: x + (Math.random() - 0.5) * 4,
+                y: y + (Math.random() - 0.5) * 4,
+                vx: -2 + (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                tamaño: 3 + Math.random() * 5,
+                vida: 25 + Math.random() * 300,
+                creacion: performance.now(),
+                color: color,
+                alpha: 0.9
+            });
+        }
+
+        function crearParticulaPropulsorJefe(x, y) {
+            const colores = ['#ff2200', '#ff4400', '#ff6600', '#ff8800', '#ffaa00'];
+            let color = colores[Math.floor(Math.random() * colores.length)];
+            particulasPropulsoresEnemigos.push({
+                x: x + (Math.random() - 0.5) * 8,
+                y: y + (Math.random() - 0.5) * 8,
+                vx: -3 + (Math.random() - 0.5) * 1,
+                vy: (Math.random() - 0.5) * 1,
+                tamaño: 5 + Math.random() * 8,
+                vida: 30 + Math.random() * 200,
+                creacion: performance.now(),
+                color: color,
+                alpha: 1.0
+            });
+        }
+        
+        // ==========================================
+        // FUNCIONES DE LUCIÉRNAGAS (AMARILLAS)
+        // ==========================================
+        function crearLuciernaga(x, y) {
+            let angulo = Math.random() * Math.PI * 2;
+            let radio = 15 + Math.random() * 50;
+            particulasLuciernagas.push({
+                x: x + Math.cos(angulo) * radio,
+                y: y + Math.sin(angulo) * radio,
+                angulo: angulo,
+                radio: radio,
+                velocidad: 0.3 + Math.random() * 1.2,
+                tamaño: 1.5 + Math.random() * 10,
+                brillo: 0,
+                fase: Math.random() * Math.PI * 2,
+                velocidadParpadeo: 0.01 + Math.random() * 0.02,
+                color: '#ffcc00', // Color amarillo fijo
+                centroX: x,
+                centroY: y,
+                vida: 400 + Math.random() * 1500,
+                creacion: performance.now(),
+                activo: true,
+                tiempoVisible: 0,
+                tiempoInvisible: 0,
+                estado: 'apareciendo'
             });
         }
         
@@ -1281,32 +1396,28 @@
                     }
                 });
                 
-                // Detectar progreso de la música para cambiar fondos
                 musicaFondo.addEventListener('timeupdate', function() {
                     if (!musicaFondo.duration) return;
                     const progreso = musicaFondo.currentTime / musicaFondo.duration;
                     
-                    // 30% - Rojo oscuro
                     if (progreso >= 0.30 && !fondo30Activado) {
                         fondo30Activado = true;
-                        iniciarTransicionFondo({ r: 26, g: 10, b: 10 }); // #1a0a0a
+                        iniciarTransicionFondo({ r: 26, g: 10, b: 10 });
                         console.log('🎵 30% - Fondo rojo oscuro');
                     }
                     
-                    // 60% - Celeste oscuro, desactivar estrellas
                     if (progreso >= 0.60 && !fondo60Activado) {
                         fondo60Activado = true;
                         estrellasActivas = false;
                         estrellasSecundariasActivas = false;
-                        iniciarTransicionFondo({ r: 10, g: 26, b: 42 }); // #0a1a2a
+                        iniciarTransicionFondo({ r: 10, g: 26, b: 42 });
                         console.log('🎵 60% - Fondo celeste oscuro, estrellas desactivadas');
                     }
                     
-                    // 90% - Celeste claro, activar nubes
                     if (progreso >= 0.90 && !fondo90Activado) {
                         fondo90Activado = true;
                         nubesActivas = true;
-                        iniciarTransicionFondo({ r: 74, g: 138, b: 186 }); // #4a8aba
+                        iniciarTransicionFondo({ r: 74, g: 138, b: 186 });
                         console.log('🎵 90% - Fondo celeste claro, nubes activadas');
                     }
                 });
@@ -1468,12 +1579,10 @@
         }
         
         function iniciarJuego() {
-            // Solicitar pantalla completa
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(e => {});
             }
             
-            // Iniciar música con interacción del usuario
             if (musicaFondo && musicaActiva && !CFG.muteFondo) {
                 musicaFondo.play().catch(e => {
                     console.log('⏳ Esperando interacción para reproducir música');
@@ -1489,6 +1598,8 @@
             particulasImpacto = [];
             particulasCola = [];
             particulasColaEnemigo = [];
+            particulasPropulsoresEnemigos = [];
+            particulasLuciernagas = [];
             boss = null; bossCreated = false; bossEstado = "ESPERANDO"; ultimoPorcentajeVidaJefe = 100;
             naveTransformada = false; nave3Volteada = false;
             frameActualNave = { 1: 0, 2: 0, 3: 0 };
@@ -1510,6 +1621,9 @@
             player.x = WIDTH/2 - player.width/2; player.y = HEIGHT - player.height - 30; 
             player.speed = velocidadBase;
             imgActual = naveImg1Frame1;
+            
+            crearDecoracion();
+            
             document.getElementById('pantallaInicio').style.display = 'none';
             document.querySelector('.game-container').style.display = 'block';
             document.getElementById('btnMusica').style.display = 'block';
@@ -1542,6 +1656,8 @@
                 detenerTodasLasMusicas();
                 gameOver = false;
                 victory = false;
+                decoracionCreada = false;
+                decoraciones = [];
                 iniciarJuego();
             }
         }
@@ -1629,6 +1745,9 @@
             }
         }
         
+        // ==========================================
+        // SPAWN ENEMY CON FLIP
+        // ==========================================
         function spawnEnemy() { 
             if (!gameRunning || gameOver || boss) return; 
             let e = { 
@@ -1638,12 +1757,16 @@
                 vy: (Math.random() - 0.5) * 3, 
                 health: 3, 
                 lastShoot: 0,
-                yaDisparoAlNacer: false
+                yaDisparoAlNacer: false,
+                flipHorizontal: false
             };
             enemies.push(e);
             enemigoDisparar(e);
         }
         
+        // ==========================================
+        // SPAWN ENEMY2 CON FLIP
+        // ==========================================
         function spawnEnemy2() { 
             if (!gameRunning || gameOver || boss) return; 
             let e = { 
@@ -1653,7 +1776,8 @@
                 vy: (Math.random() - 0.5) * 2.8, 
                 health: 3, 
                 lastShoot: 0,
-                yaDisparoAlNacer: false
+                yaDisparoAlNacer: false,
+                flipHorizontal: false
             };
             enemy2List.push(e);
             enemigoDisparar(e);
@@ -1715,8 +1839,10 @@
             else { ctx.drawImage(imgObj.img, x, y, w, h); }
         }
         
+        // ==========================================
+        // FUNCIÓN DRAW COMPLETA CON PROPULSORES Y LUCIÉRNAGAS
+        // ==========================================
         function draw() {
-            // Calcular color de fondo con transición
             let color1, color2;
             
             if (fondoTransicionActiva) {
@@ -1753,7 +1879,44 @@
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, WIDTH, HEIGHT);
             
-            // Estrellas principales (solo si están activas)
+            // DECORACIÓN
+            for (let d of decoraciones) {
+                if (decoracionImg.complete && decoracionImg.src) {
+                    ctx.drawImage(decoracionImg, d.x, d.y, d.w, d.h);
+                } else {
+                    ctx.fillStyle = 'rgba(255, 200, 100, 0.5)';
+                    ctx.fillRect(d.x, d.y, d.w, d.h);
+                    ctx.strokeStyle = 'rgba(255, 200, 100, 0.8)';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(d.x, d.y, d.w, d.h);
+                }
+            }
+            
+            // ==========================================
+            // DIBUJAR LUCIÉRNAGAS (AMARILLAS)
+            // ==========================================
+            for (let l of particulasLuciernagas) {
+                if (l.brillo <= 0) continue;
+                
+                let alpha = l.brillo * 0.9;
+                let size = l.tamaño * (0.5 + 0.5 * l.brillo);
+                
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = l.color;
+                ctx.fillRect(l.x - size/2, l.y - size/2, size, size);
+                
+                // Punto central más pequeño y brillante
+                if (l.brillo > 0.5) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.globalAlpha = alpha * 0.3;
+                    let innerSize = size * 0.3;
+                    ctx.fillRect(l.x - innerSize/2, l.y - innerSize/2, innerSize, innerSize);
+                }
+                
+                ctx.globalAlpha = 1;
+            }
+            
+            // ESTRELLAS
             if (estrellasActivas) {
                 for (let s of stars) { 
                     ctx.fillStyle = `rgba(255,255,255,${s.brightness || CFG.estrellasBrillo})`; 
@@ -1761,7 +1924,6 @@
                 }
             }
             
-            // Estrellas secundarias (para rellenar espacio)
             if (estrellasSecundariasActivas) {
                 for (let s of estrellasSecundarias) { 
                     ctx.fillStyle = `rgba(200,200,255,${(s.brightness || CFG.estrellasBrillo) * 0.6})`; 
@@ -1769,29 +1931,88 @@
                 }
             }
             
-            // Nubes (cuando están activas)
+            // NUBES CON IMAGEN
             if (nubesActivas) {
                 for (let n of nubes) {
-                    ctx.fillStyle = `rgba(255,255,255,${n.opacidad || 0.3})`;
-                    ctx.beginPath();
-                    ctx.ellipse(n.x, n.y, n.w, n.h, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.ellipse(n.x - n.w * 0.4, n.y + n.h * 0.1, n.w * 0.6, n.h * 0.7, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.ellipse(n.x + n.w * 0.4, n.y + n.h * 0.1, n.w * 0.6, n.h * 0.7, 0, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.beginPath();
-                    ctx.ellipse(n.x, n.y - n.h * 0.3, n.w * 0.5, n.h * 0.6, 0, 0, Math.PI * 2);
-                    ctx.fill();
+                    if (nubeImg.complete && nubeImg.src) {
+                        ctx.globalAlpha = n.opacidad || 0.6;
+                        ctx.drawImage(nubeImg, n.x - n.w/2, n.y - n.h/2, n.w, n.h);
+                        ctx.globalAlpha = 1;
+                    } else {
+                        ctx.fillStyle = `rgba(255,255,255,${n.opacidad || 0.3})`;
+                        ctx.beginPath();
+                        ctx.ellipse(n.x, n.y, n.w, n.h, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.ellipse(n.x - n.w * 0.4, n.y + n.h * 0.1, n.w * 0.6, n.h * 0.7, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.ellipse(n.x + n.w * 0.4, n.y + n.h * 0.1, n.w * 0.6, n.h * 0.7, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.beginPath();
+                        ctx.ellipse(n.x, n.y - n.h * 0.3, n.w * 0.5, n.h * 0.6, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
                 }
             }
             
-            for (let e of enemies) { if (enemigoImg.complete) ctx.drawImage(enemigoImg, e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); else { ctx.fillStyle='#ff4444'; ctx.fillRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO); } }
-            for (let e of enemy2List) { if (enemigo1Img.complete) ctx.drawImage(enemigo1Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); else { ctx.fillStyle='#ff8844'; ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO); } }
+            // ==========================================
+            // DIBUJAR PARTÍCULAS DE PROPULSORES DE ENEMIGOS
+            // ==========================================
+            for (let p of particulasPropulsoresEnemigos) {
+                if (p.alpha <= 0) continue;
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 15;
+                ctx.fillRect(p.x - p.tamaño/2, p.y - p.tamaño/2, p.tamaño, p.tamaño);
+                ctx.shadowBlur = 0;
+            }
+            ctx.globalAlpha = 1;
+            
+            // ==========================================
+            // ENEMIGOS CON FLIP HORIZONTAL
+            // ==========================================
+            for (let e of enemies) {
+                if (enemigoImg.complete) {
+                    if (e.flipHorizontal) {
+                        ctx.save();
+                        ctx.translate(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(enemigoImg, -ENEMIGO_ANCHO/2, -ENEMIGO_ALTO/2, ENEMIGO_ANCHO, ENEMIGO_ALTO);
+                        ctx.restore();
+                    } else {
+                        ctx.drawImage(enemigoImg, e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
+                    }
+                } else {
+                    ctx.fillStyle = '#ff4444';
+                    ctx.fillRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
+                }
+            }
+            
+            // ==========================================
+            // ENEMY2 CON FLIP HORIZONTAL
+            // ==========================================
+            for (let e of enemy2List) {
+                if (enemigo1Img.complete) {
+                    if (e.flipHorizontal) {
+                        ctx.save();
+                        ctx.translate(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2);
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(enemigo1Img, -ENEMIGO2_ANCHO/2, -ENEMIGO2_ALTO/2, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
+                        ctx.restore();
+                    } else {
+                        ctx.drawImage(enemigo1Img, e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
+                    }
+                } else {
+                    ctx.fillStyle = '#ff8844';
+                    ctx.fillRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
+                }
+            }
+            
             if (boss && jefe1Img.complete) ctx.drawImage(jefe1Img, boss.x, boss.y, JEFE_ANCHO, JEFE_ALTO);
             
+            // RAYO LÁSER DEL JEFE
             if (rayoLaser && rayoLaser.activo) {
                 let progreso = (performance.now() - rayoLaser.inicio) / rayoLaser.duracion;
                 if (progreso < 1) {
@@ -1840,6 +2061,7 @@
                 }
             }
             
+            // PARTÍCULAS DE COLA
             for (let p of particulasCola) {
                 let progreso = (performance.now() - p.creacion) / p.vida;
                 let alpha = 1 - progreso;
@@ -1872,6 +2094,7 @@
                 ctx.fillRect(p.x - size/2, p.y - size/2, size, size);
             }
             
+            // PROYECTILES
             for (let p of projectiles) { 
                 if (p.esRayoNave3) {
                     ctx.shadowColor = '#00ccff';
@@ -1944,6 +2167,7 @@
                 ctx.textAlign = 'left';
             }
             
+            // NAVE DEL JUGADOR
             if (transformacionFlashActiva && CFG.transformacionZActiva) {
                 let w = CFG.transformacionZImagenW || 135;
                 let h = CFG.transformacionZImagenH || 130;
@@ -1987,6 +2211,7 @@
                 }
             }
             
+            // HUD
             let barraX = WIDTH/2 - 120;
             let barraY = 12;
             let barraW = 240;
@@ -2058,6 +2283,9 @@
             }
         }
         
+        // ==========================================
+        // UPDATE GAME CON PROPULSORES, LUCIÉRNAGAS Y FLIP
+        // ==========================================
         function updateGame(timestamp) {
             if (!gameRunning || gameOver || victory) return;
             let posXAnterior = player.x;
@@ -2130,35 +2358,27 @@
             if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemySpawn > 1500) { lastEnemySpawn = timestamp; spawnEnemy(); }
             if ((!boss || bossEstado === "ENTRANDO") && timestamp - lastEnemy2Spawn > 1800) { lastEnemy2Spawn = timestamp; spawnEnemy2(); }
             
-            // ESTRELLAS PRINCIPALES EN DIAGONAL: derecha-abajo → izquierda-arriba
-            // ESTRELLAS EN DIAGONAL: desde la parte inferior y lado derecho
-if (estrellasActivas && timestamp - lastStarSpawn > 100) { 
-    lastStarSpawn = timestamp; 
-    
-    // Decidir si la estrella nace desde la derecha o desde abajo
-    let desdeDerecha = Math.random() > 0.5;
-    
-    let x, y;
-    if (desdeDerecha) {
-        // Nace desde el lado derecho (en toda la altura)
-        x = WIDTH;
-        y = Math.random() * HEIGHT;
-    } else {
-        // Nace desde la parte inferior (en todo el ancho)
-        x = Math.random() * WIDTH;
-        y = HEIGHT;
-    }
-    
-    stars.push({ 
-        x: x, 
-        y: y, 
-        vx: -5,
-        vy: -2,
-        brightness: Math.random() * 0.5 + CFG.estrellasBrillo 
-    }); 
-}
+            // ESTRELLAS
+            if (estrellasActivas && timestamp - lastStarSpawn > 100) { 
+                lastStarSpawn = timestamp; 
+                let desdeDerecha = Math.random() > 0.5;
+                let x, y;
+                if (desdeDerecha) {
+                    x = WIDTH;
+                    y = Math.random() * HEIGHT;
+                } else {
+                    x = Math.random() * WIDTH;
+                    y = HEIGHT;
+                }
+                stars.push({ 
+                    x: x, 
+                    y: y, 
+                    vx: -5,
+                    vy: -2,
+                    brightness: Math.random() * 0.5 + CFG.estrellasBrillo 
+                }); 
+            }
             
-            // ESTRELLAS SECUNDARIAS (para rellenar espacio) - más pequeñas y con offset
             if (estrellasSecundariasActivas && timestamp - lastStarSpawn > 50) { 
                 if (Math.random() > 0.3) {
                     estrellasSecundarias.push({ 
@@ -2171,38 +2391,130 @@ if (estrellasActivas && timestamp - lastStarSpawn > 100) {
                 }
             }
             
-            // NUBES EN DIAGONAL (cuando están activas)
-            // NUBES EN DIAGONAL: desde la parte inferior y lado derecho
-if (nubesActivas && timestamp - lastStarSpawn > 200) { 
-    lastStarSpawn = timestamp; 
-    const size = 40 + Math.random() * 60;
-    
-    // Decidir si la nube nace desde la derecha o desde abajo
-    let desdeDerecha = Math.random() > 0.5;
-    
-    let x, y;
-    if (desdeDerecha) {
-        // Nace desde el lado derecho (en toda la altura)
-        x = WIDTH + size;
-        y = Math.random() * HEIGHT;
-    } else {
-        // Nace desde la parte inferior (en todo el ancho)
-        x = Math.random() * WIDTH;
-        y = HEIGHT + size;
-    }
-    
-    nubes.push({ 
-        x: x, 
-        y: y, 
-        w: size,
-        h: size * 0.5,
-        vx: -2 + Math.random() * -1,
-        vy: -1 + Math.random() * -0.5,
-        opacidad: 0.15 + Math.random() * 0.25
-    }); 
-}
+            // NUBES
+            if (nubesActivas && timestamp - lastStarSpawn > 200) { 
+                lastStarSpawn = timestamp; 
+                const size = 40 + Math.random() * 60;
+                let desdeDerecha = Math.random() > 0.5;
+                let x, y;
+                if (desdeDerecha) {
+                    x = WIDTH + size;
+                    y = Math.random() * HEIGHT;
+                } else {
+                    x = Math.random() * WIDTH;
+                    y = HEIGHT + size;
+                }
+                nubes.push({ 
+                    x: x, 
+                    y: y, 
+                    w: size,
+                    h: size * 0.5,
+                    vx: -2 + Math.random() * -1,
+                    vy: -1 + Math.random() * -0.5,
+                    opacidad: 0.15 + Math.random() * 0.25
+                }); 
+            }
+            
+            // MOVIMIENTO DE LA DECORACIÓN
+            for (let i = 0; i < decoraciones.length; i++) {
+                decoraciones[i].x += decoraciones[i].vx || DECORACION_VELOCIDAD;
+                decoraciones[i].y += decoraciones[i].vy || DECORACION_VELOCIDAD_Y;
+                if (decoraciones[i].x > WIDTH + 50 || decoraciones[i].y > HEIGHT + 50) {
+                    decoraciones.splice(i, 1);
+                    i--;
+                }
+            }
             
             let ahora = performance.now();
+            
+            // ==========================================
+            // ACTUALIZACIÓN DE LUCIÉRNAGAS
+            // ==========================================
+            for (let i = 0; i < particulasLuciernagas.length; i++) {
+                let l = particulasLuciernagas[i];
+                
+                // Movimiento orbital lento
+                l.angulo += l.velocidad * 0.015;
+                l.x = l.centroX + Math.cos(l.angulo) * l.radio;
+                l.y = l.centroY + Math.sin(l.angulo) * l.radio;
+                
+                // Cambio de radio (movimiento de respiración)
+                l.radio += Math.sin(l.fase) * 0.05;
+                l.fase += l.velocidadParpadeo;
+                
+                // Control de aparición y desaparición
+                if (l.estado === 'apareciendo') {
+                    l.brillo += 0.02;
+                    if (l.brillo >= 1) {
+                        l.brillo = 1;
+                        l.estado = 'visible';
+                        l.tiempoVisible = 0;
+                    }
+                } else if (l.estado === 'visible') {
+                    l.tiempoVisible++;
+                    l.brillo = 0.7 + 0.3 * Math.sin(l.fase * 3);
+                    if (l.tiempoVisible > 60 + Math.random() * 120) {
+                        l.estado = 'desapareciendo';
+                    }
+                } else if (l.estado === 'desapareciendo') {
+                    l.brillo -= 0.02;
+                    if (l.brillo <= 0) {
+                        l.brillo = 0;
+                        l.estado = 'invisible';
+                        l.tiempoInvisible = 0;
+                    }
+                } else if (l.estado === 'invisible') {
+                    l.tiempoInvisible++;
+                    if (l.tiempoInvisible > 30 + Math.random() * 90) {
+                        l.estado = 'apareciendo';
+                        let anguloNuevo = Math.random() * Math.PI * 2;
+                        let radioNuevo = 15 + Math.random() * 50;
+                        l.angulo = anguloNuevo;
+                        l.radio = radioNuevo;
+                    }
+                }
+                
+                // Verificar si la decoración aún existe
+                let decoracionExiste = false;
+                for (let d of decoraciones) {
+                    if (l.centroX >= d.x && l.centroX <= d.x + d.w &&
+                        l.centroY >= d.y && l.centroY <= d.y + d.h) {
+                        decoracionExiste = true;
+                        break;
+                    }
+                }
+                
+                if (!decoracionExiste || performance.now() - l.creacion > l.vida) {
+                    particulasLuciernagas.splice(i, 1);
+                    i--;
+                }
+            }
+            
+            // Generar nuevas luciérnagas si hay decoraciones y hay pocas
+            if (decoraciones.length > 0 && particulasLuciernagas.length < decoraciones.length * 4) {
+                if (Math.random() > 0.97) {
+                    let d = decoraciones[Math.floor(Math.random() * decoraciones.length)];
+                    let offsetX = (Math.random() - 0.5) * d.w * 0.6;
+                    let offsetY = (Math.random() - 0.5) * d.h * 0.6;
+                    crearLuciernaga(d.x + d.w/2 + offsetX, d.y + d.h/2 + offsetY);
+                }
+            }
+            
+            // ==========================================
+            // ACTUALIZACIÓN DE PARTÍCULAS DE PROPULSORES DE ENEMIGOS
+            // ==========================================
+            for (let i = 0; i < particulasPropulsoresEnemigos.length; i++) {
+                let p = particulasPropulsoresEnemigos[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vx *= 0.98;
+                p.vy *= 0.98;
+                p.alpha = 1 - (performance.now() - p.creacion) / p.vida;
+                if (performance.now() - p.creacion >= p.vida) {
+                    particulasPropulsoresEnemigos.splice(i, 1);
+                    i--;
+                }
+            }
             
             contadorFrameCola++;
             for (let p of projectiles) {
@@ -2359,23 +2671,57 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
                 }
             }
             
+            // ==========================================
+            // ENEMIES CON FLIP Y PROPULSORES
+            // ==========================================
             for (let i = 0; i < enemies.length; i++) {
-                let e = enemies[i]; e.x += e.vx; e.y += e.vy;
-                if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
+                let e = enemies[i];
+                
+                // GENERAR PARTÍCULAS DE PROPULSORES (ENEMIES - NARANJA)
+                if (Math.random() > 0.3) {
+                    let propX = e.x - -97;
+                    let propY = e.y + ENEMIGO_ALTO / 3 + (Math.random() - 0.5) * 20;
+                    crearParticulaPropulsorEnemigo(propX, propY, '#ffffff');
+                    if (Math.random() > 0.5) {
+                        let propY2 = e.y + ENEMIGO_ALTO / 2 + (Math.random() - 0.5) * 20;
+                        crearParticulaPropulsorEnemigo(propX, propY2, '#ff8800');
+                    }
+                }
+                
+                e.x += e.vx;
+                e.y += e.vy;
+                
+                // FLIP AL CHOCAR CON BORDE IZQUIERDO
+                if (e.x <= 0) {
+                    e.flipHorizontal = true;
+                    e.vx = Math.abs(e.vx);
+                }
+                if (e.x + ENEMIGO_ANCHO >= WIDTH) {
+                    e.flipHorizontal = false;
+                    e.vx = -Math.abs(e.vx);
+                }
+                
+                if (e.y < 20) e.y = 20;
+                if (e.y > HEIGHT - ENEMIGO_ALTO - 20) e.y = HEIGHT - ENEMIGO_ALTO - 20;
+                
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO_ANCHO, ENEMIGO_ALTO);
-                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
-                    crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
-                    projectiles.splice(j, 1); 
-                    e.health--; 
-                    if (e.health <= 0) { 
-                        createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
-                        crearEscombros(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
-                        crearAstronauta(e.x + ENEMIGO_ANCHO/2 - 15, e.y + ENEMIGO_ALTO/2 - 17);
-                        enemies.splice(i, 1); 
-                        score++; 
-                        i--; 
+                for (let j = 0; j < projectiles.length; j++) { 
+                    let p = projectiles[j]; 
+                    if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
+                        crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
+                        projectiles.splice(j, 1); 
+                        e.health--; 
+                        if (e.health <= 0) { 
+                            createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
+                            crearEscombros(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
+                            crearAstronauta(e.x + ENEMIGO_ANCHO/2 - 15, e.y + ENEMIGO_ALTO/2 - 17);
+                            enemies.splice(i, 1); 
+                            score++; 
+                            i--; 
+                        } 
+                    break; 
                     } 
-                break; } }
+                }
                 if (!invulnerable && checkCollision(playerCol, enemyCol)) { 
                     createExplosion(e.x + ENEMIGO_ANCHO/2, e.y + ENEMIGO_ALTO/2); 
                     enemies.splice(i, 1); 
@@ -2390,24 +2736,101 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
                     } 
                 }
             }
+            
+            // ==========================================
+            // ENEMY2 CON FLIP Y PROPULSORES AMARILLOS
+            // ==========================================
             for (let i = 0; i < enemy2List.length; i++) {
-                let e = enemy2List[i]; e.x += e.vx; e.y += e.vy;
-                if (e.y < 20) e.y = 20; if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
+                let e = enemy2List[i];
+                
+                // GENERAR PARTÍCULAS DE PROPULSORES (ENEMY2 - AMARILLO)
+                if (Math.random() > 0.3) {
+                    let propX = e.x - -80;
+                    let propY = e.y + ENEMIGO2_ALTO / 3 + (Math.random() - 0.5) * 20;
+                    crearParticulaPropulsorEnemigo2(propX, propY);
+                    if (Math.random() > 0.4) {
+                        let propY2 = e.y + ENEMIGO2_ALTO / 2 + (Math.random() - 0.5) * 20;
+                        crearParticulaPropulsorEnemigo2(propX, propY2);
+                    }
+                }
+                
+                e.x += e.vx;
+                e.y += e.vy;
+                
+                // FLIP AL CHOCAR CON BORDE IZQUIERDO
+                if (e.x <= 0) {
+                    e.flipHorizontal = true;
+                    e.vx = Math.abs(e.vx);
+                }
+                if (e.x + ENEMIGO2_ANCHO >= WIDTH) {
+                    e.flipHorizontal = false;
+                    e.vx = -Math.abs(e.vx);
+                }
+                
+                if (e.y < 20) e.y = 20;
+                if (e.y > HEIGHT - ENEMIGO2_ALTO - 20) e.y = HEIGHT - ENEMIGO2_ALTO - 20;
+                
                 let enemyCol = getCollisionRect(e.x, e.y, ENEMIGO2_ANCHO, ENEMIGO2_ALTO);
-                for (let j = 0; j < projectiles.length; j++) { let p = projectiles[j]; if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
-                    crearParticulasImpacto(p.x + p.w/2, p.y + p.h/2);
-                    projectiles.splice(j, 1); 
-                    e.health--; 
-                    if (e.health <= 0) { 
-                        createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
-                        crearEscombros(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2);
-                        crearAstronauta(e.x + ENEMIGO2_ANCHO/2 - 15, e.y + ENEMIGO2_ALTO/2 - 17);
-                        enemy2List.splice(i, 1); 
-                        score++; 
-                        i--; 
+                for (let j = 0; j < projectiles.length; j++) { 
+                    let p = projectiles[j]; 
+                    if (checkCollision({x:p.x, y:p.y, width:p.w, height:p.h}, enemyCol)) { 
+                        // PARTÍCULAS AMARILLAS PARA ENEMY2
+                        for (let k = 0; k < 8; k++) {
+                            let ang = Math.random() * Math.PI * 2;
+                            let vel = 2 + Math.random() * 5;
+                            particulasImpacto.push({
+                                x: p.x + p.w/2,
+                                y: p.y + p.h/2,
+                                vx: Math.cos(ang) * vel,
+                                vy: Math.sin(ang) * vel,
+                                tamaño: 4 + Math.random() * 6,
+                                vida: 120,
+                                creacion: performance.now(),
+                                color: '#ffcc00'
+                            });
+                        }
+                        projectiles.splice(j, 1); 
+                        e.health--; 
+                        if (e.health <= 0) { 
+                            for (let k = 0; k < 15; k++) {
+                                let ang = Math.random() * Math.PI * 2;
+                                let vel = 3 + Math.random() * 6;
+                                particulasImpacto.push({
+                                    x: e.x + ENEMIGO2_ANCHO/2,
+                                    y: e.y + ENEMIGO2_ALTO/2,
+                                    vx: Math.cos(ang) * vel,
+                                    vy: Math.sin(ang) * vel,
+                                    tamaño: 4 + Math.random() * 6,
+                                    vida: 120,
+                                    creacion: performance.now(),
+                                    color: '#ffcc00'
+                                });
+                            }
+                            createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
+                            crearEscombros(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2);
+                            crearAstronauta(e.x + ENEMIGO2_ANCHO/2 - 15, e.y + ENEMIGO2_ALTO/2 - 17);
+                            enemy2List.splice(i, 1); 
+                            score++; 
+                            i--; 
+                        } 
+                    break; 
                     } 
-                break; } }
+                }
                 if (!invulnerable && checkCollision(playerCol, enemyCol)) { 
+                    for (let k = 0; k < 20; k++) {
+                        let ang = Math.random() * Math.PI * 2;
+                        let vel = 3 + Math.random() * 6;
+                        particulasImpacto.push({
+                            x: e.x + ENEMIGO2_ANCHO/2,
+                            y: e.y + ENEMIGO2_ALTO/2,
+                            vx: Math.cos(ang) * vel,
+                            vy: Math.sin(ang) * vel,
+                            tamaño: 4 + Math.random() * 6,
+                            vida: 120,
+                            creacion: performance.now(),
+                            color: '#ffcc00'
+                        });
+                    }
                     createExplosion(e.x + ENEMIGO2_ANCHO/2, e.y + ENEMIGO2_ALTO/2); 
                     enemy2List.splice(i, 1); 
                     lives--; 
@@ -2422,8 +2845,28 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
                 }
             }
             
+            // ==========================================
+            // BOSS CON PROPULSORES
+            // ==========================================
             if (boss) {
-                boss.x += boss.vx; boss.y += boss.vy;
+                // GENERAR PARTÍCULAS DE PROPULSORES DEL JEFE
+                if (Math.random() > 0.2) {
+                    let propX = boss.x - -80;
+                    let propY = boss.y + JEFE_ALTO / 3 + (Math.random() - 0.5) * 40;
+                    crearParticulaPropulsorJefe(propX, propY);
+                    if (Math.random() > 0.5) {
+                        let propY2 = boss.y + JEFE_ALTO / 2 + (Math.random() - 0.5) * 40;
+                        crearParticulaPropulsorJefe(propX, propY2);
+                    }
+                    if (Math.random() > 0.7) {
+                        let propY3 = boss.y + JEFE_ALTO / 2 + (Math.random() - 0.5) * 40;
+                        crearParticulaPropulsorJefe(propX - 5, propY3);
+                    }
+                }
+                
+                boss.x += boss.vx; 
+                boss.y += boss.vy;
+                
                 if (bossEstado === "ENTRANDO" && boss.x <= WIDTH - JEFE_ANCHO - 30) { 
                     bossEstado = "PATRULLANDO"; 
                     boss.vx = (Math.random() - 0.5) * 7; 
@@ -2562,7 +3005,6 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
             for (let i = 0; i < explosions.length; i++) { explosions[i].frame++; if (explosions[i].frame >= 10) { explosions.splice(i, 1); i--; } }
             for (let i = 0; i < escombros.length; i++) { let e = escombros[i]; e.x += e.vx; e.y += e.vy; if (ahora - e.creacion >= CFG.particulasDuracion) { escombros.splice(i, 1); i--; } }
             
-            // MOVIMIENTO DE ESTRELLAS PRINCIPALES EN DIAGONAL
             if (estrellasActivas) { 
                 for (let i = 0; i < stars.length; i++) { 
                     stars[i].x += stars[i].vx || -5; 
@@ -2574,7 +3016,6 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
                 } 
             }
             
-            // MOVIMIENTO DE ESTRELLAS SECUNDARIAS
             if (estrellasSecundariasActivas) {
                 for (let i = 0; i < estrellasSecundarias.length; i++) {
                     estrellasSecundarias[i].x += estrellasSecundarias[i].vx || -4;
@@ -2586,7 +3027,6 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
                 }
             }
             
-            // MOVIMIENTO DE NUBES EN DIAGONAL
             if (nubesActivas) {
                 for (let i = 0; i < nubes.length; i++) {
                     nubes[i].x += nubes[i].vx || -2;
@@ -2638,7 +3078,6 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
             
             function iniciarJuegoDesdeTouch() {
                 if (!gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') {
-                    // Iniciar música con interacción
                     if (musicaFondo && musicaActiva && !CFG.muteFondo) {
                         musicaFondo.play().catch(e => {});
                     }
@@ -2673,7 +3112,6 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
                 e.preventDefault();
                 teclaC.style.transform = 'scale(0.92)';
                 teclaC.style.background = '#444';
-                // Iniciar música con interacción
                 if (musicaFondo && musicaActiva && !CFG.muteFondo) {
                     musicaFondo.play().catch(e => {});
                 }
@@ -2691,7 +3129,6 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
             teclaC.addEventListener('mousedown', () => {
                 teclaC.style.transform = 'scale(0.92)';
                 teclaC.style.background = '#444';
-                // Iniciar música con interacción
                 if (musicaFondo && musicaActiva && !CFG.muteFondo) {
                     musicaFondo.play().catch(e => {});
                 }
@@ -2781,7 +3218,6 @@ if (nubesActivas && timestamp - lastStarSpawn > 200) {
         document.getElementById('btnMusica').addEventListener('click', toggleMusica);
         document.addEventListener('keydown', (e) => {
             if (e.code === 'KeyC' && !gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') {
-                // Iniciar música con interacción
                 if (musicaFondo && musicaActiva && !CFG.muteFondo) {
                     musicaFondo.play().catch(e => {});
                 }
