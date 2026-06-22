@@ -17,6 +17,93 @@
             top: 0;
             left: 0;
         }
+        /* ==========================================
+           PANTALLA DE CARGA
+           ========================================== */
+        #pantallaCarga {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000428, #004e92);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.8s ease;
+        }
+        #pantallaCarga .logo-carga {
+            font-size: 48px;
+            color: #ffcc00;
+            text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300;
+            animation: tituloBrillo 1.5s ease-in-out infinite;
+            letter-spacing: 4px;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        @keyframes tituloBrillo { 
+            0%,100% { text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300; } 
+            50% { text-shadow: 0 0 40px #ffaa00, 0 0 80px #ff6600; } 
+        }
+        #pantallaCarga .barra-contenedor {
+            width: 80%;
+            max-width: 500px;
+            height: 24px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.25);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255,204,0,0.1);
+        }
+        #pantallaCarga .barra-progreso {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff6600, #ffcc00, #ff6600);
+            background-size: 200% 100%;
+            animation: gradienteCarga 1.5s linear infinite;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        @keyframes gradienteCarga {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+        #pantallaCarga .texto-carga {
+            color: #88ccff;
+            font-size: 18px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+        }
+        #pantallaCarga .porcentaje-carga {
+            color: #ffcc00;
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 10px rgba(255,204,0,0.3);
+        }
+        #pantallaCarga .detalle-carga {
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        #pantallaCarga.oculto {
+            opacity: 0;
+            pointer-events: none;
+        }
+        @media (max-width: 600px) {
+            #pantallaCarga .logo-carga { font-size: 28px; }
+            #pantallaCarga .barra-contenedor { height: 18px; }
+            #pantallaCarga .texto-carga { font-size: 14px; }
+            #pantallaCarga .porcentaje-carga { font-size: 22px; }
+        }
+        
         .game-container { 
             position: relative; 
             width: 100%; 
@@ -34,13 +121,12 @@
             background: #0a0a2a;
             touch-action: none;
         }
-        .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ffcc00; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; z-index: 200; text-align: center; font-size: 14px; }
+        .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ffcc00; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; z-index: 200; text-align: center; font-size: 14px; display: none; }
         .mensaje-jefe1 { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); color: #ff0000; background: rgba(0,0,0,0.9); padding: 20px 40px; border-radius: 10px; font-family: monospace; font-size: 28px; font-weight: bold; z-index: 300; text-align: center; white-space: nowrap; pointer-events: none; border: 3px solid #ff0000; box-shadow: 0 0 20px rgba(255,0,0,0.5); animation: alarmaParpadeo 0.3s ease-in-out infinite; }
         @keyframes alarmaParpadeo { 0% { opacity: 1; transform: translate(-50%, -50%) scale(1); background: rgba(0,0,0,0.9); border-color: #ff0000; } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); background: rgba(255,0,0,0.8); border-color: #ffffff; color: #ffff00; } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); background: rgba(0,0,0,0.9); border-color: #ff0000; } }
         .boton-musica { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #0f0; border: 1px solid #0f0; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer; z-index: 100; display: none; }
-        .pantalla-inicio { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #000428, #004e92); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; font-family: 'Courier New', monospace; transition: opacity 0.5s ease; }
+        .pantalla-inicio { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #000428, #004e92); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; font-family: 'Courier New', monospace; transition: opacity 0.5s ease; }
         .pantalla-inicio h1 { font-size: 64px; color: #ffcc00; text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300; animation: tituloBrillo 1.5s ease-in-out infinite; letter-spacing: 8px; margin-bottom: 30px; }
-        @keyframes tituloBrillo { 0%,100% { text-shadow: 0 0 20px #ff6600, 0 0 40px #ff3300; } 50% { text-shadow: 0 0 40px #ffaa00, 0 0 80px #ff6600; } }
         .pantalla-inicio .tecla { display: inline-block; background: #222; border: 2px solid #ffcc00; border-radius: 10px; padding: 10px 30px; font-size: 24px; font-weight: bold; color: #ffcc00; margin: 10px; box-shadow: 0 0 15px rgba(255,204,0,0.5); cursor: pointer; touch-action: manipulation; }
         .pantalla-inicio .tecla:active { transform: scale(0.92); background: #444; }
         @media (max-width: 1100px) { .pantalla-inicio h1 { font-size: 36px; } .pantalla-inicio .tecla { font-size: 18px; padding: 8px 20px; } }
@@ -115,6 +201,62 @@
             white-space: nowrap;
         }
         
+        /* BOTÓN DE REINICIO - IZQUIERDA */
+        .left-buttons {
+            position: absolute;
+            bottom: 220px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+        .left-row { 
+            display: flex; 
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-restart {
+            width: 89px;
+            height: 89px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,100,100,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            font-weight: bold;
+            color: #fff;
+            touch-action: none;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: all 0.1s;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            background: rgba(255,50,50,0.15);
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        .btn-restart.active {
+            border-color: #ff4444;
+            background: rgba(255,50,50,0.4);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .btn-restart:active, .btn-restart.pressed {
+            transform: scale(0.88);
+            border-color: #ffcc00;
+            box-shadow: 0 0 25px rgba(255,204,0,0.3);
+            background: rgba(255,50,50,0.7);
+        }
+        .btn-restart-label { 
+            font-size: 10px; 
+            margin-top: 2px; 
+            color: rgba(255,255,255,0.5); 
+            text-align: center; 
+            letter-spacing: 0.5px; 
+        }
+        
         .right-buttons {
             position: absolute;
             bottom: 30px;
@@ -169,6 +311,8 @@
             .joystick-base { width: 60px; height: 60px; }
             .joystick-thumb { width: 46px; height: 46px; }
             .action-btn { width: 74px; height: 74px; font-size: 29px; }
+            .btn-restart { width: 74px; height: 74px; font-size: 29px; }
+            .left-buttons { bottom: 190px; left: 12px; }
             .right-buttons { right: 8px; bottom: 20px; gap: 10px; }
             .right-row { gap: 10px; }
         }
@@ -178,6 +322,8 @@
             .joystick-base { width: 48px; height: 48px; }
             .joystick-thumb { width: 38px; height: 38px; }
             .action-btn { width: 64px; height: 64px; font-size: 23px; }
+            .btn-restart { width: 64px; height: 64px; font-size: 23px; }
+            .left-buttons { bottom: 160px; left: 8px; }
             .right-buttons { right: 5px; bottom: 15px; gap: 8px; }
             .right-row { gap: 8px; }
         }
@@ -221,6 +367,19 @@
     </style>
 </head>
 <body>
+    <!-- ==========================================
+    PANTALLA DE CARGA
+    ========================================== -->
+    <div id="pantallaCarga">
+        <div class="logo-carga">⚡ ROBOTECH ALPHA ⚡</div>
+        <div class="barra-contenedor">
+            <div class="barra-progreso" id="barraProgreso"></div>
+        </div>
+        <div class="porcentaje-carga" id="porcentajeCarga">0%</div>
+        <div class="texto-carga" id="textoCarga">Inicializando...</div>
+        <div class="detalle-carga" id="detalleCarga">Cargando recursos</div>
+    </div>
+
     <button id="btnMusica" class="boton-musica">🔊 MUSICA ON</button>
     <div id="loading" class="loading">Cargando recursos... 🚀</div>
     <div id="pantallaInicio" class="pantalla-inicio">
@@ -245,6 +404,16 @@
             <span class="joystick-label">MOVIMIENTO</span>
         </div>
 
+        <!-- BOTÓN DE REINICIO - IZQUIERDA -->
+        <div class="left-buttons">
+            <div class="left-row">
+                <div class="touch-btn-wrapper">
+                    <div class="btn-restart" id="btnRestart">⟳</div>
+                    <span class="btn-restart-label">REINICIAR</span>
+                </div>
+            </div>
+        </div>
+
         <div class="right-buttons">
             <div class="right-row">
                 <div class="touch-btn-wrapper">
@@ -264,6 +433,42 @@
     </div>
 
     <script>
+        // ==========================================
+        // SISTEMA DE CARGA CON BARRA DE PROGRESO
+        // ==========================================
+        const elementosCarga = {
+            barra: document.getElementById('barraProgreso'),
+            porcentaje: document.getElementById('porcentajeCarga'),
+            texto: document.getElementById('textoCarga'),
+            detalle: document.getElementById('detalleCarga'),
+            pantalla: document.getElementById('pantallaCarga')
+        };
+
+        let cargaActual = 0;
+        let cargaTotal = 0;
+        let cargaCompletada = false;
+
+        function actualizarCarga(progreso, mensaje, detalle) {
+            const porcentaje = Math.min(Math.round(progreso * 100), 100);
+            elementosCarga.barra.style.width = porcentaje + '%';
+            elementosCarga.porcentaje.textContent = porcentaje + '%';
+            if (mensaje) elementosCarga.texto.textContent = mensaje;
+            if (detalle) elementosCarga.detalle.textContent = detalle;
+        }
+
+        function finalizarCarga() {
+            if (cargaCompletada) return;
+            cargaCompletada = true;
+            actualizarCarga(1, '¡Listo!', 'Presiona INICIA para jugar');
+            setTimeout(() => {
+                elementosCarga.pantalla.classList.add('oculto');
+                document.getElementById('pantallaInicio').style.display = 'flex';
+                setTimeout(() => {
+                    elementosCarga.pantalla.style.display = 'none';
+                }, 800);
+            }, 600);
+        }
+
         // ==========================================
         // ROBOTECH - CON FLIP DE ENEMIGOS, NUBES CON IMAGEN, PROPULSORES Y LUCIÉRNAGAS AMARILLAS
         // ==========================================
@@ -661,6 +866,77 @@
             }, 1500);
         }
         
+        // ==========================================
+        // CARGA DE IMÁGENES CON BARRA DE PROGRESO
+        // ==========================================
+        function cargarImagenConProgreso(img, src, nombre) {
+            return new Promise((resolve) => {
+                const onLoad = () => {
+                    imagenesCargadas++;
+                    const progreso = imagenesCargadas / totalImagenes;
+                    actualizarCarga(progreso, `Cargando ${nombre}...`, `${Math.round(progreso * 100)}% completado`);
+                    resolve();
+                };
+                const onError = () => {
+                    console.log(`Error cargando: ${nombre}`);
+                    imagenesCargadas++;
+                    const progreso = imagenesCargadas / totalImagenes;
+                    actualizarCarga(progreso, `Cargando ${nombre}... (fallback)`, `${Math.round(progreso * 100)}% completado`);
+                    resolve();
+                };
+                img.onload = onLoad;
+                img.onerror = onError;
+                img.src = src;
+            });
+        }
+        
+        async function cargarTodosLosRecursos() {
+            actualizarCarga(0, 'Inicializando...', 'Preparando recursos');
+            
+            await new Promise(r => setTimeout(r, 300));
+            
+            actualizarCarga(0.05, 'Cargando imágenes...', 'Preparando sprites');
+            
+            const imagenes = [
+                { img: naveImg1Frame1, src: CFG.spriteNave1, nombre: 'Nave 1' },
+                { img: naveImg1Frame2, src: CFG.nave1Frame2, nombre: 'Nave 1 - Frame 2' },
+                { img: naveImg1Trans, src: CFG.spriteNave1Trans, nombre: 'Nave 1 - Transformación' },
+                { img: naveImg2Frame1, src: CFG.spriteNave2, nombre: 'Nave 2' },
+                { img: naveImg2Frame2, src: CFG.nave2Frame2, nombre: 'Nave 2 - Frame 2' },
+                { img: naveImg2Trans, src: CFG.spriteNave2Trans, nombre: 'Nave 2 - Transformación' },
+                { img: naveImg3Frame1, src: CFG.spriteNave3, nombre: 'Nave 3' },
+                { img: naveImg3Frame2, src: CFG.nave3Frame2, nombre: 'Nave 3 - Frame 2' },
+                { img: naveImg3InvFrame2, src: CFG.nave3InvFrame2, nombre: 'Nave 3 - Frame 2 Inv' },
+                { img: naveImg3Trans, src: CFG.spriteNave31, nombre: 'Nave 3 - Transformación' },
+                { img: enemigoImg, src: CFG.spriteEnemy, nombre: 'Enemigo' },
+                { img: enemigo1Img, src: CFG.spriteEnemy2, nombre: 'Enemigo 2' },
+                { img: jefe1Img, src: CFG.spriteJefe, nombre: 'Jefe' },
+                { img: explosionImg, src: CFG.spriteExplosion, nombre: 'Explosión' },
+                { img: proyectilImg, src: CFG.spriteProyectil, nombre: 'Proyectil' },
+                { img: enemigoProyectilImg, src: CFG.spriteProyectilEnemy, nombre: 'Proyectil Enemigo' },
+                { img: transformacionZImg, src: CFG.transformacionZImagen, nombre: 'Transformación Z' },
+                { img: astronautaImg, src: CFG.spriteAstronauta, nombre: 'Astronauta' },
+                { img: decoracionImg, src: CFG.spriteDecoracion, nombre: 'Decoración' },
+                { img: nubeImg, src: CFG.spriteDecoracion, nombre: 'Nube' }
+            ];
+            
+            const promesas = imagenes.map(({img, src, nombre}) => 
+                cargarImagenConProgreso(img, src, nombre)
+            );
+            
+            await Promise.all(promesas);
+            
+            actualizarCarga(0.95, 'Finalizando...', 'Preparando juego');
+            await new Promise(r => setTimeout(r, 300));
+            
+            initMusica();
+            finalizarCarga();
+        }
+        
+        // ==========================================
+        // FUNCIONES ORIGINALES DEL JUEGO
+        // ==========================================
+        
         function cargarImagenes() {
             naveImg1Frame1.src = CFG.spriteNave1;
             naveImg1Frame2.src = CFG.nave1Frame2;
@@ -694,48 +970,6 @@
                 console.log('Juego listo - Todas las funcionalidades activas');
             }
         }
-        
-        naveImg1Frame1.onload = verificarCargaImagen;
-        naveImg1Frame2.onload = verificarCargaImagen;
-        naveImg1Trans.onload = verificarCargaImagen;
-        naveImg2Frame1.onload = verificarCargaImagen;
-        naveImg2Frame2.onload = verificarCargaImagen;
-        naveImg2Trans.onload = verificarCargaImagen;
-        naveImg3Frame1.onload = verificarCargaImagen;
-        naveImg3Frame2.onload = verificarCargaImagen;
-        naveImg3InvFrame2.onload = verificarCargaImagen;
-        naveImg3Trans.onload = verificarCargaImagen;
-        enemigoImg.onload = verificarCargaImagen;
-        enemigo1Img.onload = verificarCargaImagen;
-        jefe1Img.onload = verificarCargaImagen;
-        explosionImg.onload = verificarCargaImagen;
-        proyectilImg.onload = verificarCargaImagen;
-        enemigoProyectilImg.onload = verificarCargaImagen;
-        transformacionZImg.onload = verificarCargaImagen;
-        astronautaImg.onload = verificarCargaImagen;
-        decoracionImg.onload = verificarCargaImagen;
-        nubeImg.onload = verificarCargaImagen;
-        
-        naveImg1Frame1.onerror = function() { console.log('Error:', CFG.spriteNave1); imagenesCargadas++; };
-        naveImg1Frame2.onerror = function() { naveImg1Frame2 = naveImg1Frame1; imagenesCargadas++; };
-        naveImg1Trans.onerror = function() { naveImg1Trans = naveImg1Frame1; imagenesCargadas++; };
-        naveImg2Frame1.onerror = function() { imagenesCargadas++; };
-        naveImg2Frame2.onerror = function() { naveImg2Frame2 = naveImg2Frame1; imagenesCargadas++; };
-        naveImg2Trans.onerror = function() { naveImg2Trans = naveImg2Frame1; imagenesCargadas++; };
-        naveImg3Frame1.onerror = function() { imagenesCargadas++; };
-        naveImg3Frame2.onerror = function() { naveImg3Frame2 = naveImg3Frame1; imagenesCargadas++; };
-        naveImg3InvFrame2.onerror = function() { naveImg3InvFrame2 = naveImg3Frame2; imagenesCargadas++; };
-        naveImg3Trans.onerror = function() { naveImg3Trans = naveImg3Frame1; imagenesCargadas++; };
-        enemigoImg.onerror = function() { imagenesCargadas++; };
-        enemigo1Img.onerror = function() { imagenesCargadas++; };
-        jefe1Img.onerror = function() { imagenesCargadas++; };
-        explosionImg.onerror = function() { imagenesCargadas++; };
-        proyectilImg.onerror = function() { imagenesCargadas++; };
-        enemigoProyectilImg.onerror = function() { imagenesCargadas++; };
-        transformacionZImg.onerror = function() { transformacionZImg = naveImg2Trans; imagenesCargadas++; };
-        astronautaImg.onerror = function() { console.log('Error: imagen astronauta.png no encontrada'); imagenesCargadas++; };
-        decoracionImg.onerror = function() { console.log('Error: imagen decoracion.png no encontrada'); imagenesCargadas++; };
-        nubeImg.onerror = function() { console.log('Error: imagen nube.png no encontrada'); imagenesCargadas++; };
         
         const FORMAS = {
             1: { ancho: CFG.nave1W, alto: CFG.nave1H },
@@ -903,7 +1137,7 @@
                 brillo: 0,
                 fase: Math.random() * Math.PI * 2,
                 velocidadParpadeo: 0.01 + Math.random() * 0.02,
-                color: '#ffcc00', // Color amarillo fijo
+                color: '#ffcc00',
                 centroX: x,
                 centroY: y,
                 vida: 400 + Math.random() * 1500,
@@ -1043,7 +1277,7 @@
         }
         
         // ==========================================
-        // FUNCIONES ORIGINALES DEL JUEGO
+        // FUNCIONES ORIGINALES DEL JUEGO (continuación)
         // ==========================================
         
         function getImagenNaveActual(forma, transformada = false) {
@@ -1385,6 +1619,9 @@
             }
         }
         
+        // ==========================================
+        // INICIALIZACIÓN DE MÚSICA
+        // ==========================================
         function initMusica() {
             try {
                 musicaFondo = new Audio(CFG.musicaFondo); musicaFondo.loop = false;
@@ -2051,6 +2288,7 @@
                         activarInvulnerabilidad();
                         if (lives <= 0) {
                             gameOver = true;
+                            document.getElementById('btnRestart').classList.add('active');
                             crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
                             if(musicaFondo) musicaFondo.pause(); 
                             if(musicaJefe) musicaJefe.pause();
@@ -2730,6 +2968,7 @@
                     activarInvulnerabilidad(); 
                     if (lives <= 0) { 
                         gameOver = true; 
+                        document.getElementById('btnRestart').classList.add('active');
                         crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
                         if(musicaFondo) musicaFondo.pause(); 
                         if(musicaJefe) musicaJefe.pause(); 
@@ -2838,6 +3077,7 @@
                     activarInvulnerabilidad(); 
                     if (lives <= 0) { 
                         gameOver = true; 
+                        document.getElementById('btnRestart').classList.add('active');
                         crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
                         if(musicaFondo) musicaFondo.pause(); 
                         if(musicaJefe) musicaJefe.pause(); 
@@ -2949,6 +3189,7 @@
                     activarInvulnerabilidad(); 
                     if (lives <= 0) { 
                         gameOver = true; 
+                        document.getElementById('btnRestart').classList.add('active');
                         crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
                         if(musicaFondo) musicaFondo.pause(); 
                         if(musicaJefe) musicaJefe.pause(); 
@@ -2971,6 +3212,7 @@
                     activarInvulnerabilidad();
                     if (lives <= 0) { 
                         gameOver = true; 
+                        document.getElementById('btnRestart').classList.add('active');
                         crearExplosionMultiple(player.x + player.width/2, player.y + player.height/2, 4);
                         if(musicaFondo) musicaFondo.pause(); 
                         if(musicaJefe) musicaJefe.pause(); 
@@ -3075,6 +3317,7 @@
             const btnX = document.getElementById('btnX');
             const btnZ = document.getElementById('btnZ');
             const teclaC = document.getElementById('teclaC');
+            const btnRestart = document.getElementById('btnRestart');
             
             function iniciarJuegoDesdeTouch() {
                 if (!gameStarted && document.getElementById('pantallaInicio').style.display !== 'none') {
@@ -3084,6 +3327,38 @@
                     iniciarJuego();
                 }
             }
+            
+            // Botón de reinicio
+            btnRestart.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (gameOver) {
+                    btnRestart.classList.add('pressed');
+                    reiniciarJuego();
+                    btnRestart.classList.remove('pressed');
+                    btnRestart.classList.remove('active');
+                }
+            });
+            btnRestart.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                btnRestart.classList.remove('pressed');
+            });
+            btnRestart.addEventListener('touchcancel', (e) => {
+                btnRestart.classList.remove('pressed');
+            });
+            btnRestart.addEventListener('mousedown', () => {
+                if (gameOver) {
+                    btnRestart.classList.add('pressed');
+                    reiniciarJuego();
+                    btnRestart.classList.remove('pressed');
+                    btnRestart.classList.remove('active');
+                }
+            });
+            btnRestart.addEventListener('mouseup', () => {
+                btnRestart.classList.remove('pressed');
+            });
+            btnRestart.addEventListener('mouseleave', () => {
+                btnRestart.classList.remove('pressed');
+            });
             
             btnC.addEventListener('touchstart', (e) => {
                 e.preventDefault();
@@ -3231,6 +3506,10 @@
                 if (e.code === 'KeyX') { keys.KeyX = true; playDisparoInicio(); e.preventDefault(); }
                 if (e.code === 'KeyZ') { keys.KeyZ = true; e.preventDefault(); }
             }
+            // Tecla R para reiniciar (solo en Game Over)
+            if (e.code === 'KeyR' && gameOver) {
+                reiniciarJuego();
+            }
         });
         document.addEventListener('keyup', (e) => {
             if (e.code === 'ArrowLeft') { keys.ArrowLeft = false; }
@@ -3241,7 +3520,11 @@
             if (e.code === 'KeyZ') keys.KeyZ = false;
         });
         
-        cargarImagenes();
+        // ==========================================
+        // INICIO DEL JUEGO - CARGA DE RECURSOS
+        // ==========================================
+        // Iniciar la carga de todos los recursos
+        cargarTodosLosRecursos();
         setupTouchControls();
         setTimeout(resizeCanvas, 100);
         gameLoopWrapper(0);
